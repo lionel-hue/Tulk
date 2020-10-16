@@ -1,0 +1,305 @@
+*{user-select:none;}
+
+#canvas    {width:100vw;
+            height:100vh;
+            position:absolute;
+            overflow-x:hidden;
+            overflow-y:scroll;
+            background:;
+            margin-top:-2%;
+            margin-left:-2%;}
+
+
+#cover {width :70%;
+        position:fixed;
+        top:15%; left:15%;
+        
+        transition-duration:.5s;
+        z-index:10;
+        
+        background:white;
+        border-radius:50%; }
+
+
+#loading
+         {width:60%;
+         height:3%;
+         background:red;
+         box-shadow:inset 0px 3px 5px black;
+         border-radius:0.5rem;
+         position:absolute;
+         top:70%;
+         left:20%; 
+         
+        transition-duration:.5s;  }
+
+
+#loading::-webkit-progress-bar
+         {background-color:white;
+          box-shadow:inset 0px 3px 5px black;
+          border-radius:.5rem;}
+
+
+#loading::-webkit-progress-value
+           {background:rgb(225, 0, 0);
+            border-radius:0.5rem;
+            box-shadow:inset 0px 3px 5px black;}
+
+
+
+
+
+
+
+.work     {display:none;
+           position:fixed;
+           height:14vw;
+           width: 14vw;
+            background:#ffffff;
+            border-radius:50%;
+            border:5px solid white;
+            border-top-color:red;
+            
+            box-shadow:inset 0px 3px 5px black;
+            animation-name:busy;
+            animation-duration:2500ms;
+            animation-iteration-count:infinite;
+            transition-duration:5s;
+            
+            
+            left:42.5%;
+            top:42.25%;
+            z-index:10;}
+            
+            
+@keyframes busy{
+                from {transform: rotate(0deg);}
+                
+                100% {transform: rotate(360deg);}
+}            
+           
+
+
+
+
+#notification    {display:none;}
+
+
+#n_box       {  position:relative;
+                background-color:red;
+                width:75vw;
+            
+                margin-bottom:4%;
+                left:11.5vw;
+                margin-top:10vh;
+                text-align:center;
+                color:white;
+                font-weight:900;
+                box-shadow:inset 0px -3px 5px white; }
+
+
+#n_box b       {color:white; font-weight:900;}
+
+
+#leaderboard     {display:none;}
+
+
+#leaderboard_box {
+                 position:fixed;
+                 top:10%;
+                 left :9vw;                    
+                 background :white;
+                 width  : 80vw;
+                 height : 80vh;
+                 box-shadow  :0px 3px 5px black, 
+                         inset 3px 3px 5px black;
+                 border-radius :1em;
+                 border : 3px outset red;
+                 text-align :center;
+                 overflow-x:hidden;
+                 overflow-y:scroll;}
+                
+                  
+#leaderboard b     {color:red;}
+
+#leaderboard hr    {width:50%;}                  
+
+
+
+
+
+
+
+
+#home       {display:none;}
+
+
+#menu       {background:white;
+             position:fixed;
+             top:20%;
+             left:4.5%;
+             width:10%;
+             height:0%;
+             border-radius:1rem;
+             box-shadow:3px -3px 3px  black,
+                        inset 3px 3px 5px black;
+             border:2px solid red;
+             
+             filter:opacity(0%);
+             
+             transition-duration:1000ms; 
+             
+             z-index:10;}
+
+
+#menu *     {position:relative; display:none;
+             transition-duration:3000ms;}                           
+
+
+ #menu p img
+              {width:60%;
+               left:19%;}
+               
+               
+
+
+#home .post_something , #send_chat
+                {position:fixed;
+                 top:90%;
+                 padding-bottom:4.5%;                 
+                 left:20%;
+                 height:5%;
+                 width:60%;
+                 text-align:center;
+                 border-radius:2em;  
+                 border:3px outset red; 
+                 box-shadow:inset 3px 0px 4px black,
+                            inset -3px 0px 4px black;
+                            
+                 z-index:10;                              
+                 }
+                 
+#home .post_something::placeholder, #send_chat::placeholder
+                  {text-align:center;
+                   color:red;
+                   font-weight:900;}                 
+                 
+#home .white_background, #send_chat_background
+                    {position:fixed;
+                     left:00%;                     
+                     background:#ffffff;
+                     width:100vw;
+                     height:10vh;
+                     box-shadow:inset 0px -3px 5px black;
+                     z-index:8;}                  
+
+
+#posts b              {color:red;}
+
+
+#posts p     {background:red;
+              width:4vh;
+              height:4vh;
+                   
+              border-radius:50%;
+              text-align:center;
+              
+              position:relative;
+              left:90%;}
+              
+              
+
+#code         {display:none;} 
+
+
+
+#code .new_project, #run, #code button
+
+                {width:10vw;
+                 height:10vw;
+                 background:#ffffff;
+                 position:fixed;
+             
+                                
+                 font-weight:900;
+                 border-radius:50%;
+                 
+                 display:flex;
+                 
+                 justify-content:center;
+                 align-items:center;            
+                 
+                  
+                                 
+                 box-shadow:0px 3px 5px rgba(0,0,0,0.5),
+                            0px -3px 5px rgba(0, 0, 0,0.5);
+                 
+              
+                 z-index:9;} 
+                 
+                 
+                 
+                 
+                 
+#code  #run, #code button {display:none;}
+
+                 
+                 
+                 
+                 
+                 
+                 
+                  
+                 
+                            
+#code textarea,iframe
+                {background:#fffffa;
+                  position:fixed; 
+                    width:100vw;
+                    height:40vh;
+                    font-weight:900;
+                    color:red;
+                    display:none;
+                    z-index:9;} 
+                    
+                    
+                                 
+              
+#code #project_list 
+
+               {position:relative;
+                background-color:red;
+                width:75vw;
+            
+                margin-bottom:4%;
+                left:11.5vw;
+                margin-top:10vh;
+                text-align:center;
+                color:white;
+                font-weight:900;
+                box-shadow:inset 0px -3px 5px white
+                              /* 0px  -3px 5px black*/;}
+                              
+#chat             {display:none;}
+
+
+#chat_box b        {color:red;
+                    font-weight:900;}
+
+#setting      {display:none;}
+
+
+#setting  div,input
+               {position:relative;
+                background-color:red;
+                width:75vw;
+                height:5vh;
+                margin-bottom:4%;
+                left:11.5vw;
+                margin-top:10vh;
+                text-align:center;
+                color:white;
+                font-weight:900;
+                box-shadow:inset 0px -3px 5px white
+                              /* 0px  -3px 5px black*/;
+                border-radius:1em;}
