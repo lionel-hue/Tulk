@@ -630,7 +630,7 @@ function(c){
       chat_box.style.overflowY = "scroll";
        
 
-  chat_box.innerHTML +=  
+  chat_box.innerText +=  
 "<b>" + c.val().chatter + "</b>" + ":" + c.val().message
                         + "<hr>";
 });
@@ -879,7 +879,7 @@ firebase.database().ref("Post").on('child_added',
      
          posts.id =  "posts";
          
-      posts.innerHTML = 
+      posts.innerText = 
       
 "<br> <b>" +  e.val().poster + "</b>" + "\'s Post" + "<hr>"  
 +  e.val().post_content  +  '<br> ' +  "<p>" 
@@ -958,7 +958,7 @@ function(n){
         notification.appendChild(n_box);
         n_box.id = "n_box";
         
-        n_box.innerHTML = "<b>" + n.val().notifier + "</b>"
+        n_box.innerText = "<b>" + n.val().notifier + "</b>"
                              + " " +
                           n.val().notify   });
     
@@ -991,7 +991,7 @@ table.push("<b>" + ie.val().name_list+"</b> "+ie.val().exp
                  + 'xp')
 
 
-leaderboard_box.innerHTML += table.sort((a,b)=>{return b-a})
+leaderboard_box.innerText += table.sort((a,b)=>{return b-a})
                                +       table.join('<hr>');
 
           
