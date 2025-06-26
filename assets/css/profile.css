@@ -1,0 +1,10 @@
+.profile-banner {
+  position: relative;
+  min-height: 320px;
+}
+.profile-banner img.rounded-circle {
+  /* La photo de profil chevauche la bannière */
+  border: 5px solid #fff;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  z-index: 2;
+}
