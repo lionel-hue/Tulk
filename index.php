@@ -7,9 +7,12 @@
     <title>Accueil Facebook Clone</title>
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"/>
     <link rel = "stylesheet" href="../assets/css/style.css" />
-
+    <link rel="stylesheet" href="../assets/css/bootstrap.css">
+    <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../assets/css/profile.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
     <script src="../assets/js/script.js"></script>
 </head>
 <body>
@@ -98,7 +101,8 @@
                         <input type="text" class="form-control" style="width: 250px;" placeholder="Search Facebook">
                     </div>
                     <div>
-                        <i class="fa fa-home nav-icon mx-3"></i>
+
+                        <a href="index.php?page=accueil"><i class="fa fa-home nav-icon mx-3"></i></a>   
                         <i class="fa fa-users nav-icon mx-3"></i>
                     </div>
                     <div>
@@ -111,16 +115,16 @@
 
                     switch( $_REQUEST["page"] ){
 
-                        case "acceuil" : include("acceuil.php");
+                        case "acceuil" : include("api/acceuil.php");
                         break;
 
-                        case "amis" : include("amis.php");
+                        case "amis" : include("api/amis.php");
                         break;
 
-                        case "profile" : include("profile.php");
+                        case "profile" : include("api/profile.php");
                         break;
 
-                        default : include("acceuil.php");
+                        default : include("api/acceuil.php");
                     }
                 }else include("acceuil.php");
                 ?>
