@@ -126,7 +126,7 @@
 
                         default : include("api/acceuil.php");
                     }
-                }else include("acceuil.php");
+                }else include("api/acceuil.php");
                 ?>
             </div>
         </div>
