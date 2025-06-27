@@ -4,7 +4,9 @@
         <!-- Post Box -->
         <div class="bg-white rounded p-3 mb-4">
             <div class="d-flex align-items-center mb-2">
-                <img src="https://via.placeholder.com/40" class="profile-pic me-2" alt="Profile">
+                <a href="index.php?page=profile" class="text-decoration-none">
+                    <img src="https://via.placeholder.com/40" class="profile-pic me-2" alt="Profile">
+                </a>
                 <input type="text" class="form-control" placeholder="What's on your mind, Lionel?">
             </div>
             <div class="d-flex justify-content-between mt-2">
@@ -17,7 +19,9 @@
         <!-- Post -->
         <div class="bg-white rounded p-3 mb-3">
             <div class="d-flex align-items-center mb-2">
-                <img src="https://via.placeholder.com/40" class="profile-pic me-2" alt="Profile">
+                <a href="index.php?page=profile" class="text-decoration-none">
+                    <img src="https://via.placeholder.com/40" class="profile-pic me-2" alt="Profile">
+                </a>
                 <div>
                     <strong>Lionel Sisso</strong><br>
                     <span class="text-muted" style="font-size:12px;">Just now · <i class="fa fa-users"></i></span>
