@@ -73,11 +73,42 @@
                 Privacy · Terms · Advertising · Ad Choices
             </div>
         </div>
-        <div class="start-chat-label">
+        <div class="start-chat-label" style="display:none;">
             <div class="start-chat-icon">💬</div>
             <h2>Start a conversation</h2>
             <p>Select a user to begin chatting</p>
         </div>
+
+        <div class="start-chat-label">
+
+            <!-- Chat frame with alic! -->
+            <div class="chat-frame">
+                <div class="chat-header d-flex align-items-center justify-content-between">
+                    <span class="chat-user">alic!</span>
+                    <span class="chat-status online">● Online</span>
+                </div>
+                <div class="chat-messages">
+                    <div class="message received">
+                        <div class="message-content">
+                            Hi there!
+                        </div>
+                        <span class="message-date">10:21 AM</span>
+                    </div>
+                    <div class="message sent">
+                        <div class="message-content">
+                            Hello alic! Can you help me with my account?
+                        </div>
+                        <span class="message-date">10:22 AM</span>
+                    </div>
+                </div>
+                <div class="chat-input-area">
+                    <input type="text" class="chat-input" placeholder="Type your message..." />
+                    <button class="chat-send-btn">Send</button>
+                    <button class="chat-image-btn" title="Send image">
+                        <img src="./assets/images/image-icon.png" alt="Send image" />
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 </main>
-        

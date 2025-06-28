@@ -37,7 +37,7 @@
                     <div>
 
                         <a href="index.php?page=accueil"><i class="fa fa-home nav-icon mx-3"></i></a>   
-                         <a href='index.php?page=amis'><i class="fa fa-users nav-icon mx-3"></i></a>,
+                         <a href='index.php?page=amis'><i class="fa fa-users nav-icon mx-3"></i></a>
                         <a href='index.php?page=chat'> <i class="fa fa-comments nav-icon mx-3"></i> </a>
                     </div>
                     <div>
