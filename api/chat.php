@@ -1,7 +1,7 @@
 <main>
     <div class="d-flex"> 
         <!-- Sidebar -->
-        <div class="sidebar p-3 vh-100 border-end">
+        <div class="sidebar p-3 border-end" style="height:calc(100vh - 57px);">
             <div class="d-flex align-items-center mb-4 bg-white p-2">
                 <img src="./assets/images/lionel.PNG" class="rounded-circle me-2" alt="." style="width:10%;" />
                 <b> Lionel Sisso </b>
@@ -69,9 +69,14 @@
                 </div>
             </div>
 
-            <div class="mt-5 small text-muted text-center bg-white" style="position:fixed; left:0; top:87.25%; width:360px; border-top-left-radius:1em; border-top-right-radius:1em; box-shadow:0 -3px 3px rgba(0,0,0,0.1);">
+            <div class="mt-5 small text-muted text-center bg-white" style="position:fixed; left:0; bottom:0; width:320px; border-top-left-radius:1em; border-top-right-radius:1em; box-shadow:0 -3px 3px rgba(0,0,0,0.1);">
                 Privacy · Terms · Advertising · Ad Choices
             </div>
+        </div>
+        <div class="start-chat-label">
+            <div class="start-chat-icon">💬</div>
+            <h2>Start a conversation</h2>
+            <p>Select a user to begin chatting</p>
         </div>
     </div>
 </main>

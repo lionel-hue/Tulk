@@ -1,58 +1,31 @@
-html{
-    scrollbar-width:none;
-}
-body { 
-    background: #f0f2f5; 
-}
-
-.post-img { 
-    width: 100%; 
-}
-
-.main-content {
-    max-width: 600px; 
-    margin: auto; 
-}
-
-.right-sidebar{
-    height:80vh;
-    overflow-x:hidden;
-    overflow-y:scroll;
-    scrollbar-width:none;
-}
-
 .chat-container div:hover{
     background:#f0f2f5;
     padding:2%;
     transition:.25s;
 }
 
-.post-terminal { 
-    background: #222; 
-    color: #b5e853; 
-    font-family: monospace; 
-    font-size: 13px; 
-    padding: 8px; 
-    border-radius: 6px; 
+.start-chat-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: auto;
+  width:100%;
+  color: #65676b;
+  text-align: center;
+  opacity: 0.8;
 }
 
-.nav-icon { 
-    font-size: 1.5rem; 
+.start-chat-icon {
+  width: 72px;
+  height: 72px;
+  margin-bottom: 20px;
+  border-radius: 50%;
+  background: #e4e6eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  /* Optionally, add an SVG or emoji for a chat icon */
 }
 
-.profile-pic { 
-    width: 40px; 
-    height: 40px; 
-    border-radius: 50%; 
-}
-
-.story-img { 
-    width: 100%; 
-    height: 180px; 
-    object-fit: cover; 
-    border-radius: 10px; 
-}
-
-.sidebar { 
-    width: 360px; 
-}

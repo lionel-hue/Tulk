@@ -1,3 +1,4 @@
+//Le fonctionnement de resultats des recherches
 const searchInput = document.getElementById('searchInput')
 const searchTooltip = document.getElementById('searchTooltip')
 

@@ -15,7 +15,6 @@
     <link rel="stylesheet" href="./assets/css/amis.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,700">
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="./assets/js/script.js"></script>
 </head> 
 <body>
         <main>
@@ -69,6 +68,7 @@
                 ?>
             </div>
         </div>
-    </main>         
+    </main>      
+    <script src="./assets/js/script.js"></script>   
 </body>
 </html>
