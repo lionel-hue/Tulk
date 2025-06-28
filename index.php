@@ -12,6 +12,8 @@
     <link rel="stylesheet" href="./assets/css/bootstrap.css">
     <link rel="stylesheet" href="./assets/css/profile.css">
     <link rel="stylesheet" href="./assets/css/chat.css">
+    <link rel="stylesheet" href="./assets/css/amis.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,700">
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="./assets/js/script.js"></script>
 </head> 
@@ -29,7 +31,7 @@
                     <div>
 
                         <a href="index.php?page=accueil"><i class="fa fa-home nav-icon mx-3"></i></a>   
-                         <a href='index.php?page='><i class="fa fa-users nav-icon mx-3"></i></a>
+                         <a href='index.php?page=amis'><i class="fa fa-users nav-icon mx-3"></i></a>
                         <a href='index.php?page=chat'> <i class="fa fa-comments nav-icon mx-3"></i> </a>
                     </div>
                     <div>
