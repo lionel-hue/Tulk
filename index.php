@@ -26,12 +26,19 @@
                 <div class="d-flex justify-content-between align-items-center bg-white px-4 py-2 border-bottom">
                     <div class="d-flex align-items-center">
                         <img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg" width="40" class="me-3">
-                        <input type="text" class="form-control" style="width: 250px;" placeholder="Search Facebook">
+
+                        <input id="searchInput" type="text" class="form-control" style="width: 250px;" placeholder="Search Facebook">
+
+                        <div id="searchTooltip" class="search-tooltip" style="display: none;">
+                            <div class="search-suggestion">John Doe</div>
+                            <div class="search-suggestion">Jane Smith</div>
+                            <div class="search-suggestion">Groups about Coding</div>
+                        </div>
                     </div>
                     <div>
 
                         <a href="index.php?page=accueil"><i class="fa fa-home nav-icon mx-3"></i></a>   
-                         <a href='index.php?page=amis'><i class="fa fa-users nav-icon mx-3"></i></a>
+                         <a href='index.php?page=amis'><i class="fa fa-users nav-icon mx-3"></i></a>,
                         <a href='index.php?page=chat'> <i class="fa fa-comments nav-icon mx-3"></i> </a>
                     </div>
                     <div>
