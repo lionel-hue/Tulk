@@ -1,3 +1,5 @@
+<link rel="stylesheet" href="../res/css/commentaire.css">
+
 <div class="d-flex justify-content-center">
     <!-- Main Feed -->
     <div class="main-content py-4 flex-grow-1 mt-0"  style="max-width:700px">
@@ -40,8 +42,43 @@
                 // Try: sudo apt install <deb name>
             </div>
             <div>
-                <button class="btn btn-light"><i class="fa fa-thumbs-up"></i> Like</button>
-                <button class="btn btn-light"><i class="fa fa-comment"></i> Comment</button>
+                <div class="reaction-box">
+                    <button class="btn btn-light like-button" onclick="toggleLike()">
+                        <i class="fa fa-thumbs-up"></i> J’aime
+                    </button>
+
+                    <div class="reaction-popup" id="reactionPopup">
+                        <div class="reaction" onclick="setReaction('👍', 'J’aime')">👍<span>J’aime</span></div>
+                        <div class="reaction" onclick="setReaction('❤', 'J’adore')">❤<span>J’adore</span></div>
+                        <div class="reaction" onclick="setReaction('🤝', 'Solidaire')">🤝<span>Solidaire</span></div>
+                        <div class="reaction" onclick="setReaction('😂', 'Haha')">😂<span>Haha</span></div>
+                        <div class="reaction" onclick="setReaction('😲', 'Wouah')">😲<span>Wouah</span></div>
+                        <div class="reaction" onclick="setReaction('😢', 'Triste')">😢<span>Triste</span></div>
+                        <div class="reaction" onclick="setReaction('😡', 'En colère')">😡<span>En colère</span></div>
+                    </div>
+
+                    <div id="reactionDisplay"></div>
+                </div>
+                
+                <button id="commentBtn"><i class="fa fa-comment"></i> Comment</button>
+                <div id="commentSection" class="fb-comment-section" style="display:none;">
+                    <div class="fb-comment-list" id="commentList">
+                        <!-- Les commentaires s'affichent ici -->
+                    </div>
+                    <div class="fb-comment-input-row">
+                        <img src="https://i.pravatar.cc/36?u=currentuser" class="fb-comment-avatar" alt="Votre photo de profil">
+                        <div class="fb-comment-input-box">
+                            <textarea id="commentInput" class="fb-comment-textarea" placeholder="Write a comment..." rows="1"></textarea>
+                            <div class="fb-comment-actions">
+                                <button class="fb-comment-action"><i class="fa fa-smile"></i></button>
+                                <button class="fb-comment-action"><i class="fa fa-camera"></i></button>
+                                <button class="fb-comment-action"><i class="fa fa-gif"></i></button>
+                                <button class="fb-comment-action"><i class="fa fa-sticky-note"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>

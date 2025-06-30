@@ -12,8 +12,12 @@
     <link rel="stylesheet" href="./assets/css/bootstrap.css">
     <link rel="stylesheet" href="./assets/css/profile.css">
     <link rel="stylesheet" href="./assets/css/chat.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="./assets/css/like.css">
+    <script src="./assets/js/like.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="./assets/js/script.js"></script>
+     <link rel="stylesheet" href="./assets/css/commentaire.css">
+      <script src="./assets/js/commentaire.js"></script>
 </head> 
 <body>
         <main>
@@ -36,6 +40,7 @@
                         <button class="btn btn-primary me-2">Find friends</button>
                     </div>
                 </div>
+                
                 <?php 
 
                 if( isset($_REQUEST["page"]) && !empty( $_REQUEST["page"] )  ){
@@ -60,6 +65,6 @@
                 ?>
             </div>
         </div>
-    </main>         
+    </main>        
 </body>
 </html>
