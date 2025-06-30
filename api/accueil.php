@@ -6,7 +6,7 @@
         <!-- Post Box -->
         <div class="bg-white rounded p-3 mb-4">
             <div class="d-flex align-items-center mb-2">
-                <a href="index.php?page=profile" class="text-decoration-none">
+                <a href="index.html?page=profile" class="text-decoration-none">
                     <img src="https://via.placeholder.com/40" class="profile-pic me-2" alt="Profile">
                 </a>
                 <input type="text" class="form-control" placeholder="What's on your mind, Lionel?">
@@ -21,7 +21,7 @@
         <!-- Post -->
         <div class="bg-white rounded p-3 mb-3">
             <div class="d-flex align-items-center mb-2">
-                <a href="index.php?page=profile" class="text-decoration-none">
+                <a href="index.html?page=profile" class="text-decoration-none">
                     <img src="https://via.placeholder.com/40" class="profile-pic me-2" alt="Profile">
                 </a>
                 <div>

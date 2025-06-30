@@ -40,9 +40,9 @@
                     </div>
                     <div>
 
-                        <a href="index.php?page=accueil"><i class="fa fa-home nav-icon mx-3"></i></a>   
-                         <a href='index.php?page=amis'><i class="fa fa-users nav-icon mx-3"></i></a>
-                        <a href='index.php?page=chat'> <i class="fa fa-comments nav-icon mx-3"></i> </a>
+                        <a href="index.html?page=accueil"><i class="fa fa-home nav-icon mx-3"></i></a>   
+                         <a href='index.html?page=amis'><i class="fa fa-users nav-icon mx-3"></i></a>
+                        <a href='index.html?page=chat'> <i class="fa fa-comments nav-icon mx-3"></i> </a>
                     </div>
                     <div>
                         <button class="btn btn-primary me-2">Find friends</button>
@@ -53,7 +53,7 @@
                     let params = new URLSearchParams(window.location.search)
                     let page = params.get("page")
 
-                    page = page || 'accueil'
+                    if(!page) page ="accueil"
                     fetch('/api/' + page + '.php')
                     .then(res => res.text())
                     .then(html => {
