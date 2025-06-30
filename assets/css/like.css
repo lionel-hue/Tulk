@@ -1,0 +1,39 @@
+.reaction-box {
+  position: relative;
+  display: inline-block;
+}
+
+.reaction-popup {
+  display: none;
+  position: absolute;
+  top: -100px;
+  left: 0;
+  background-color: white;
+  border-radius: 40px;
+  padding: 10px;
+  display: flex;
+  gap: 8px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  z-index: 10;
+}
+
+.reaction {
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+}
+
+.reaction:hover {
+  transform: scale(1.3);
+}
+
+.reaction span {
+  font-size: 12px;
+  display: block;
+  color: #333;
+}
+
+#reactionDisplay {
+  margin-top: 10px;
+  font-size: 18px;
+}

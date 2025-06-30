@@ -1,114 +1,91 @@
- body {
-      background: #f0f2f5;
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-    }
-    .fb-logo {
-      display: flex;
-      justify-content: center;
-      margin-top: 40px;
-      margin-bottom: 20px;
-    }
-    .fb-logo svg {
-      width: 240px;
-      height: 70px;
-    }
-    .center-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-    }
-    .form-container {
-      background: #fff;
-      padding: 30px 24px 20px 24px;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      width: 400px;
-      max-width: 95vw;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .form-container form {
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-    .form-container input {
-      padding: 14px 16px;
-      font-size: 17px;
-      border: 1px solid #dddfe2;
-      border-radius: 6px;
-      outline: none;
-    }
-    .form-container button {
-      background: #1877f2;
-      color: #fff;
-      font-size: 20px;
-      font-weight: bold;
-      border: none;
-      border-radius: 6px;
-      padding: 12px 0;
-      margin-top: 6px;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    .form-container button:hover {
-      background: #166fe5;
-    }
-    .forgot {
-      color: #1877f2;
-      text-decoration: none;
-      font-size: 15px;
-      margin: 16px 0 10px 0;
-      display: block;
-      text-align: center;
-    }
-    .form-container hr {
-      border: none;
-      border-top: 1px solid #dadde1;
-      margin: 18px 0 16px 0;
-      width: 100%;
-    }
-    .create-account {
-      background: #42b72a;
-      color: #fff;
-      font-size: 17px;
-      font-weight: bold;
-      border: none;
-      border-radius: 6px;
-      padding: 12px 0;
-      width: 60%;
-      margin: 0 auto;
-      display: block;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    .create-account:hover {
-      background: #36a420;
-    }
-    .create-page {
-      margin-top: 30px;
-      text-align: center;
-      font-size: 14px;
-      color: #1c1e21;
-    }
-    .create-page a {
-      color: #1c1e21;
-      font-weight: bold;
-      text-decoration: none;
-    }
-    @media (max-width: 500px) {
-      .form-container {
-        width: 98vw;
-        padding: 16px 2vw;
-      }
-      .fb-logo svg {
-        width: 180px;
-        height: 50px;
-      }
-    }
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background: linear-gradient(to bottom right, #f0f2f5, #ffffff);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+
+.language {
+  text-align: center;
+  color: #606770;
+  font-size: 14px;
+  margin-bottom: 30px;
+}
+
+.fb-logo img {
+  width: 60px;
+  height: 60px;
+  margin-bottom: 30px;
+}
+
+.form-container {
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+input {
+  width: 100%;
+  padding: 14px;
+  margin-bottom: 12px;
+  font-size: 15px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+button {
+  width: 100%;
+  padding: 14px;
+  background-color: #1877f2;
+  color: white;
+  border: none;
+  font-size: 16px;
+  border-radius: 999px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+button:hover {
+  background-color: #166fe5;
+}
+
+.forgot {
+  margin-top: 15px;
+  font-size: 14px;
+  color: #1877f2;
+  text-decoration: none;
+}
+
+hr {
+  width: 100%;
+  margin: 20px 0;
+  border: 0.5px solid #ddd;
+}
+
+.create-btn {
+  display: inline-block;
+  padding: 12px 25px;
+  border: 1px solid #1877f2;
+  color: #1877f2;
+  border-radius: 999px;
+  text-decoration: none;
+  font-size: 15px;
+}
+
+.create-btn:hover {
+  background-color: #f0f2f5;
+}
+
+.meta-logo {
+  margin-top: 30px;
+}

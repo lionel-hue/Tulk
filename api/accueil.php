@@ -1,12 +1,10 @@
-<link rel="stylesheet" href="../res/css/commentaire.css">
-
 <div class="d-flex justify-content-center">
     <!-- Main Feed -->
     <div class="main-content py-4 flex-grow-1 mt-0"  style="max-width:700px">
         <!-- Post Box -->
         <div class="bg-white rounded p-3 mb-4">
             <div class="d-flex align-items-center mb-2">
-                <a href="index.php?page=profile" class="text-decoration-none">
+                <a href="index.html?page=profile" class="text-decoration-none">
                     <img src="https://via.placeholder.com/40" class="profile-pic me-2" alt="Profile">
                 </a>
                 <input type="text" class="form-control" placeholder="What's on your mind, Lionel?">
@@ -21,7 +19,7 @@
         <!-- Post -->
         <div class="bg-white rounded p-3 mb-3">
             <div class="d-flex align-items-center mb-2">
-                <a href="index.php?page=profile" class="text-decoration-none">
+                <a href="index.html?page=profile" class="text-decoration-none">
                     <img src="https://via.placeholder.com/40" class="profile-pic me-2" alt="Profile">
                 </a>
                 <div>
@@ -42,43 +40,8 @@
                 // Try: sudo apt install <deb name>
             </div>
             <div>
-                <div class="reaction-box">
-                    <button class="btn btn-light like-button" onclick="toggleLike()">
-                        <i class="fa fa-thumbs-up"></i> J’aime
-                    </button>
-
-                    <div class="reaction-popup" id="reactionPopup">
-                        <div class="reaction" onclick="setReaction('👍', 'J’aime')">👍<span>J’aime</span></div>
-                        <div class="reaction" onclick="setReaction('❤', 'J’adore')">❤<span>J’adore</span></div>
-                        <div class="reaction" onclick="setReaction('🤝', 'Solidaire')">🤝<span>Solidaire</span></div>
-                        <div class="reaction" onclick="setReaction('😂', 'Haha')">😂<span>Haha</span></div>
-                        <div class="reaction" onclick="setReaction('😲', 'Wouah')">😲<span>Wouah</span></div>
-                        <div class="reaction" onclick="setReaction('😢', 'Triste')">😢<span>Triste</span></div>
-                        <div class="reaction" onclick="setReaction('😡', 'En colère')">😡<span>En colère</span></div>
-                    </div>
-
-                    <div id="reactionDisplay"></div>
-                </div>
-                
-                <button id="commentBtn"><i class="fa fa-comment"></i> Comment</button>
-                <div id="commentSection" class="fb-comment-section" style="display:none;">
-                    <div class="fb-comment-list" id="commentList">
-                        <!-- Les commentaires s'affichent ici -->
-                    </div>
-                    <div class="fb-comment-input-row">
-                        <img src="https://i.pravatar.cc/36?u=currentuser" class="fb-comment-avatar" alt="Votre photo de profil">
-                        <div class="fb-comment-input-box">
-                            <textarea id="commentInput" class="fb-comment-textarea" placeholder="Write a comment..." rows="1"></textarea>
-                            <div class="fb-comment-actions">
-                                <button class="fb-comment-action"><i class="fa fa-smile"></i></button>
-                                <button class="fb-comment-action"><i class="fa fa-camera"></i></button>
-                                <button class="fb-comment-action"><i class="fa fa-gif"></i></button>
-                                <button class="fb-comment-action"><i class="fa fa-sticky-note"></i></button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
+                <button class="btn btn-light"><i class="fa fa-thumbs-up"></i> Like</button>
+                <button class="btn btn-light"><i class="fa fa-comment"></i> Comment</button>
             </div>
         </div>
     </div>
