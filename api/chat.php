@@ -1,7 +1,7 @@
 <main>
     <div class="d-flex"> 
         <!-- Sidebar -->
-        <div class="sidebar p-3 vh-100 border-end">
+        <div class="sidebar p-3 border-end" style="height:calc(100vh - 57px);">
             <div class="d-flex align-items-center mb-4 bg-white p-2">
                 <img src="./assets/images/lionel.PNG" class="rounded-circle me-2" alt="." style="width:10%;" />
                 <b> Lionel Sisso </b>
@@ -69,10 +69,46 @@
                 </div>
             </div>
 
-            <div class="mt-5 small text-muted text-center bg-white" style="position:fixed; left:0; top:87.25%; width:360px; border-top-left-radius:1em; border-top-right-radius:1em; box-shadow:0 -3px 3px rgba(0,0,0,0.1);">
+            <div class="mt-5 small text-muted text-center bg-white" style="position:fixed; left:0; bottom:0; width:320px; border-top-left-radius:1em; border-top-right-radius:1em; box-shadow:0 -3px 3px rgba(0,0,0,0.1);">
                 Privacy · Terms · Advertising · Ad Choices
+            </div>
+        </div>
+        <div class="start-chat-label" style="display:none;">
+            <div class="start-chat-icon">💬</div>
+            <h2>Start a conversation</h2>
+            <p>Select a user to begin chatting</p>
+        </div>
+
+        <div class="start-chat-label">
+
+            <!-- Chat frame with alic! -->
+            <div class="chat-frame">
+                <div class="chat-header d-flex align-items-center justify-content-between">
+                    <span class="chat-user">alic!</span>
+                    <span class="chat-status online">● Online</span>
+                </div>
+                <div class="chat-messages">
+                    <div class="message received">
+                        <div class="message-content">
+                            Hi there!
+                        </div>
+                        <span class="message-date">10:21 AM</span>
+                    </div>
+                    <div class="message sent">
+                        <div class="message-content">
+                            Hello alic! Can you help me with my account?
+                        </div>
+                        <span class="message-date">10:22 AM</span>
+                    </div>
+                </div>
+                <div class="chat-input-area">
+                    <input type="text" class="chat-input" placeholder="Type your message..." />
+                    <button class="chat-send-btn">Send</button>
+                    <button class="chat-image-btn" title="Send image">
+                        <img src="./assets/images/image-icon.png" alt="Send image" />
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 </main>
-        
