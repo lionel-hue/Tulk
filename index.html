@@ -54,7 +54,7 @@
                     let page = params.get("page")
 
                     if(!page) page ="accueil"
-                    fetch('/api/' + page + '.php')
+                    fetch('/views/clients/' + page + '.html')
                     .then(res => res.text())
                     .then(html => {
                     document.getElementById('mainContent').innerHTML = html
