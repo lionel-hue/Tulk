@@ -1,9 +1,8 @@
-
 <!-- Main Layout -->
 <div class="container-fluid mt-3">
-  <div class="row">
+  <div class="row d-flex justify-content-center align-items-center">
     <!-- Zone principale -->
-    <main class="col-lg-7">
+    <main class="col-lg-7 ">
       <div class="position-relative bg-white rounded shadow-sm mb-4">
         <!-- Bannière -->
         <div class="profile-banner position-relative">
@@ -11,17 +10,56 @@
           <!-- Photo de profil -->
           <img src="./assets/images/planete 2.jpg" alt="Photo de profil" class="rounded-circle border border-4 border-white position-absolute top-100 start-50 translate-middle" style="width: 160px; height: 160px; object-fit: cover;">
         </div>
-        <!-- Infos profil -->
-        <div class="text-center mt-5 pt-3">
+        <!-- Infos profil sous la photo -->
+        <div class="text-center" style="margin-top: 90px;">
           <h2 class="fw-bold mb-1">Jean Dupont</h2>
-          <button class="btn btn-primary btn-sm">Modifier le profil</button>
+          <a href="#" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editProfileModal">Modifier le profil</a>
         </div>
     </main>
     
   </div>
 </div>
 
-<script src="../assets/js/bootstrap.js"></script>
+<!-- Modal -->
+<div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form action="update_profile.php" method="POST" enctype="multipart/form-data">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title" id="editProfileModalLabel">Modifier le profil</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fermer"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3 text-center">
+            <img src="./assets/images/planete 2.jpg" alt="Photo actuelle" class="rounded-circle border border-3 border-white shadow" width="80" height="80">
+          </div>
+          <div class="mb-3">
+            <label for="nom" class="form-label">Nom</label>
+            <input type="text" class="form-control" id="nom" name="nom" value="Dupont" required>
+          </div>
+          <div class="mb-3">
+            <label for="prenom" class="form-label">Prénom</label>
+            <input type="text" class="form-control" id="prenom" name="prenom" value="Jean" required>
+          </div>
+          <div class="mb-3">
+            <label for="photo" class="form-label">Photo de profil</label>
+            <input type="file" class="form-control" id="photo" name="photo">
+          </div>
+          <div class="mb-3">
+            <label for="password" class="form-label">Nouveau mot de passe</label>
+            <input type="password" class="form-control" id="password" name="password" placeholder="Laisser vide pour ne pas changer">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Enregistrer</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
   lucide.createIcons();
 </script>

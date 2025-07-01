@@ -2,7 +2,7 @@
 
 <div class="d-flex justify-content-center">
     <!-- Main Feed -->
-    <div class="main-content py-4 flex-grow-1 mt-0"  style="max-width:700px">
+    <div class="main-content py-4 flex-grow-1 mt-0"  style="max-width:700px ">
         <!-- Post Box -->
         <div class="bg-white rounded p-3 mb-4">
             <div class="d-flex align-items-center mb-2">
