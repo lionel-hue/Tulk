@@ -38,7 +38,7 @@
                 </div>
                 <?php 
 
-                if( isset($_REQUEST["page"]) && !empty( $_REQUEST["page"] )  ){
+                if( isset($_REQUEST["page"]) && !empty( $_REQUEST["page"] ) ){ 
 
                     switch( $_REQUEST["page"] ){
 
