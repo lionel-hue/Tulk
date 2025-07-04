@@ -1,34 +1,42 @@
 // JS pour l'interface de commentaire Facebook
-
 document.addEventListener('DOMContentLoaded', function() {
-    const commentBtn = document.getElementById('commentBtn');
-    const commentSection = document.getElementById('commentSection');
-    const commentInput = document.getElementById('commentInput');
-    const commentList = document.getElementById('commentList');
+    const mainContent = document.getElementById('mainContent');
+    if (!mainContent) return;
 
-    if (commentBtn && commentSection) {
-        commentBtn.addEventListener('click', function() {
+    // Handle comment button click
+    mainContent.addEventListener('click', function(e) {
+        const btn = e.target.closest('.commentBtn');
+        if (btn) {
+            const post = btn.closest('.posts');
+            if (!post) return;
+            const commentSection = post.querySelector('.commentSection');
+            const commentInput = post.querySelector('.commentInput');
+            if (!commentSection || !commentInput) return;
             commentSection.style.display = (commentSection.style.display === 'none' || commentSection.style.display === '') ? 'block' : 'none';
             if (commentSection.style.display === 'block') {
                 commentInput.focus();
             }
-        });
-    }
+        }
+    });
 
-    if (commentInput) {
-        commentInput.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                const value = commentInput.value.trim();
-                if (value) {
-                    addComment('Lionel Sisso', 'https://i.pravatar.cc/36?u=currentuser', value);
-                    commentInput.value = '';
-                }
+    // Handle comment input enter
+    mainContent.addEventListener('keydown', function(e) {
+        if (e.target.classList.contains('commentInput') && e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            const input = e.target;
+            const value = input.value.trim();
+            if (value) {
+                const post = input.closest('.posts');
+                if (!post) return;
+                const commentList = post.querySelector('.commentList');
+                if (!commentList) return;
+                addComment('Lionel Sisso', 'https://i.pravatar.cc/36?u=currentuser', value, commentList);
+                input.value = '';
             }
-        });
-    }
+        }
+    });
 
-    function addComment(name, avatar, text) {
+    function addComment(name, avatar, text, commentList) {
         const comment = document.createElement('div');
         comment.className = 'fb-comment-item d-flex align-items-start mb-2';
         comment.innerHTML = `
