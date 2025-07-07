@@ -12,7 +12,6 @@
     <link rel="stylesheet" href="./assets/css/bootstrap.css">
     <link rel="stylesheet" href="./assets/css/profile.css">
     <link rel="stylesheet" href="./assets/css/chat.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="./assets/css/like.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,700">
     <link rel="stylesheet" href="./assets/css/commentaire.css">
@@ -49,44 +48,19 @@
                     </div>
                 </div>
                 <div id="mainContent">
-                    <script type="module">
-                        import {afficher_articles_post} from "./assets/js/afficher_articles_post.js"
-                        import {afficher_articles_get} from "./assets/js/afficher_articles_get.js"
-                          
-                        let params = new URLSearchParams(window.location.search)
-                        let page = params.get("page")
-                        if (!page) page = "accueil"
-
-                        ;(async function() {
-                            const data = await fetch('/views/clients/' + page + '.html')
-                            const res = await data.text()
-                            document.getElementById('mainContent').innerHTML = res
-
-                            //controller    
-                            switch(page){
-                                case "accueil":
-                                    //GET /api/accueil/afficher_articles.php endpoint
-                                    afficher_articles_get()
-                                    
-                                    // PSOT  /api/accueil/envoyer_article.php endpoint
-                                    afficher_articles_post()
-        
-                                    break
-                                
-                                case "profile":
-                                    break
-                                case "amis":
-                                    break
-                            }   
-
-                        })()
-                    </script>
+                    <script type="module" src="./assets/js/controllers/main.js"> </script>
                 </div>
             </div>
         </div>
     </main>      
     <script src="./assets/js/script.js"></script>
-    <script src="./assets/js/like.js"></script>   
-    <script src="./assets/js/commentaire.js"></script>
+    
+    <script type="module">
+        import {liker} from "./assets/js/controllers/accueil/liker.js"
+        import {commentaire} from "./assets/js/controllers/accueil/commentaire.js"
+
+        liker()
+        commentaire()
+    </script>
 </body>
 </html>
