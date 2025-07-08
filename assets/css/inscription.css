@@ -1,95 +1,118 @@
-* {
+/* Style général */
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f0f2f5;
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  background: #f0f2f5;
-  font-family: Arial, sans-serif;
   display: flex;
   flex-direction: column;
   align-items: center;
- padding-top: 23px;
 }
-/* logo facebook */
+
+/* Logo */
 .logo {
-    font-size: 48px;
-    font-weight: bold;
-    color: #1877f2;
-    margin-bottom: 20px;
+  font-size: 40px;
+  font-weight: bold;
+  color: #1877f2;
+  margin-top: 30px;
+  margin-bottom: 20px;
+  font-family: 'Segoe UI', sans-serif;
 }
-/*formulaire*/
 
-
-
+/* Conteneur du formulaire */
 .form-container {
-  background: white;
+  background-color: white;
   padding: 25px 30px;
-  max-width: 400px;
-  width: 100%;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
-  text-align: center;
-}
-
-.form-container h2 {
-  font-size: 26px;
- margin-bottom: 5px;
-}
-
-p {
-  font-size: 16px;
- color: #606770;
-  margin-bottom: 15px ;
-}
-
-input, select {
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   width: 100%;
-  padding: 12px;
-  margin: 8px 0;
-  border: 1px solid #ccc;
+  max-width: 430px;
+}
+
+/* Titre */
+.form-container h3 {
+  text-align: center;
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: #1c1e21;
+}
+
+/* Champs de formulaire */
+form input[type="text"],
+form input[type="email"],
+form input[type="password"],
+form input[type="number"],
+form select,
+form input[type="file"] {
+  width: 100%;
+  padding: 10px;
+  margin: 6px 0 12px;
+  border: 1px solid #ccd0d5;
   border-radius: 6px;
   font-size: 16px;
+  box-sizing: border-box;
 }
 
-input:focus, select:focus {
-  border-color: #1877f2;
+form label {
+  font-size: 14px;
+  color: #606770;
+  margin-bottom: 4px;
+  display: block;
 }
 
+/* Date de naissance : inline */
 .birthday {
   display: flex;
-  justify-content: space-between;
   gap: 10px;
 }
 
+/* Genre : inline */
 .gender {
   display: flex;
-  justify-content: space-between;
+  gap: 15px;
+  margin-bottom: 15px;
 }
 
-button {
+.gender label {
+  font-size: 15px;
+}
+
+/* Infos mot de passe */
+.password-info {
+  font-size: 12px;
+  color: #606770;
+  margin-bottom: 12px;
+}
+
+/* Bouton s'inscrire */
+button[type="submit"] {
   width: 100%;
-  padding: 14px;
-  background: #42b72a;
+  background-color: #2a3bb7;
   color: white;
-  font-size: 18px;
+  font-size: 17px;
+  padding: 10px;
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  margin-top: 10px;
+  transition: background-color 0.3s;
 }
 
-button:hover {
-  background: #36a420;
+button[type="submit"]:hover {
+  background-color: #758e70;
 }
 
+/* Lien vers la connexion */
 .login-link {
+  text-align: center;
   margin-top: 15px;
 }
 
 .login-link a {
   color: #1877f2;
   text-decoration: none;
-  font-size: 14px;
+  font-size: 14px;
+}
+
+.login-link a:hover {
+  text-decoration: underline;
 }

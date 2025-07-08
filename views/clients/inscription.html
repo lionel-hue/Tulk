@@ -1,50 +1,54 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Créer un compte | Facebook</title>
-  <link rel="stylesheet" href="../assets/css/inscription.css">
+  <link rel="stylesheet" href="../../assets/css/inscription.css">
 </head>
 <body>
-    <!--logo Facebook en haut -->
-    <div class="logo">Facebook</div>
-   
-    <!-- Formulaire d'inscription -->
-    <div class="form-container">
-      <h3>Créer un compte</h3>
+  <!-- Logo Facebook en haut -->
+  <div class="logo">Facebook</div>
 
+  <!-- Formulaire d'inscription -->
+  <div class="form-container">
+    <h3>Créer un compte</h3>
 
-      <form action="../index.php" method="POST" onsubmit="return validateForm()">
-        <input type="text" name="first_name" placeholder="Prénom" required>
-        <input type="text" name="last_name" placeholder="Nom de famille" required>
+    <form action=".../api/inscription/traitement.php" method="POST" enctype="multipart/form-data">
 
-        <label for="birthday">Date de naissance</label>
-        <div class="birthday">
-          <select name="birth_month" required>
-            <option>Jan</option><option>Feb</option><option>Mar</option><option>Apr</option>
-            <option>May</option><option>Jun</option><option>Jul</option><option>Aug</option>
-            <option>Sep</option><option>Oct</option><option>Nov</option><option>Dec</option>
-          </select>
-          <input type="number" name="birth_day" min="1" max="31" placeholder="Jour" required>
-          <input type="number" name="birth_year" min="1900" max="2025" placeholder="Annee" required>
-        </div>
+      <!-- ✅ Prénom et Nom -->
+      <input type="text" name="prenom" placeholder="Prénom" required>
+      <input type="text" name="nom" placeholder="Nom de famille" required>
 
-        <label>Genre</label>
-        <div class="gender">
-          <label><input type="radio" name="gender" value="Female" required> Femme</label>
-          <label><input type="radio" name="gender" value="Male"> Homme</label>
-        </div>
+    
+      <!-- ✅ Sexe -->
+      <label>Genre</label>
+      <div class="gender">
+        <label><input type="radio" name="sexe" value="Femme" required> Femme</label>
+        <label><input type="radio" name="sexe" value="Homme"> Homme</label>
+      </div>
 
-        <input type="email" name="email" placeholder="Numéro mobile ou e-mail" required>
-        <input type="password" name="password" placeholder="Nouveau mot-de-passe" required>
+      <!-- ✅ Email et mot de passe -->
+      <input type="email" name="email" placeholder="Numéro mobile ou e-mail" required>
+      <input type="password" name="motdepasse" placeholder="Nouveau mot de passe" required>
+      <div class="password-info">
+        <p>Mot de passe : 6 caractères minimum</p>
+        <p>Doit contenir des lettres et des chiffres</p>
+      </div>
 
-        <button type="submit">s'inscrire</button>
-      </form>
+      <!-- ✅ Image de profil -->
+      <label>Photo de profil :</label>
+      <input type="file" name="image" accept="image/*" required>
 
-      <p class="login-link"><a href="seconnecter.php">Vous aviez déja un compte?</a></p>
-    </div>
+      <!-- ✅ Rôle (champ caché) -->
+      <input type="hidden" name="role" value="utilisateur">
+
+      <button type="submit">S'inscrire</button>
+    </form>
+
+    <p class="login-link">
+      <a href="seconnecter.php">Vous avez déjà un compte ?</a>
+    </p>
   </div>
-
 </body>
 </html>
