@@ -14,7 +14,7 @@
   <div class="form-container">
     <h3>Créer un compte</h3>
 
-    <form action=".../api/inscription/traitement.php" method="POST" enctype="multipart/form-data">
+    <form action="../../api/inscription/traitement.php" method="POST" enctype="multipart/form-data">
 
       <!-- ✅ Prénom et Nom -->
       <input type="text" name="prenom" placeholder="Prénom" required>
@@ -24,24 +24,22 @@
       <!-- ✅ Sexe -->
       <label>Genre</label>
       <div class="gender">
-        <label><input type="radio" name="sexe" value="Femme" required> Femme</label>
-        <label><input type="radio" name="sexe" value="Homme"> Homme</label>
+        <label><input type="radio" name="sexe" value="F" required> Femme</label>
+        <label><input type="radio" name="sexe" value="M"> Homme</label>
       </div>
 
       <!-- ✅ Email et mot de passe -->
       <input type="email" name="email" placeholder="Numéro mobile ou e-mail" required>
       <input type="password" name="motdepasse" placeholder="Nouveau mot de passe" required>
       <div class="password-info">
-        <p>Mot de passe : 6 caractères minimum</p>
-        <p>Doit contenir des lettres et des chiffres</p>
       </div>
 
       <!-- ✅ Image de profil -->
       <label>Photo de profil :</label>
-      <input type="file" name="image" accept="image/*" required>
+      <input type="file" name="send_img" accept="image/*" required>
 
       <!-- ✅ Rôle (champ caché) -->
-      <input type="hidden" name="role" value="utilisateur">
+      <input type="hidden" name="role" value="user">
 
       <button type="submit">S'inscrire</button>
     </form>
