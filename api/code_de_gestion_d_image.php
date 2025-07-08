@@ -10,7 +10,7 @@ $mime_type = $f_info->file($_FILES["send_img"]["tmp_name"]);
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST" || 
     empty($_FILES["send_img"]) ||
-    !in_array($_FILES["send_img"]["type"], ["image/gif", "image/png", "image/jpeg"])) {
+    !in_array($_FILES["send_img"]["type"], ["image/gif", "image/png", "image/jpeg", "image/jpg"])) {
     image_error("Invalid image upload");
 }
 
@@ -42,4 +42,5 @@ while (file_exists($destination)) {
 if (!move_uploaded_file($_FILES["send_img"]["tmp_name"], $destination)) {
     image_error("Failed to move uploaded file");
 }
-?>
+
+return $filename;

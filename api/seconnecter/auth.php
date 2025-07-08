@@ -1,4 +1,5 @@
 <?php 
+session_start();
 
 include "../database.php";
 
@@ -30,6 +31,7 @@ if( isset($_POST["email"]) && isset($_POST["password"] ) )
 
                 if( $est_mdpasse_vrai == true )
                 {
+                    $_SESSION["id_uti"] = $user["id"];
                     header("Location: ../../index.html");
                 }else echo $error;
             }

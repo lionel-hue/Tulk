@@ -3,8 +3,6 @@ session_start();
 
 include "../database.php";
 
-header('Content-Type: application/json');
-
 $req = null;
 
 // Vérifier tous les champs nécessaires
@@ -29,11 +27,7 @@ if (
 
     $motdepasse = password_hash($motdepasse_brut, PASSWORD_DEFAULT);
 
-
-    // Use output buffering to catch any accidental output
-    ob_start();
-    include("./code_de_gestion_d_image.php");
-    ob_end_clean();
+    $filename = include("../code_de_gestion_d_image.php");
 
     try{
         $req = $pdo->prepare("INSERT INTO Utilisateur(nom, prenom, role, image, sexe, email, mdp ) VALUES (:nom, :prenom, :role, :img, :sexe, :email, :mdp);");
@@ -48,8 +42,7 @@ if (
             
         ]);
 
-        $lastId = $pdo->lastInsertId();
-        $_SESSION["id_uti"] = $lastId;
+        $_SESSION["id_uti"] = $lastId = $pdo->lastInsertId(); 
 
     }catch(PDOException $e){
         echo json_encode($e->getMessage());
@@ -61,7 +54,8 @@ if (
         "id" => $lastId 
     ]);
 
-    echo json_encode( $req->fetch(PDO::FETCH_ASSOC) );
+    //echo json_encode( $req->fetch(PDO::FETCH_ASSOC) );
+    header("Location: ../../index.html");
     exit;
 
 } else {
@@ -75,4 +69,3 @@ if (
     ]);
     exit;
 }
-exit;
