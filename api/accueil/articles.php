@@ -25,7 +25,7 @@ if ($_SERVER["REQUEST_METHOD"] === "GET" )
     if( isset( $_POST["search"] ) && isset( $_FILES["send_img"]) ){
 
         $titre = strip_tags($_POST["search"]);
-code_de_gestion_d_image.php
+
         // Use output buffering to catch any accidental output
         ob_start();
         include("./code_de_gestion_d_image.php");
