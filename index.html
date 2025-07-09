@@ -28,7 +28,7 @@
                 <!-- Top Bar -->
                 <div class="d-flex justify-content-between align-items-center bg-white px-4 py-2 border-bottom">
                     <div class="d-flex align-items-center">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg" width="40" class="me-3" alt="fb_logo">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg" width="40" class="me-3" alt="LogoFacebook">
 
                         <input id="searchInput" type="text" class="form-control" style="width: 250px;" placeholder="Search Facebook">
 
@@ -54,7 +54,7 @@
                     let page = params.get("page")
 
                     if(!page) page ="accueil"
-                    fetch('/views/clients/' + page + '.html')
+                    fetch('./views/clients/' + page + '.html')
                     .then(res => res.text())
                     .then(html => {
                     document.getElementById('mainContent').innerHTML = html
