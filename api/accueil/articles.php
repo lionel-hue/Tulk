@@ -26,10 +26,7 @@ if ($_SERVER["REQUEST_METHOD"] === "GET" )
 
         $titre = strip_tags($_POST["search"]);
 
-        // Use output buffering to catch any accidental output
-        ob_start();
-        include("./code_de_gestion_d_image.php");
-        ob_end_clean();
+        $filename = include("../code_de_gestion_d_image.php");
 
         try{
             $req = $pdo->prepare("INSERT INTO Article(image, description, id_uti) VALUES(:image, :description, :id_uti)");
