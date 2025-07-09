@@ -2,7 +2,7 @@ import { get_user } from "../user.js"
 
 export function setProfile(post)
 {
-    fetch("/api/accueil/commentaire.php?type=set_profile")
+    return fetch("/api/accueil/commentaire.php?type=set_profile")
     .then( res => res.json() )
 
     .then( data => {
@@ -18,7 +18,7 @@ export function commentaires_show(post)
     const commentList = post.querySelector("div[class='fb-comment-list commentList']")
     commentList.textContent = ''
 
-    fetch(`/api/accueil/commentaire.php?type=show_commentaire&id_arti=${id_article}`)
+    return fetch(`/api/accueil/commentaire.php?type=show_commentaire&id_arti=${id_article}`)
     .then( res => res.json() )
 
     .then( data => {
@@ -44,7 +44,7 @@ export function commentaires_show(post)
 
 export function commentaire_send(post_input, post)
 {
-    fetch("/api/accueil/commentaire.php",{
+    return fetch("/api/accueil/commentaire.php",{
         method: "POST",
         headers : {"Content-Type" : "application/json"},
 
@@ -57,8 +57,7 @@ export function commentaire_send(post_input, post)
     .then( res => res.json() )
 
     .then( data => {
-
-        console.log(post.querySelector(".post-id").textContent)
+        //console.log(data) plus besoin ici
     })
 }
 
@@ -71,7 +70,7 @@ export function commentaire_btn_click()
         if (!mainContent) return;
 
         // Handle comment button click
-        mainContent.addEventListener('click', function(e) {
+        mainContent.addEventListener('click', async function(e) {
             const btn = e.target.closest('.commentBtn');
             if (btn) {
                 const post = btn.closest('.posts');
@@ -83,8 +82,8 @@ export function commentaire_btn_click()
                 if (commentSection.style.display === 'block') {
                     commentInput.focus();
                 }
-                setProfile(post)//injecte par moi
-                commentaires_show(post) //injecte par moi
+                await setProfile(post)//injecte par moi
+                await commentaires_show(post) //injecte par moi
             }
         });
 
@@ -94,22 +93,26 @@ export function commentaire_btn_click()
                 e.preventDefault();
                 const input = e.target;
                 const value = input.value.trim();
-                if (value) {
+                if (value) 
+                {
                     const post = input.closest('.posts');
                     if (!post) return;
                     const commentList = post.querySelector('.commentList');
                     if (!commentList) return;
                     const user = await get_user()
-                    console.log(user) //<--test
+
+                    //console.log(user) //<--test
+                    
                     addComment( `${user["nom"]} ${user["prenom"]}`,`${user["image"]}`, value, commentList); //modifie par moi
-                    commentaire_send(value, post) //injecte par moi
-                    commentaires_show(post)//injecte par moi
+                    await commentaire_send(value, post) //injecte par moi
+                    await commentaires_show(post)//injecte par moi
                     input.value = '';
                 }
             }
         });
 
-        function addComment(name, avatar, text, commentList) {
+        function addComment(name, avatar, text, commentList) 
+        {
             const comment = document.createElement('div');
             comment.className = 'fb-comment-item d-flex align-items-start mb-2';
             comment.innerHTML = `

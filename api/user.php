@@ -1,4 +1,6 @@
 <?php
+session_start();
+
 include("database.php");
 
 header('Content-Type: application/json');
@@ -10,7 +12,7 @@ if( $_SERVER["REQUEST_METHOD"] === "GET" )
     try{
         $req = $pdo->prepare("SELECT * FROM Utilisateur WHERE id = :id_uti");
         $req->execute([
-            "id_uti" => 1 //$id_uti
+            "id_uti" => $_SESSION["id_uti"]
         ]);
     
     }catch(PDOException $e){

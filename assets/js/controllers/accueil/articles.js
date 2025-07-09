@@ -1,15 +1,17 @@
 import { append_article } from "./append_article.js"
 
-export function articles_post()
+export async function articles_post()
 {
     const accueilForm = document.getElementById('accueilForm')
     if (accueilForm) 
     {
-        accueilForm.addEventListener('submit', (e) => {
+        accueilForm.addEventListener('submit', (e) => 
+        {
             e.preventDefault()
             const formData = new FormData(accueilForm)
-            console.log(formData)
-            fetch('/api/accueil/articles.php', {
+            //console.log(formData)
+            return fetch('/api/accueil/articles.php', 
+            {
                 method: 'POST',
                 body: formData
             })
@@ -24,10 +26,10 @@ export function articles_post()
 }
 
 
-export function articles_get(){
+export async function articles_get(){
 
     const formData = new FormData(accueilForm)
-    fetch('/api/accueil/articles.php')
+    return fetch('/api/accueil/articles.php')
 
     .then(res => res.json() )
 

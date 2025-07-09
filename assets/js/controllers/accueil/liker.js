@@ -1,6 +1,6 @@
-export function set_like(likeBtn_innerHTML, post)
+export async function set_like(likeBtn_innerHTML, post)
 {
-    fetch("/api/accueil/liker.php",
+    return fetch("/api/accueil/liker.php",
         {
             method: "POST",
             headers:{"Content-Type": "application/json"},
@@ -33,7 +33,7 @@ export function set_like(likeBtn_innerHTML, post)
             post.querySelector(".like-button").textContent += `${emoji}(${e["nmbr"]}) `
         })
 
-       console.log(data)
+       //console.log(data)
     })
 }
 
@@ -80,12 +80,12 @@ export function liker()
             }
         })
 
-        function setReaction(post, emoji, label) {
+        async function setReaction(post, emoji, label) {
             const likeBtn = post.querySelector('.like-button')
             likeBtn.innerHTML = `${emoji} ${label}`
             hideReactions(post)
             post.dataset.currentReaction = emoji
-            set_like(label, post) //injecte par moi
+            await set_like(label, post) //injecte par moi
         }
 
         function toggleLike(post, likeBtn) {

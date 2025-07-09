@@ -1,4 +1,6 @@
 <?php
+session_start();
+
 include("../database.php");
 
 header('Content-Type: application/json');
@@ -33,7 +35,7 @@ if ($_SERVER["REQUEST_METHOD"] === "GET" )
             $req->execute([ 
                 "image"=>$filename,
                 "description" => $titre,
-                "id_uti" => 1 //$id_uti
+                "id_uti" => $_SESSION["id_uti"]
             ]);
 
             //$response['success'] = true;

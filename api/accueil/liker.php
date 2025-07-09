@@ -1,4 +1,6 @@
 <?php
+session_start();
+
 include("../database.php");
 
 header('Content-Type: application/json');
@@ -23,7 +25,7 @@ $post_id =  strip_tags($data["post_id"]);
 try{
     $req = $pdo->prepare("DELETE FROM Liker WHERE id_uti = :id_uti AND id_arti = :id_arti");
     $req->execute([
-        "id_uti" => 1, //$id_uti
+        "id_uti" => $_SESSION["id_uti"],
         "id_arti" => $post_id
     ]);
 
@@ -37,7 +39,7 @@ try{
     $req = $pdo->prepare("INSERT INTO Liker(type, id_uti, id_arti) VALUES(:type, :id_uti, :id_arti)");
     $req->execute([
         "type"=>$like_type,
-        "id_uti" => 1, //$id_uti
+        "id_uti" => $_SESSION["id_uti"],
         "id_arti" => $post_id
     ]);
 
