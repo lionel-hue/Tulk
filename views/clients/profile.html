@@ -24,7 +24,7 @@
 <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
-      <form action="Instaconn/api/profile/profile.php" method="POST" enctype="multipart/form-data">
+      <form action="update_profile.php" method="POST" enctype="multipart/form-data">
         <div class="modal-header bg-primary text-white">
           <h5 class="modal-title" id="editProfileModalLabel">Modifier le profil</h5>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fermer"></button>
@@ -60,32 +60,4 @@
 </div>
 <script>
   lucide.createIcons();
-</script>
-<script>
-document.querySelector('#editProfileModal form').addEventListener('submit', async function(e) {
-  e.preventDefault();
-
-  const form = e.target;
-  const formData = new FormData(form);
-
-  const response = await fetch(form.action, {
-    method: 'POST',
-    body: formData
-  });
-
-  const result = await response.json();
-
-  if(result.success) {
-    document.querySelector('h2.fw-bold').textContent = result.prenom + ' ' + result.nom;
-    if(result.photo_url) {
-      document.querySelector('img[alt="Photo de profil"]').src = result.photo_url + '?t=' + Date.now();
-      document.querySelector('img[alt="Photo actuelle"]').src = result.photo_url + '?t=' + Date.now();
-    }
-    // Ferme la modal Bootstrap
-    var modal = bootstrap.Modal.getInstance(document.getElementById('editProfileModal'));
-    modal.hide();
-  } else {
-    alert(result.message || 'Erreur lors de la mise à jour');
-  }
-});
 </script>
