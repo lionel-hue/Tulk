@@ -43,29 +43,29 @@
 					</div>
 					<div>
 
-						<a href="index.html?page=accueil"><i class="fa fa-home nav-icon mx-3"></i></a>
-						<a href='index.html?page=amis'><i class="fa fa-users nav-icon mx-3"></i></a>
-						<a href='index.html?page=chat'> <i class="fa fa-comments nav-icon mx-3"></i> </a>
-					</div>
-					<div>
-						<button class="btn btn-primary me-2">Find friends</button>
-					</div>
-				</div>
-				<div id="mainContent">
-					<script type="module" src="./assets/js/controllers/main.js"> </script>
-				</div>
-			</div>
-		</div>
-	</main>
-	<script src="./assets/js/script.js"></script>
+                        <a href="index.html?page=accueil"><i class="fa fa-home nav-icon mx-3"></i></a>   
+                         <a href='index.html?page=amis'><i class="fa fa-users nav-icon mx-3"></i></a>
+                        <a href='index.html?page=chat'> <i class="fa fa-comments nav-icon mx-3"></i> </a>
+                    </div>
+                    <div>
+                        <button class="btn btn-primary me-2">Find friends</button>
+                    </div>
+                </div>
+                <div id="mainContent">
+                    <script type="module" src="./assets/js/controllers/main.js"> </script>
+                </div>
+            </div>
+        </div>
+    </main>      
+    <script src="./assets/js/script.js"></script>
+    
+    <script type="module">
+        import {liker} from "./assets/js/controllers/accueil/liker.js"
+        import { commentaire_btn_click } from "./assets/js/controllers/accueil/commentaire.js"
 
-	<script type="module">
-		import { liker } from "./assets/js/controllers/accueil/liker.js"
-		import { commentaire } from "./assets/js/controllers/accueil/commentaire.js"
-
-		liker()
-		commentaire()
-	</script>
+        liker()
+        commentaire_btn_click()
+    </script>
 </body>
 
 </html>

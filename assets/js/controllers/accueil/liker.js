@@ -1,7 +1,5 @@
 export function set_like(likeBtn_innerHTML, post)
 {
-    console.log(likeBtn_innerHTML)
-    console.log(post.querySelector(".post-id").innerHTML)
     fetch("/api/accueil/liker.php",
         {
             method: "POST",
