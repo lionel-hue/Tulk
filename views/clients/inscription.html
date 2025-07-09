@@ -1,52 +1,56 @@
 <!DOCTYPE html>
 <html lang="fr">
+
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Créer un compte | Facebook</title>
-  <link rel="stylesheet" href="../../assets/css/inscription.css">
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Créer un compte | Facebook</title>
+	<link rel="stylesheet" href="../../assets/css/inscription.css">
 </head>
+
 <body>
-  <!-- Logo Facebook en haut -->
-  <div class="logo">Facebook</div>
+	<!-- Logo Facebook en haut -->
+	<div class="logo">Facebook</div>
 
-  <!-- Formulaire d'inscription -->
-  <div class="form-container">
-    <h3>Créer un compte</h3>
+	<!-- Formulaire d'inscription -->
+	<div class="form-container">
+		<h3>Créer un compte</h3>
 
-    <form action="../../api/inscription/traitement.php" method="POST" enctype="multipart/form-data">
+		<form action="../../api/inscription/traitement.php" method="POST" enctype="multipart/form-data">
 
-      <!-- ✅ Prénom et Nom -->
-      <input type="text" name="prenom" placeholder="Prénom" required>
-      <input type="text" name="nom" placeholder="Nom de famille" required>
+			<!-- ✅ Prénom et Nom -->
+			<input type="text" name="prenom" placeholder="Prénom" required>
+			<input type="text" name="nom" placeholder="Nom de famille" required>
 
-    
-      <!-- ✅ Sexe -->
-      <label>Genre</label>
-      <div class="gender">
-        <label><input type="radio" name="sexe" value="F" required> Femme</label>
-        <label><input type="radio" name="sexe" value="M"> Homme</label>
-      </div>
 
-      <!-- ✅ Email et mot de passe -->
-      <input type="email" name="email" placeholder="Numéro mobile ou e-mail" required>
-      <input type="password" name="motdepasse" placeholder="Nouveau mot de passe" required>
-      <div class="password-info">
-      </div>
+			<!-- ✅ Sexe -->
+			<label>Genre</label>
+			<div class="gender">
+				<label><input type="radio" name="sexe" value="F" required> Femme</label>
+				<label><input type="radio" name="sexe" value="M"> Homme</label>
+			</div>
 
-      <!-- ✅ Image de profil -->
-      <label>Photo de profil :</label>
-      <input type="file" name="send_img" accept="image/*" required>
+			<!-- ✅ Email et mot de passe -->
+			<input type="email" name="email" placeholder="Numéro mobile ou e-mail" required>
+			<input type="password" name="motdepasse" placeholder="Nouveau mot de passe" required>
+			<div class="password-info">
+			</div>
 
-      <!-- ✅ Rôle (champ caché) -->
-      <input type="hidden" name="role" value="user">
+			<!-- ✅ Image de profil -->
+			<label>Photo de profil :</label>
+			<input type="file" name="send_img" accept="image/*" required>
 
-      <button type="submit">S'inscrire</button>
-    </form>
+			<!-- ✅ Rôle (champ caché) -->
+			<input type="hidden" name="role" value="user">
 
-    <p class="login-link">
-      <a href="seconnecter.php">Vous avez déjà un compte ?</a>
-    </p>
-  </div>
+			<button type="submit">S'inscrire</button>
+		</form>
+
+		<p class="login-link">
+			<a href="seconnecter.php">Vous avez déjà un compte ?</a>
+		</p>
+	</div>
 </body>
+
 </html>

@@ -1,74 +1,68 @@
-<link rel="stylesheet" href="../res/css/commentaire.css">
-
 <div class="d-flex justify-content-center">
     <!-- Main Feed -->
     <div class="main-content py-4 flex-grow-1 mt-0"  style="max-width:700px ">
         <!-- Post Box -->
-        <div class="bg-white rounded p-3 mb-4">
+        <form class="bg-white rounded p-3 mb-4" id="accueilForm" method="POST" enctype="multipart/form-data">
             <div class="d-flex align-items-center mb-2">
                 <a href="index.html?page=profile" class="text-decoration-none">
-                    <img src="https://via.placeholder.com/40" class="profile-pic me-2" alt="Profile">
+                    <img src="../../assets/images/lionel.png" class="profile-pic me-2" alt="Profile">
                 </a>
-                <input type="text" class="form-control" placeholder="What's on your mind, Lionel?">
+                <input type="text" class="form-control" placeholder="What's on your mind, Lionel?" name="search" required>
             </div>
-            <div class="d-flex justify-content-between mt-2">
-                <button class="btn btn-light"><i class="fa fa-video text-danger me-1"></i> Live video</button>
-                <button class="btn btn-light"><i class="fa fa-image text-success me-1"></i> Photo/video</button>
-                <button class="btn btn-light"><i class="fa fa-smile text-warning me-1"></i> Feeling/activity</button>
+
+            <div class="d-flex justify-content-start align-items-center mb-3">
+                <label for="postImage" class="form-label me-2">Upload Image :</label>
+                <input class="form-control w-50" type="file" id="postImage" name="send_img">
             </div>
-        </div>
+            <div class="d-flex justify-content-center mt-2">
+                <button class="btn btn-light"><i class="fa fa-paper-plane text-warning me-1"></i>Send</button>
+            </div>
+        </form>
         
         <!-- Post -->
-        <div class="bg-white rounded p-3 mb-3">
+        <div class="bg-white rounded p-3 mb-3 posts" style= "display:none;">
+            <div class="post-id" style="display:none;"></div>
             <div class="d-flex align-items-center mb-2">
                 <a href="index.html?page=profile" class="text-decoration-none">
-                    <img src="https://via.placeholder.com/40" class="profile-pic me-2" alt="Profile">
+                    <img src="../../assets/images/lionel.png" class="profile-pic me-2" alt="Profile">
                 </a>
                 <div>
                     <strong>Lionel Sisso</strong><br>
                     <span class="text-muted" style="font-size:12px;">Just now · <i class="fa fa-users"></i></span>
                 </div>
             </div>
-            <div class="mb-2">
+            <div class="mb-2 post-content">
                 Test Test Test systemctl<br>
                 kindly ignore post
             </div>
-            <div class="post-terminal mb-2">
-                // Lionel@LIONELZORIN:~$ echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
-                // \"$(. /etc/os-release && echo \"$VERSION_CODENAME\")\" stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-                // Command 'sudo' not found, did you mean:
-                //   command 'sudo' from deb sudo (1.9.9-1ubuntu2.4)
-                //   command 'sudo' from deb sudo-ldap (1.9.9-1ubuntu2.4)
-                // Try: sudo apt install <deb name>
-            </div>
+            <img src="../clients/../assets/images/lionel.png" class="w-100 post-image"   alt=".">
             <div>
                 <div class="reaction-box">
-                    <button class="btn btn-light like-button" onclick="toggleLike()">
-                        <i class="fa fa-thumbs-up"></i> J’aime
+                    <button class="btn btn-light like-button">
+                        <i class="fa fa-thumbs-up"></i> J'aime
                     </button>
 
-                    <div class="reaction-popup" id="reactionPopup">
-                        <div class="reaction" onclick="setReaction('👍', 'J’aime')">👍<span>J’aime</span></div>
-                        <div class="reaction" onclick="setReaction('❤', 'J’adore')">❤<span>J’adore</span></div>
-                        <div class="reaction" onclick="setReaction('🤝', 'Solidaire')">🤝<span>Solidaire</span></div>
-                        <div class="reaction" onclick="setReaction('😂', 'Haha')">😂<span>Haha</span></div>
-                        <div class="reaction" onclick="setReaction('😲', 'Wouah')">😲<span>Wouah</span></div>
-                        <div class="reaction" onclick="setReaction('😢', 'Triste')">😢<span>Triste</span></div>
-                        <div class="reaction" onclick="setReaction('😡', 'En colère')">😡<span>En colère</span></div>
+                    <div class="reaction-popup" style="display: none;">
+                        <div class="reaction">👍<span>J'aime</span></div>
+                        <div class="reaction">❤<span>J'adore</span></div>
+                        <div class="reaction">🤝<span>Solidaire</span></div>
+                        <div class="reaction">😂<span>Haha</span></div>
+                        <div class="reaction">😲<span>Wouah</span></div>
+                        <div class="reaction">😢<span>Triste</span></div>
+                        <div class="reaction">😡<span>En colere</span></div>
                     </div>
-
-                    <div id="reactionDisplay"></div>
+                    <div class="reactionDisplay"></div>
                 </div>
                 
-                <button id="commentBtn"><i class="fa fa-comment"></i> Comment</button>
-                <div id="commentSection" class="fb-comment-section" style="display:none;">
-                    <div class="fb-comment-list" id="commentList">
+                <button class="commentBtn btn btn-light comment-btn"><i class="fa fa-comment"></i> Comment</button>
+                <div class="commentSection fb-comment-section" style="display:none;">
+                    <div class="fb-comment-list commentList">
                         <!-- Les commentaires s'affichent ici -->
                     </div>
                     <div class="fb-comment-input-row">
-                        <img src="https://i.pravatar.cc/36?u=currentuser" class="fb-comment-avatar" alt="Votre photo de profil">
+                        <img src="../../assets/images/lionel.png" class="fb-comment-avatar" alt="Votre photo de profil">
                         <div class="fb-comment-input-box">
-                            <textarea id="commentInput" class="fb-comment-textarea" placeholder="Write a comment..." rows="1"></textarea>
+                            <textarea class="commentInput fb-comment-textarea" placeholder="Write a comment..." rows="1"></textarea>
                             <div class="fb-comment-actions">
                                 <button class="fb-comment-action"><i class="fa fa-smile"></i></button>
                                 <button class="fb-comment-action"><i class="fa fa-camera"></i></button>
