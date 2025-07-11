@@ -24,7 +24,8 @@ if( isset($_POST["email"]) && isset($_POST["password"] ) )
             //si user n'existe pas
             if( !$user )
             {
-                echo $error;
+                echo json_encode(['success' => false, 'error' => 'Utilisateur inexistant']);
+                exit;
             }else{
                 //user existe - ok, verifions mot de passe :
                 $est_mdpasse_vrai = password_verify( $password, $user["mdp"]);
@@ -32,13 +33,24 @@ if( isset($_POST["email"]) && isset($_POST["password"] ) )
                 if( $est_mdpasse_vrai == true )
                 {
                     $_SESSION["id_uti"] = $user["id"];
-                    header("Location: ../../index.html");
-                }else echo $error;
+                    echo json_encode(['success' => true, 'redirect' => '../../index.html']);
+                    exit;
+                }else{
+                    echo json_encode(['success' => false, 'error' => 'Mot de passe incorrect']);
+                    exit;
+                }
             }
         }catch(PDOException $e){
-            echo "<script>alert(\"".$e->getMessage()."\")</script>";
+            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+            exit;
         }
 
-    }else echo "Erreur lors du login! ressayer plustard!";
+    }else{
+        echo json_encode(['success' => false, 'error' => 'Erreur lors du login! Réessayez plus tard!']);
+        exit;
+    }
 
-}else echo json_encode("error");
+}else{
+    echo json_encode(['success' => false, 'error' => 'Champs manquants']);
+    exit;
+}

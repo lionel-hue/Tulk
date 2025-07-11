@@ -13,7 +13,7 @@ $data = json_decode($input, true);
 
 if( json_last_error() !== JSON_ERROR_NONE)
 {
-    echo json_encode(["status" => "error", "message" => "Invalid JSON received."]);
+    echo json_encode(['success' => false, 'error' => 'Invalid JSON received.']);
     exit();
 }
 
@@ -30,7 +30,7 @@ try{
     ]);
 
 }catch(PDOException $e){
-    echo json_encode($e->getMessage());
+    echo json_encode(['success' => false, 'error' => $e->getMessage()]);
     exit;
 }
 
@@ -44,7 +44,7 @@ try{
     ]);
 
 }catch(PDOException $e){
-    echo json_encode($e->getMessage());
+    echo json_encode(['success' => false, 'error' => $e->getMessage()]);
     exit;
 }
 
@@ -52,7 +52,7 @@ try{
     $req = $pdo->query("SELECT type, COUNT(*) AS nmbr FROM Liker GROUP BY type");
 
 }catch(PDOException $e){
-    echo json_encode($e->getMessage());
+    echo json_encode(['success' => false, 'error' => $e->getMessage()]);
     exit;
 }
-echo json_encode($req->fetchAll(PDO::FETCH_ASSOC));
+echo json_encode(['success' => true, 'likes' => $req->fetchAll(PDO::FETCH_ASSOC)]);

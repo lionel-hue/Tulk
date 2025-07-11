@@ -18,9 +18,9 @@ if ($_SERVER["REQUEST_METHOD"] === "GET")
             $req->execute([
                 "id" => 13
             ]);
-        } catch (PDOException $e) 
-        {
-            echo json_encode($e->getMessage());
+        } catch (PDOException $e) {
+            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+            exit;
         }
         
         echo json_encode($req->fetch(PDO::FETCH_ASSOC));
@@ -50,13 +50,11 @@ if ($_SERVER["REQUEST_METHOD"] === "GET")
     $id_arti =  strip_tags($data["id_arti"]);
 
     $req = $pdo->prepare("INSERT INTO Commentaire(texte, id_arti, id_uti) VALUES(:texte, :id_arti, :id_uti)");
-
     $req->execute([
         "texte" => $texte,
         "id_arti" => $id_arti,
         "id_uti" => $_SESSION["id_uti"]
     ]);
-
-    echo json_encode($req->fetch(PDO::FETCH_ASSOC));
-
-} else echo json_encode(["status" => "error", "message" => "Invalid JSON received."]);
+    echo json_encode(['success' => true]);
+}
+else echo json_encode(['success' => false, 'error' => 'Invalid JSON received.']);

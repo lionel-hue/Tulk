@@ -6,9 +6,9 @@
       <div class="position-relative bg-white rounded shadow-sm mb-4">
         <!-- Bannière -->
         <div class="profile-banner position-relative">
-          <img src="./assets/images/planete 1.jpg" alt="Bannière" class="w-100 rounded-top" style="height: 320px; object-fit: cover;">
+          <img src="/assets/images/image1.jpg" alt="Bannière" class="w-100 rounded-top" style="height: 320px; object-fit: cover;">
           <!-- Photo de profil -->
-          <img src="./assets/images/planete 2.jpg" alt="Photo de profil" class="rounded-circle border border-4 border-white position-absolute top-100 start-50 translate-middle" style="width: 160px; height: 160px; object-fit: cover;">
+          <img src="/assets/images/image1.jpg" alt="Photo de profil" class="rounded-circle border border-4 border-white position-absolute top-100 start-50 translate-middle" style="width: 160px; height: 160px; object-fit: cover;">
         </div>
         <!-- Infos profil sous la photo -->
         <div class="text-center" style="margin-top: 90px;">
@@ -24,14 +24,14 @@
 <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
-      <form action="update_profile.php" method="POST" enctype="multipart/form-data">
+      <form id="editProfileForm" enctype="multipart/form-data">
         <div class="modal-header bg-primary text-white">
           <h5 class="modal-title" id="editProfileModalLabel">Modifier le profil</h5>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fermer"></button>
         </div>
         <div class="modal-body">
           <div class="mb-3 text-center">
-            <img src="./assets/images/planete 2.jpg" alt="Photo actuelle" class="rounded-circle border border-3 border-white shadow" width="80" height="80">
+            <img src="/assets/images/image1.jpg" alt="Photo actuelle" class="rounded-circle border border-3 border-white shadow" width="80" height="80">
           </div>
           <div class="mb-3">
             <label for="nom" class="form-label">Nom</label>
@@ -60,4 +60,50 @@
 </div>
 <script>
   lucide.createIcons();
+
+  document.getElementById('editProfileForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const form = e.target;
+    const formData = new FormData(form);
+
+    // Envoie AJAX vers l'API PHP
+    const response = await fetch('/api/profile/profile.php', {
+      method: 'POST',
+      body: formData,
+      credentials: 'same-origin' // <-- Ajoute cette ligne !
+    });
+    const data = await response.json();
+    console.log(data); // Ajoute ceci pour voir la réponse dans la console
+
+    if (data.success) {
+      // Met à jour dynamiquement le nom, prénom et la photo sur la page
+      document.querySelector('.fw-bold.mb-1').textContent = `${data.prenom} ${data.nom}`;
+      if (data.photo_url) {
+        // Bannière et photo de profil
+        document.querySelectorAll('img[alt="Photo de profil"], img[alt="Photo actuelle"]').forEach(img => {
+          img.src = '/assets/images/' + data.photo_url;
+        });
+      }
+      // Ferme le modal Bootstrap
+      const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('editProfileModal'));
+      modal.hide();
+    } else {
+      alert('Erreur lors de la modification du profil');
+    }
+  });
+
+  window.addEventListener('DOMContentLoaded', async function() {
+    const response = await fetch('/api/user.php');
+    const data = await response.json();
+    if (data && data.nom && data.prenom) {
+      document.querySelector('.fw-bold.mb-1').textContent = `${data.prenom} ${data.nom}`;
+      document.getElementById('nom').value = data.nom;
+      document.getElementById('prenom').value = data.prenom;
+      if (data.image) {
+        document.querySelectorAll('img[alt="Photo de profil"], img[alt="Photo actuelle"]').forEach(img => {
+          img.src = '/assets/images/' + data.image;
+        });
+      }
+    }
+  });
 </script>

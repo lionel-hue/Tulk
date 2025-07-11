@@ -43,7 +43,7 @@ while (file_exists($destination)) {
 }
 
 if (!move_uploaded_file($_FILES["send_img"]["tmp_name"], $destination)) {
-    image_error("Failed to move uploaded file");
+    image_error("could not move file");
 }
 
 return $filename;

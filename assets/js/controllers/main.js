@@ -9,7 +9,7 @@ if (!page) page = "accueil"
 {
     const pg = await fetch('/views/clients/' + page + '.html')
     const res = await pg.text()
-    document.getElementById('mainContent').innerHTML = res 
+    document.getElementById('mainContent').innerHTML = res
     
     //controller    
     switch(page){

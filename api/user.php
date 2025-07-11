@@ -16,10 +16,13 @@ if( $_SERVER["REQUEST_METHOD"] === "GET" )
         ]);
     
     }catch(PDOException $e){
-        echo json_encode($e->getMessage());
+        echo json_encode(['success' => false, 'error' => $e->getMessage()]);
         exit;
     }
 
-    echo json_encode($req->fetch(PDO::FETCH_ASSOC));
+    $user = $req->fetch(PDO::FETCH_ASSOC);
+    echo json_encode(['success' => true, 'user' => $user]);
 
-}else json_encode("error");
+}else{
+    echo json_encode(['success' => false, 'error' => 'Requête non supportée']);
+}

@@ -14,9 +14,7 @@ if ($_SERVER["REQUEST_METHOD"] === "GET" )
         $req = $pdo->query("SELECT nom, prenom, role, U.image as profile_pic, role, A.image as image_article, description, date, A.id as id_article FROM Article A INNER JOIN Utilisateur U ON A.id_uti = U.id");
 
     }catch(PDOException $e){
-        //$response['success'] = false;
-        //$response['error'] = $e->getMessage();
-        echo json_encode($e->getMessage());
+        echo json_encode(['success' => false, 'error' => $e->getMessage()]);
         exit;
 
     }
@@ -40,13 +38,11 @@ if ($_SERVER["REQUEST_METHOD"] === "GET" )
 
             //$response['success'] = true;
         }catch(PDOException $e){
-            //$response['success'] = false;
-            //$response['error'] = $e->getMessage();
-            echo json_encode($e->getMessage());
+            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
             exit;
         }
 
         echo json_encode( $pdo->query("SELECT nom, prenom, role, U.image as profile_pic, role, A.image as image_article, description, date, A.id as id_article FROM Article A INNER JOIN Utilisateur U ON A.id_uti = U.id")->fetchAll(PDO::FETCH_ASSOC) );
     }   
 }
-else echo json_encode("error");
+else echo json_encode(['success' => false, 'error' => 'Requête non supportée']);
