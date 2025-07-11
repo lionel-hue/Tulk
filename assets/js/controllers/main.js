@@ -5,6 +5,19 @@ let params = new URLSearchParams(window.location.search)
 let page = params.get("page")
 if (!page) page = "accueil"
 
+
+// After fetching user data (e.g., in your main app.js)
+fetch('/api/user.php')
+
+.then(res => res.json())
+
+.then(data => {
+if (data === "error") {
+  window.location.replace("/views/clients/seconnecter.html"); // Hard redirect (no history entry)
+}
+})
+
+
 ;(async function() 
 {
     const pg = await fetch('/views/clients/' + page + '.html')
@@ -29,15 +42,4 @@ if (!page) page = "accueil"
         case "amis":
             break
     }
-
-    // After fetching user data (e.g., in your main app.js)
-    fetch('/api/user.php')
-
-    .then(res => res.json())
-
-    .then(data => {
-    if (data === "error") {
-      window.location.replace("/views/clients/seconnecter.html"); // Hard redirect (no history entry)
-    }
-  })
 })()

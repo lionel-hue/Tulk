@@ -48,7 +48,6 @@ export async function articles_get(){
                 icon: 'success',
                 confirmButtonText: 'OK',
                 confirmButtonColor: '#28a745'
-            });
-        
+            }); 
     })
 }
