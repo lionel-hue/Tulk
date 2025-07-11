@@ -20,8 +20,8 @@
 		<form action="../../api/inscription/traitement.php" method="POST" enctype="multipart/form-data">
 
 			<!-- ✅ Prénom et Nom -->
-			<input type="text" name="prenom" placeholder="Prénom" required>
-			<input type="text" name="nom" placeholder="Nom de famille" required>
+			<input type="text" id="prenom" name="prenom" placeholder="Prénom" required>
+			<input type="text" id="nom" name="nom" placeholder="Nom de famille" required>
 
 
 			<!-- ✅ Sexe -->
@@ -32,10 +32,10 @@
 			</div>
 
 			<!-- ✅ Email et mot de passe -->
-			<input type="email" name="email" placeholder="Numéro mobile ou e-mail" required>
-			<input type="password" name="motdepasse" placeholder="Nouveau mot de passe" required>
-			<div class="password-info">
-			</div>
+			<input type="email" id="email" name="email" placeholder="Numéro mobile ou e-mail" required>
+			<input type="password" id="motdepasse" name="motdepasse" placeholder="Nouveau mot de passe" required>
+			<div class="email"></div>
+			<div class="password-info"></div>
 
 			<!-- ✅ Image de profil -->
 			<label>Photo de profil :</label>
@@ -51,6 +51,6 @@
 			<a href="seconnecter.php">Vous avez déjà un compte ?</a>
 		</p>
 	</div>
+	<script src="../../assets/js/script.js"></script>
 </body>
-
 </html>

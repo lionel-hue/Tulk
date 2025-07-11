@@ -1,9 +1,16 @@
 <?php
+header('Content-Type: application/json');
+
 session_start();
+
+if ( !isset( $_SESSION["id_uti"] ) )
+{    
+    echo json_encode("error");
+    exit;
+}  
 
 include("database.php");
 
-header('Content-Type: application/json');
 
 $req = null;
 

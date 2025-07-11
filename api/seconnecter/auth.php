@@ -24,8 +24,7 @@ if( isset($_POST["email"]) && isset($_POST["password"] ) )
             //si user n'existe pas
             if( !$user )
             {
-                echo json_encode(['success' => false, 'error' => 'Utilisateur inexistant']);
-                exit;
+                header("Location: ../../views/clients/seconnecter.html");
             }else{
                 //user existe - ok, verifions mot de passe :
                 $est_mdpasse_vrai = password_verify( $password, $user["mdp"]);
@@ -50,7 +49,4 @@ if( isset($_POST["email"]) && isset($_POST["password"] ) )
         exit;
     }
 
-}else{
-    echo json_encode(['success' => false, 'error' => 'Champs manquants']);
-    exit;
-}
+}else header("Location: ../../views/clients/seconnecter.html");
