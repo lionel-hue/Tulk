@@ -24,7 +24,7 @@
 <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
-      <form id="editProfileForm" enctype="multipart/form-data">
+      <form id="editProfileForm" method="POST" enctype="multipart/form-data">
         <div class="modal-header bg-primary text-white">
           <h5 class="modal-title" id="editProfileModalLabel">Modifier le profil</h5>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fermer"></button>
@@ -43,7 +43,7 @@
           </div>
           <div class="mb-3">
             <label for="photo" class="form-label">Photo de profil</label>
-            <input type="file" class="form-control" id="photo" name="photo">
+            <input type="file" class="form-control" id="photo" name="send_img">
           </div>
           <div class="mb-3">
             <label for="password" class="form-label">Nouveau mot de passe</label>
@@ -59,7 +59,6 @@
   </div>
 </div>
 <script>
-  lucide.createIcons();
 
   document.getElementById('editProfileForm').addEventListener('submit', async function(e) {
     e.preventDefault();
@@ -69,41 +68,40 @@
     // Envoie AJAX vers l'API PHP
     const response = await fetch('/api/profile/profile.php', {
       method: 'POST',
-      body: formData,
-      credentials: 'same-origin' // <-- Ajoute cette ligne !
-    });
+      body: formData
+    })
     const data = await response.json();
-    console.log(data); // Ajoute ceci pour voir la réponse dans la console
+    console.log(data + " dd");
 
-    if (data.success) {
-      // Met à jour dynamiquement le nom, prénom et la photo sur la page
-      document.querySelector('.fw-bold.mb-1').textContent = `${data.prenom} ${data.nom}`;
-      if (data.photo_url) {
-        // Bannière et photo de profil
-        document.querySelectorAll('img[alt="Photo de profil"], img[alt="Photo actuelle"]').forEach(img => {
-          img.src = '/assets/images/' + data.photo_url;
-        });
-      }
-      // Ferme le modal Bootstrap
-      const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('editProfileModal'));
-      modal.hide();
-    } else {
-      alert('Erreur lors de la modification du profil');
-    }
-  });
+    // if (data.success) {
+    //   // Met à jour dynamiquement le nom, prénom et la photo sur la page
+    //   document.querySelector('.fw-bold.mb-1').textContent = `${data.prenom} ${data.nom}`;
+    //   if (data.photo_url) {
+    //     // Bannière et photo de profil
+    //     document.querySelectorAll('img[alt="Photo de profil"], img[alt="Photo actuelle"]').forEach(img => {
+    //       img.src = '/assets/images/' + data.photo_url;
+    //     });
+    //   }
+    //   // Ferme le modal Bootstrap
+    //   const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('editProfileModal'));
+    //   modal.hide();
+    // } else {
+    //   alert('Erreur lors de la modification du profil');
+    // }
+  }); 
 
-  window.addEventListener('DOMContentLoaded', async function() {
-    const response = await fetch('/api/user.php');
-    const data = await response.json();
-    if (data && data.nom && data.prenom) {
-      document.querySelector('.fw-bold.mb-1').textContent = `${data.prenom} ${data.nom}`;
-      document.getElementById('nom').value = data.nom;
-      document.getElementById('prenom').value = data.prenom;
-      if (data.image) {
-        document.querySelectorAll('img[alt="Photo de profil"], img[alt="Photo actuelle"]').forEach(img => {
-          img.src = '/assets/images/' + data.image;
-        });
-      }
-    }
-  });
+  // window.addEventListener('DOMContentLoaded', async function() {
+  //   const response = await fetch('/api/user.php');
+  //   const data = await response.json();
+  //   if (data && data.nom && data.prenom) {
+  //     document.querySelector('.fw-bold.mb-1').textContent = `${data.prenom} ${data.nom}`;
+  //     document.getElementById('nom').value = data.nom;
+  //     document.getElementById('prenom').value = data.prenom;
+  //     if (data.image) {
+  //       document.querySelectorAll('img[alt="Photo de profil"], img[alt="Photo actuelle"]').forEach(img => {
+  //         img.src = '/assets/images/' + data.image;
+  //       });
+  //     }
+  //   }
+  // });
 </script>
