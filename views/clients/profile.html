@@ -61,47 +61,41 @@
 <script>
 
   document.getElementById('editProfileForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    const form = e.target;
-    const formData = new FormData(form);
+  e.preventDefault();
+  const form = e.target;
+  const formData = new FormData(form);
 
-    // Envoie AJAX vers l'API PHP
+  try {
     const response = await fetch('/api/profile/profile.php', {
       method: 'POST',
       body: formData
-    })
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
     const data = await response.json();
-    console.log(data + " dd");
-
-    // if (data.success) {
-    //   // Met à jour dynamiquement le nom, prénom et la photo sur la page
-    //   document.querySelector('.fw-bold.mb-1').textContent = `${data.prenom} ${data.nom}`;
-    //   if (data.photo_url) {
-    //     // Bannière et photo de profil
-    //     document.querySelectorAll('img[alt="Photo de profil"], img[alt="Photo actuelle"]').forEach(img => {
-    //       img.src = '/assets/images/' + data.photo_url;
-    //     });
-    //   }
-    //   // Ferme le modal Bootstrap
-    //   const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('editProfileModal'));
-    //   modal.hide();
-    // } else {
-    //   alert('Erreur lors de la modification du profil');
-    // }
-  }); 
-
-  // window.addEventListener('DOMContentLoaded', async function() {
-  //   const response = await fetch('/api/user.php');
-  //   const data = await response.json();
-  //   if (data && data.nom && data.prenom) {
-  //     document.querySelector('.fw-bold.mb-1').textContent = `${data.prenom} ${data.nom}`;
-  //     document.getElementById('nom').value = data.nom;
-  //     document.getElementById('prenom').value = data.prenom;
-  //     if (data.image) {
-  //       document.querySelectorAll('img[alt="Photo de profil"], img[alt="Photo actuelle"]').forEach(img => {
-  //         img.src = '/assets/images/' + data.image;
-  //       });
-  //     }
-  //   }
-  // });
+    console.log("Response:", data);
+    
+    if (data.success) {
+      // Update the UI dynamically
+      document.querySelector('.fw-bold.mb-1').textContent = `${data.prenom} ${data.nom}`;
+      if (data.photo_url) {
+        // Update both profile pictures
+        document.querySelectorAll('img[alt="Photo de profil"], img[alt="Photo actuelle"]').forEach(img => {
+          img.src = '/assets/images/' + data.photo_url + '?t=' + Date.now(); // Cache buster
+        });
+      }
+      // Close the modal
+      const modal = bootstrap.Modal.getInstance(document.getElementById('editProfileModal'));
+      modal.hide();
+    } else {
+      alert('Error: ' + (data.error || 'Unknown error'));
+    }
+  } catch (error) {
+    console.error('Fetch error:', error);
+    alert('Failed to update profile. Please try again.');
+  }
+});
 </script>

@@ -4,23 +4,62 @@ include("../database.php");
 
 header('Content-Type: application/json');
 
+// Initialize response array
+$response = ['success' => false, 'error' => ''];
 
-if( isset($_POST["nom"] && isset($_POST["prenom"] ) &&  ) )
+try {
+    // Check if request is POST
+    if ($_SERVER["REQUEST_METHOD"] !== "POST") {
+        throw new Exception("Invalid request method");
+    }
 
-$filename = include("../code_de_gestion_d_image.php");
+    // Validate required fields
+    if (empty($_POST['nom']) || empty($_POST['prenom'])) {
+        throw new Exception("Nom and prenom are required");
+    }
 
-if ($_SERVER["REQUEST_METHOD"] === "POST") {;
-    try {
+    // Get form data
+    $nom = $_POST['nom'];
+    $prenom = $_POST['prenom'];
+    $id_uti = 14; // Should be $_SESSION["id_uti"] in production
+
+    // Handle file upload if present
+    $filename = include "../code_de_gestion_d_image.php";
+
+    // Prepare the update query
+    if ($filename) {
+        // Update with new image
         $req = $pdo->prepare("UPDATE Utilisateur SET nom=:nom, prenom=:prenom, image=:image WHERE id=:id");
         $req->execute([
-            ':nom' => $nom,
-            ':prenom' => $prenom,
-            ':image' => $filename,
-            ':id' => 14 //$_SESSION["id_uti"]
+            'nom' => $nom,
+            'prenom' => $prenom,
+            'image' => $filename,
+            'id' => $id_uti
         ]);
-    } catch (PDOException $e) {
-        echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+    } else {
+        // Update without changing image
+        $req = $pdo->prepare("UPDATE Utilisateur SET nom=:nom, prenom=:prenom WHERE id=:id");
+        $req->execute([
+            'nom' => $nom,
+            'prenom' => $prenom,
+            'id' => $id_uti
+        ]);
     }
-} else echo json_encode("error");
 
-echo json_encode($req->fetch(PDO::FETCH_ASSOC));
+    // Success response
+    $response = [
+        'success' => true,
+        'nom' => $nom,
+        'prenom' => $prenom,
+        'photo_url' => $filename
+    ];
+
+} catch (PDOException $e) {
+    $response['error'] = "Database error: " . $e->getMessage();
+} catch (Exception $e) {
+    $response['error'] = $e->getMessage();
+}
+
+// Send JSON response
+echo json_encode($response);
+exit;
