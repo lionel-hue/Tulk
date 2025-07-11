@@ -1,5 +1,5 @@
 <?php
-require 'PHPMailerAutoload.php';
+require 'phpmailer/PHPMailerAutoload.php';
 
 // Récupère l'email de l'utilisateur (ex : via POST)
 $destinataire = isset($_POST['email']) ? $_POST['email'] : null;
@@ -19,13 +19,13 @@ $mail = new PHPMailer;
 $mail->isSMTP();
 $mail->Host = 'smtp.gmail.com';
 $mail->SMTPAuth = true;
-$mail->Username = 'frenchcode.contact@gmail.com'; // Ton adresse Gmail
-$mail->Password = 'VOTRE_MOT_DE_PASSE_ICI'; // Mot de passe d'application Gmail
+$mail->Username = 'instaconn15@gmail.com'; // Ton adresse Gmail
+$mail->Password = 'instaconn123@_'; // Mot de passe d'application Gmail
 $mail->SMTPSecure = 'ssl';
 $mail->Port = 465;
 
 // Expéditeur
-$mail->setFrom('frenchcode.contact@gmail.com', 'Instaconn');
+$mail->setFrom('instaconn15@gmail.com', 'Instaconn');
 
 // Destinataire
 $mail->addAddress($destinataire);
@@ -34,7 +34,8 @@ $mail->addAddress($destinataire);
 $mail->isHTML(true);
 $mail->Subject = 'Confirmation de votre inscription';
 
-$lien_activation = "http://localhost:8080/Instaconn/api/inscription/activate.php?code=$activation_code&email=" . urlencode($destinataire);
+// Génère le lien d'activation (adapte l'URL et l'id utilisateur selon ton système)
+$lien_activation = "http://localhost:8080/Instaconn/api/inscription/verif.php?email=" . urlencode($destinataire) . "&cle=" . $activation_code;
 
 $mail->Body = "
     <h2>Bienvenue sur Instaconn !</h2>
