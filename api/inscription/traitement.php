@@ -1,45 +1,71 @@
-<?php
-// Connexion à la base de données
-$conn = new mysqli("localhost", "root", "", "instaconn");
+<?php 
+session_start();
 
-if ($conn->connect_error) {
-    die("❌ Connexion échouée : " . $conn->connect_error);
-}
+include "../database.php";
 
-// Récupérer les données du formulaire
-$nom = $_POST['nom'];
-$prenom = $_POST['prenom'];
-$role = $_POST['role'];
+$req = null;
 
-// Gestion de l'image
-$target_dir = "uploads/"; // dossier où stocker les images
-$nom_fichier = basename($_FILES["image"]["name"]);
-$chemin_image = $target_dir . time() . "_" . $nom_fichier; // nom unique
+// Vérifier tous les champs nécessaires
+if ( 
+    !empty($_POST['nom']) &&
+    !empty($_POST['prenom']) &&
+    !empty($_POST['role']) &&
+    !empty($_POST['sexe']) &&
+    !empty($_POST['email']) &&
+    !empty($_POST['motdepasse']) &&
+    isset($_FILES['send_img']) &&
+    $_FILES['send_img']['error'] === 0
+) 
+{
+    // Récupération des données (sans trim)
+    $nom = $_POST['nom'];
+    $prenom = $_POST['prenom'];
+    $role = $_POST['role'];
+    $email = $_POST['email'];
+    $sexe = $_POST["sexe"];
+    $motdepasse_brut = $_POST['motdepasse'];
 
-// Créer le dossier s’il n’existe pas
-if (!is_dir($target_dir)) {
-    mkdir($target_dir, 0777, true);
-}
+    $motdepasse = password_hash($motdepasse_brut, PASSWORD_DEFAULT);
 
-// Déplacer le fichier image
-if (move_uploaded_file($_FILES["image"]["tmp_name"], $chemin_image)) {
+    $filename = include("../code_de_gestion_d_image.php");
 
-    // Insertion dans la base
-    $sql = "INSERT INTO utilisateur (nom, prenom, role, image) VALUES (?, ?, ?, ?)";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("ssss", $nom, $prenom, $role, $chemin_image);
+    try{
+        $req = $pdo->prepare("INSERT INTO Utilisateur(nom, prenom, role, image, sexe, email, mdp ) VALUES (:nom, :prenom, :role, :img, :sexe, :email, :mdp);");
+        $req->execute([ 
+            "nom"=>$_POST["nom"],
+            "prenom"=>$_POST["prenom"],
+            "role"=>$_POST["role"],
+            "img"=>$filename,
+            "sexe"=>$_POST["sexe"],
+            "email"=>$_POST["email"],
+            "mdp"=>$motdepasse
+            
+        ]);
 
-    if ($stmt->execute()) {
-        echo "✅ Inscription réussie !";
-    } else {
-        echo "❌ Erreur SQL : " . $stmt->error;
+        $_SESSION["id_uti"] = $lastId = $pdo->lastInsertId(); 
+
+    }catch(PDOException $e){
+        echo json_encode($e->getMessage());
+        exit;
     }
+    $req = $pdo->prepare("SELECT * FROM Utilisateur WHERE id = :id");
 
-    $stmt->close();
+    $req->execute([
+        "id" => $lastId 
+    ]);
+
+    //echo json_encode( $req->fetch(PDO::FETCH_ASSOC) );
+    header("Location: ../../index.html");
+    exit;
 
 } else {
-    echo "❌ Erreur lors de l'upload de l'image.";
+    echo json_encode([
+        "success" => false,
+        "error" => "Champs manquants ou image non valide",
+        "debug" => [
+            "post" => $_POST,
+            "files" => $_FILES
+        ]
+    ]);
+    exit;
 }
-
-$conn->close();
-?>
