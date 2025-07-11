@@ -24,7 +24,7 @@ if( isset($_POST["email"]) && isset($_POST["password"] ) )
             //si user n'existe pas
             if( !$user )
             {
-                echo $error;
+                header("Location: ../../views/clients/seconnecter.html");
             }else{
                 //user existe - ok, verifions mot de passe :
                 $est_mdpasse_vrai = password_verify( $password, $user["mdp"]);
@@ -41,4 +41,4 @@ if( isset($_POST["email"]) && isset($_POST["password"] ) )
 
     }else echo "Erreur lors du login! ressayer plustard!";
 
-}else echo json_encode("error");
+}else header("Location: ../../views/clients/seconnecter.html");

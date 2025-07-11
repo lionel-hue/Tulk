@@ -12,7 +12,8 @@ if (!page) page = "accueil"
     document.getElementById('mainContent').innerHTML = res 
     
     //controller    
-    switch(page){
+    switch(page)
+    {
         case "accueil":
             //GET /api/accueil/articles.php endpoint
             await setFormulaire()
@@ -28,4 +29,15 @@ if (!page) page = "accueil"
         case "amis":
             break
     }
+
+    // After fetching user data (e.g., in your main app.js)
+    fetch('/api/user.php')
+
+    .then(res => res.json())
+
+    .then(data => {
+    if (data === "error") {
+      window.location.replace("/views/clients/seconnecter.html"); // Hard redirect (no history entry)
+    }
+  })
 })()
