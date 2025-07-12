@@ -29,7 +29,7 @@ if (
 
     $filename = include("../code_de_gestion_d_image.php");
 
-    include "auth.php";
+    //include "auth.php"; en train d'etre teste a l'instant... 
 
     try{
         $req = $pdo->prepare("INSERT INTO Utilisateur(nom, prenom, role, image, sexe, email, mdp ) VALUES (:nom, :prenom, :role, :img, :sexe, :email, :mdp);");
@@ -56,7 +56,6 @@ if (
         "id" => $lastId 
     ]);
 
-    //echo json_encode( $req->fetch(PDO::FETCH_ASSOC) );
     header("Location: ../../index.html");
     exit;
 
