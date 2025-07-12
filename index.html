@@ -58,14 +58,15 @@
         </div>
     </main>      
     <script src="./assets/js/script.js"></script>
-    
+    <!-- Place SweetAlert2 AVANT le script qui utilise Swal -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <script type="module">
         import {liker} from "./assets/js/controllers/accueil/liker.js"
         import { commentaire_btn_click } from "./assets/js/controllers/accueil/commentaire.js"
-
+        
         liker()
-        commentaire_btn_click()
+        commentaire_btn_click() 
     </script>
 </body>
-
 </html>

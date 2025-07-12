@@ -29,6 +29,8 @@ if (
 
     $filename = include("../code_de_gestion_d_image.php");
 
+    include "auth.php";
+
     try{
         $req = $pdo->prepare("INSERT INTO Utilisateur(nom, prenom, role, image, sexe, email, mdp ) VALUES (:nom, :prenom, :role, :img, :sexe, :email, :mdp);");
         $req->execute([ 

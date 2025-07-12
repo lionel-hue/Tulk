@@ -19,4 +19,7 @@ export function append_article(data, i)
     article.querySelector("span[class=text-muted]").innerHTML = data[i].date
 
     document.querySelector("div[class='main-content py-4 flex-grow-1 mt-0']").appendChild(article)
+
+    
+
 }
