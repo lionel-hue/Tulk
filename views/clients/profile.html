@@ -13,7 +13,9 @@
         <!-- Infos profil sous la photo -->
         <div class="text-center profile-name" style="margin-top: 90px;">
           <h2 class="fw-bold mb-1">Jean Dupont</h2>
+          <br><br>
           <a href="#" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editProfileModal">Modifier le profil</a>
+          <br><br>
         </div>
     </main>
     
@@ -32,6 +34,10 @@
         <div class="modal-body">
           <div class="mb-3 text-center">
             <img src="/assets/images/image1.jpg" alt="Photo actuelle" class="rounded-circle border border-3 border-white shadow" width="80" height="80">
+          </div>
+          <div class="mb-3" style="display:none;">
+            <label for="id" class="form-label">ID</label>
+            <input type="text" class="form-control"  id="id" name="id" value="">
           </div>
           <div class="mb-3">
             <label for="nom" class="form-label">Nom</label>

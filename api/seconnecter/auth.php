@@ -33,9 +33,11 @@ if( isset($_POST["email"]) && isset($_POST["password"] ) )
                 {
                     $_SESSION["id_uti"] = $user["id"];
                     echo json_encode(['success' => true, 'redirect' => '../../index.html']);
+                    header("Location: ../../index.html");
                     exit;
                 }else{
                     echo json_encode(['success' => false, 'error' => 'Mot de passe incorrect']);
+                    header("Location: ../../index.html");
                     exit;
                 }
             }

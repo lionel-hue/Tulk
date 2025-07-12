@@ -7,11 +7,15 @@ header('Content-Type: application/json');
 $req = "";
 
 
-if ($_SERVER["REQUEST_METHOD"] === "POST" && !empty($_POST['nom']) && !empty($_POST['prenom'])) {
-
+if 
+(
+    $_SERVER["REQUEST_METHOD"] === "POST" && 
+    !empty($_POST['nom']) && 
+    !empty($_POST['prenom'])
+) 
+{
     $nom = $_POST['nom'];
     $prenom = $_POST['prenom'];
-    $id_uti = $_SESSION["id_uti"];
 
     $filename = include "../code_de_gestion_d_image.php";
 
@@ -23,7 +27,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && !empty($_POST['nom']) && !empty($_P
             'nom' => $nom,
             'prenom' => $prenom,
             'image' => $filename,
-            'id' => $id_uti
+            'id' => $_POST["id"] === $_SESSION["id_uti"] ? $_SESSION["id_uti"] : $_POST["id"]
         ]);
     } else 
     {
@@ -32,10 +36,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && !empty($_POST['nom']) && !empty($_P
         $req->execute([
             'nom' => $nom,
             'prenom' => $prenom,
-            'id' => $id_uti
+            'id' => $_POST["id"] === $_SESSION["id_uti"] ? $_SESSION["id_uti"] : $_POST["id"]
         ]);
     }
 
     echo json_encode("success");
     
-} else echo json_encode("eror");
+} else echo json_encode("error");

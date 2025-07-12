@@ -1,6 +1,6 @@
 import {articles_post, articles_get} from "./accueil/articles.js"
 import { setFormulaire } from "./accueil/setFormulaire.js"; 
-import { modifier_profile } from "./profile/profile.js";
+import { modifier_profile, set_profile } from "./profile/profile.js";
     
 let params = new URLSearchParams(window.location.search)
 let page = params.get("page")
@@ -39,8 +39,11 @@ if (data === "error") {
             break
         
         case "profile":
+          //GET /api/profile/user.php
+          await set_profile()
+
           //POST /api/profile/profile.php
-          modifier_profile()
+          await modifier_profile()
             break
             
         case "amis":
