@@ -8,6 +8,8 @@ export function append_article(data, i)
 
     article.querySelector(".post-id").innerHTML = data[i].id_article
 
+    article.querySelector("a[class='text-decoration-none']").setAttribute("href", `?page=profile&id_ami=${data[i].id_uti}`)
+
     article.querySelector(".profile-pic").setAttribute('src', `./assets/images/${data[i].profile_pic}`)
 
     article.querySelector("strong").innerHTML = `${data[i].prenom} ${data[i].nom}`
@@ -19,7 +21,4 @@ export function append_article(data, i)
     article.querySelector("span[class=text-muted]").innerHTML = data[i].date
 
     document.querySelector("div[class='main-content py-4 flex-grow-1 mt-0']").appendChild(article)
-
-    
-
 }
