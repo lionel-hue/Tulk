@@ -20,7 +20,7 @@ export function commentaires_show(post)
 
     return fetch(`/api/accueil/commentaire.php?type=show_commentaire&id_arti=${id_article}`)
     .then( res => res.json() )
-
+    
     .then( data => {
         data.forEach( e =>{
             const comment = document.createElement("div")

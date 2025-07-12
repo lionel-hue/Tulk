@@ -11,7 +11,6 @@ if ( !isset( $_SESSION["id_uti"] ) )
 
 include("database.php");
 
-
 $req = null;
 
 if( $_SERVER["REQUEST_METHOD"] === "GET" )
@@ -26,10 +25,6 @@ if( $_SERVER["REQUEST_METHOD"] === "GET" )
         echo json_encode(['success' => false, 'error' => $e->getMessage()]);
         exit;
     }
+    echo json_encode( $req->fetch(PDO::FETCH_ASSOC) );
 
-    $user = $req->fetch(PDO::FETCH_ASSOC);
-    echo json_encode(['success' => true, 'user' => $user]);
-
-}else{
-    echo json_encode(['success' => false, 'error' => 'Requête non supportée']);
-}
+}else echo json_encode("error"); 

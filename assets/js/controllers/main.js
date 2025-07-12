@@ -1,5 +1,6 @@
 import {articles_post, articles_get} from "./accueil/articles.js"
 import { setFormulaire } from "./accueil/setFormulaire.js"; 
+import { modifier_profile } from "./profile/profile.js";
     
 let params = new URLSearchParams(window.location.search)
 let page = params.get("page")
@@ -25,7 +26,10 @@ if (!page) page = "accueil"
             break
         
         case "profile":
+          //POST /api/profile/profile.php
+          modifier_profile()
             break
+            
         case "amis":
             break
     }
