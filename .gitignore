@@ -1,5 +1,5 @@
 *.code-workspace
 .vscode/
-assets/images/*.*
+assets/images/*.png
 .hintrc
 .env
