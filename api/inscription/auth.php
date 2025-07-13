@@ -35,7 +35,7 @@ $mail->isHTML(true);
 $mail->Subject = 'Confirmation de votre inscription';
 
 // Génère le lien d'activation (adapte l'URL et l'id utilisateur selon ton système)
-$lien_activation = "http://localhost:1024/Instaconn/api/inscription/verif.php?email=" . urlencode($destinataire) . "&cle=" . $activation_code;
+$lien_activation = "http://".$_ENV["DB_HOST"].":".$_ENV["DB_PORT"]."/Instaconn/api/inscription/verif.php?email=" . urlencode($destinataire) . "&cle=" . $activation_code;
 
 $mail->Body = "
     <h2>Bienvenue sur Instaconn !</h2>

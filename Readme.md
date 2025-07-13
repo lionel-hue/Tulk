@@ -39,4 +39,5 @@ DB_HOST=Nom du host
 DB_USER=Nom d'utilisateur
 DB_PASSWORD=Mot de passe
 DB_NAME=Nom de la BDD
+
 ```
