@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__."/../vendor/autoload.php";
 require 'phpmailer/PHPMailerAutoload.php';
 
 // Récupère l'email de l'utilisateur (ex : via POST)

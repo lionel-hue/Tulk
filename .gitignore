@@ -6,3 +6,4 @@ assets/images/*.jpeg
 assets/images/*.gif
 .hintrc
 .env
+vendor/
