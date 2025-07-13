@@ -1,4 +1,4 @@
-# Instaconn!
+# Instaconn! : un espace communautaire base sur facebook
 
 ---
 
@@ -25,6 +25,13 @@
 
 ---
 
+## Les exigences du projet
+
+```
+- php version >= 8.3.22
+- xampp version 8.2.12-0 
+```
+
 ## Guide d'usage
 
 ```
@@ -34,10 +41,16 @@ git clone https://github.com/lionel-hue/Instaconn.git
 #renomer the ficihier .env.example en .env
 .env.example => .env
 
-#saisir les informations du fichier .env pour la conn a la BDD
+#saisir les informations du fichier .env pour la conn a la BDD si vous voulez
 DB_HOST=Nom du host 
 DB_USER=Nom d'utilisateur
 DB_PASSWORD=Mot de passe
 DB_NAME=Nom de la BDD
 
+#demarrer l'application xampp 
+#demarrer apache et mysql
+#depuis phpmyadmin importer le fichier Instaconn.sql dans la bdd appele Instaconn(une sugesstion du nom de la bdd)
+
+#demarrer php depuis le cli et allez sur le lien precise
+php -S localhost:1024 (acceder localhost:1024 depuis le navigateur)
 ```
