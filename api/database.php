@@ -3,9 +3,9 @@ header("Access-Control-Allow-Origin:*");
 try {
     $pdo = new
         PDO(
-            'mysql:host=127.0.0.1;dbname=Instaconn;charset=utf8',
-            'root',
-            ''
+            "mysql:host=".$_ENV['DB_HOST'].";dbname=".$_ENV['DB_NAME'].";charset=utf8",
+            $_ENV["DB_USER"],
+            $_ENV["DB_PASSWORD"]
         );
 
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
