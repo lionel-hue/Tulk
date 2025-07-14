@@ -1,7 +1,7 @@
 FROM php:8.2-apache
 
 # Install PDO and other common extensions
-RUN docker-php-ext-install pdo pdo_mysql
+RUN docker-php-ext-install pdo pdo_pgsql
 
 # Copy your application files
 COPY . /var/www/html/
