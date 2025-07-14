@@ -1,19 +1,19 @@
-# Instaconn! : un espace communautaire base sur facebook
+# Instaconn! : un espace communautaire base sur facebook 👥
 
 ---
 
-- ### voir, liker, commenter sur les articles
-- ### rechercher et discuter avec les amis
-- ### voir votre profile etc
+- ### voir, liker, commenter sur les articles 📰 
+- ### rechercher et discuter avec les amis 💬
+- ### voir votre profile etc 👤
 
 ---
 
 ## **Les fonctionalites** qui marche pour l'instant
 
-- ### voir les articles
-- ### voir les profiles
-- ### liker et commenter sur les articles
-- ### se connecter et inscription
+- ### voir les articles ✅
+- ### voir les profiles ✅
+- ### liker et commenter sur les articles ✅
+- ### se connecter et inscription ✅
 
 ---
 
@@ -25,14 +25,44 @@
 
 ---
 
-## Les exigences du projet
+## Les exigences du projet 💡
 
 ```
 - php version >= 8.3.22
 - xampp version 8.2.12-0 
 ```
 
-## Guide d'usage
+## L'architecture du projet 📂
+```
+ /
+ |___api/
+     |___accueil/
+     |___chat/
+     |___inscription/
+     |___profile/
+     |___seconnecter/
+     |
+     assets/
+     |___css/
+     |___images/
+     |   |___db_model/
+     |   |___sys_img/
+     |    
+     |___js/
+     |   |___controllers/
+     |
+     views/
+     |___backoffice/
+     |___clients/
+     |
+     .env.example
+     |
+     Instaconn.sql
+     |
+     .index.html
+```
+
+## Guide d'usage 📋
 
 ```
 #cloner le repro
