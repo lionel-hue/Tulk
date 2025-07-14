@@ -39,7 +39,7 @@
 git clone https://github.com/lionel-hue/Instaconn.git
 
 #renomer the ficihier .env.example en .env
-.env.example => .env
+.env.example => .env (linux : cp .env.example .env)
 
 #saisir les informations du fichier .env pour la conn a la BDD
 DB_HOST=Nom du host
