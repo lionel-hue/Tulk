@@ -41,16 +41,17 @@ git clone https://github.com/lionel-hue/Instaconn.git
 #renomer the ficihier .env.example en .env
 .env.example => .env
 
-#saisir les informations du fichier .env pour la conn a la BDD si vous voulez
-DB_HOST=Nom du host 
-DB_USER=Nom d'utilisateur
-DB_PASSWORD=Mot de passe
+#saisir les informations du fichier .env pour la conn a la BDD
+DB_HOST=Nom du host
+HOST_USER=Nom d'utilisateur
+HOST_PASS=Mot de passe
 DB_NAME=Nom de la BDD
+HOST_PORT=Port du host 
 
 #demarrer l'application xampp 
 #demarrer apache et mysql
 #depuis phpmyadmin importer le fichier Instaconn.sql dans la bdd appele Instaconn(une sugesstion du nom de la bdd)
 
 #demarrer php depuis le cli et allez sur le lien precise
-php -S localhost:1024 (acceder localhost:1024 depuis le navigateur)
+php -S DB_HOST:HOST_PORT (acceder localhost:1024 depuis le navigateur)
 ```

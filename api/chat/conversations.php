@@ -1,5 +1,6 @@
 <?php
-require_once __DIR__."/../vendor/autoload.php";
+require_once "../envloader.php";
+loadEnvFile(__DIR__.'/../.env');
 session_start();
 
 include("../database.php");

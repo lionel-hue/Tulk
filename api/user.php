@@ -1,6 +1,8 @@
 <?php
 header('Content-Type: application/json');
-require_once __DIR__."/../vendor/autoload.php";
+include "envloader.php";
+loadEnvFile(__DIR__.'/../.env');
+
 session_start();
 
 if ( !isset( $_SESSION["id_uti"] ) )

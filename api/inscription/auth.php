@@ -1,5 +1,7 @@
 <?php
-require_once __DIR__."/../vendor/autoload.php";
+require_once "../envloader.php";
+loadEnvFile(__DIR__.'/../.env');
+
 require 'phpmailer/PHPMailerAutoload.php';
 
 // Récupère l'email de l'utilisateur (ex : via POST)
