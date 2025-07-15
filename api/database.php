@@ -3,11 +3,10 @@ header("Access-Control-Allow-Origin:*");
 require_once "envloader.php";
 loadEnvFile(__DIR__ . '/../.env');
 
-try 
-{
+try {
 
     $pdo = new PDO(
-        "pgsql:host=" . $_ENV['DB_HOST'] . ";dbname=" . $_ENV['DB_NAME'] . ";sslmode=require",
+        "pgsql:host=" . $_ENV['DB_HOST'] . ";port=" . $_ENV["DB_PORT"] . ";dbname=" . $_ENV['DB_NAME'] . ";sslmode=require",
         $_ENV["DB_USER"],
         $_ENV["DB_PASS"]
     );
@@ -17,4 +16,4 @@ try
     header('Content-Type: application/json');
     echo json_encode(['success' => false, 'error' => $e->getMessage()]);
     exit;
-}   
+}
