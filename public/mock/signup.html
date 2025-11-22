@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscription - Tulk</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <!-- Logo moves to side when filling form -->
+            <div class="app-logo" id="appLogo">
+                <div class="logo-circle">T</div>
+            </div>
+
+            <div class="auth-header">
+                <h1>Inscription</h1>
+                <p>Créez votre compte Tulk</p>
+            </div>
+
+            <!-- Updated progress steps to 4 stages including verification -->
+            <div class="progress-steps">
+                <div class="step active" data-step="1">
+                    <div class="step-circle">1</div>
+                    <span>Infos</span>
+                </div>
+                <div class="step" data-step="2">
+                    <div class="step-circle">2</div>
+                    <span>Profil</span>
+                </div>
+                <div class="step" data-step="3">
+                    <div class="step-circle">3</div>
+                    <span>Photo</span>
+                </div>
+                <div class="step" data-step="4">
+                    <div class="step-circle">4</div>
+                    <span>Code</span>
+                </div>
+            </div>
+
+            <form id="signupForm" class="auth-form">
+                <!-- Stage 1: Basic Information -->
+                <div class="form-stage active" data-stage="1">
+                    <div class="form-group">
+                        <label for="nom">Nom *</label>
+                        <input type="text" id="nom" name="nom" required placeholder="Entrez votre nom">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="prenom">Prénom</label>
+                        <input type="text" id="prenom" name="prenom" placeholder="Entrez votre prénom">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email *</label>
+                        <input type="email" id="email" name="email" required placeholder="Entrez votre email">
+                    </div>
+
+                    <button type="button" class="btn-primary" id="nextBtn1">Suivant</button>
+                </div>
+
+                <!-- Stage 2: Password & Gender -->
+                <div class="form-stage" data-stage="2">
+                    <div class="form-group">
+                        <label for="mdp">Mot de passe *</label>
+                        <input type="password" id="mdp" name="mdp" required placeholder="Créez un mot de passe">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="confirmMdp">Confirmer le mot de passe *</label>
+                        <input type="password" id="confirmMdp" name="confirmMdp" required placeholder="Confirmez votre mot de passe">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Sexe</label>
+                        <div class="radio-group">
+                            <label class="radio-option">
+                                <input type="radio" name="sexe" value="M">
+                                <span class="radio-label">Masculin</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="sexe" value="F">
+                                <span class="radio-label">Féminin</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-navigation">
+                        <button type="button" class="btn-secondary" id="prevBtn2">Précédent</button>
+                        <button type="button" class="btn-primary" id="nextBtn2">Suivant</button>
+                    </div>
+                </div>
+
+                <!-- Stage 3: Profile Image -->
+                <div class="form-stage" data-stage="3">
+                    <div class="form-group">
+                        <label for="image">Photo de profil (optionnelle)</label>
+                        <input type="file" id="image" name="image" accept="image/*">
+                    </div>
+                    <div id="imagePreview" class="image-preview"></div>
+                    
+                    <!-- Removed role field - roles are assigned by admins/mods only -->
+
+                    <div class="form-navigation">
+                        <button type="button" class="btn-secondary" id="prevBtn3">Précédent</button>
+                        <button type="button" class="btn-primary" id="nextBtn3">Suivant</button>
+                    </div>
+                </div>
+
+                <!-- Stage 4: Email Verification -->
+                <div class="form-stage" data-stage="4">
+                    <div class="verification-info">
+                        <p>Un code de vérification a été envoyé à votre adresse email. Veuillez entrer le code ci-dessous pour compléter votre inscription.</p>
+                    </div>
+                    <div class="form-group">
+                        <label for="verificationCode">Code de vérification *</label>
+                        <input type="text" id="verificationCode" name="verificationCode" required placeholder="Entrez le code à 6 chiffres" maxlength="6">
+                    </div>
+                    <button type="button" class="btn-text" id="resendCodeBtn">Renvoyer le code</button>
+                    
+                    <div class="form-navigation">
+                        <button type="button" class="btn-secondary" id="prevBtn4">Précédent</button>
+                        <button type="submit" class="btn-primary">S'inscrire</button>
+                    </div>
+                </div>
+            </form>
+
+            <div class="auth-footer">
+                <p>Vous avez déjà un compte ? <a href="login.html">Se connecter</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="signup.js"></script>
+</body>
+</html>

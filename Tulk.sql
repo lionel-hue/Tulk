@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `Instaconn`
+-- Database: `Tulk`
 --
 
 -- --------------------------------------------------------
@@ -224,7 +224,7 @@ ALTER TABLE `Liker`
 -- Constraints for table `Message`
 --
 ALTER TABLE `Message`
-  ADD CONSTRAINT `Message_ibfk_1` FOREIGN KEY (`id_uti_1`) REFERENCES `Utilisateur` (`id`),
+  ADD CONSTRAINT `Message_ibfk_1` FOREIGN KEY (`id_uti_1`) REFERENCES `Uotilisateur` (`id`),
   ADD CONSTRAINT `Message_ibfk_2` FOREIGN KEY (`id_uti_2`) REFERENCES `Utilisateur` (`id`);
 COMMIT;
 
