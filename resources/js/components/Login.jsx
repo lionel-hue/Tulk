@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { MessageCircle } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 const Login = () => {
     const [formData, setFormData] = useState({
@@ -11,6 +11,7 @@ const Login = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const navigate = useNavigate();
+    const { login } = useAuth();
 
     const handleChange = (e) => {
         setFormData({
@@ -26,15 +27,13 @@ const Login = () => {
         setError('');
 
         try {
-            // We'll create this API endpoint in Laravel
             const response = await axios.post('/api/login', formData);
             
-            // Store the token and user data (we'll set this up later)
-            localStorage.setItem('auth_token', response.data.token);
-            localStorage.setItem('user', JSON.stringify(response.data.user));
+            // Use the auth context to login
+            login(response.data.access_token, response.data.user);
             
-            // Redirect to dashboard
-            navigate('/dashboard');
+            // Redirect to home 
+            navigate('/home');
         } catch (err) {
             setError(err.response?.data?.message || 'Erreur de connexion');
         } finally {

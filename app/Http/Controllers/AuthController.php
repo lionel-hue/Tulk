@@ -19,7 +19,7 @@ class AuthController extends Controller
 
         if ($validator->fails()) {
             return response()->json([
-                'message' => 'Validation error',
+                'message' => 'Erreur de validation',
                 'errors' => $validator->errors()
             ], 422);
         }
@@ -34,9 +34,12 @@ class AuthController extends Controller
             ], 401);
         }
 
-        // For now, return simple response - we'll add tokens later
+        // Create Sanctum token
+        $token = $user->createToken('auth_token')->plainTextToken;
+
         return response()->json([
-            'message' => 'Login successful',
+            'access_token' => $token,
+            'token_type' => 'Bearer',
             'user' => [
                 'id' => $user->id,
                 'nom' => $user->nom,
@@ -44,6 +47,59 @@ class AuthController extends Controller
                 'email' => $user->email,
                 'role' => $user->role,
             ]
+        ]);
+    }
+
+    public function register(Request $request)
+    {
+        // Validate the request
+        $validator = Validator::make($request->all(), [
+            'nom' => 'required|string|max:255',
+            'prenom' => 'nullable|string|max:255',
+            'email' => 'required|email|unique:Utilisateur,email',
+            'mdp' => 'required|min:6',
+            'sexe' => 'nullable|in:M,F',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Erreur de validation',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        // Create user
+        $user = Utilisateur::create([
+            'nom' => $request->nom,
+            'prenom' => $request->prenom,
+            'email' => $request->email,
+            'mdp' => Hash::make($request->mdp),
+            'sexe' => $request->sexe,
+            'role' => 'user', // Default role
+        ]);
+
+        // Create Sanctum token
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            'access_token' => $token,
+            'token_type' => 'Bearer',
+            'user' => [
+                'id' => $user->id,
+                'nom' => $user->nom,
+                'prenom' => $user->prenom,
+                'email' => $user->email,
+                'role' => $user->role,
+            ]
+        ], 201);
+    }
+
+    public function logout(Request $request)
+    {
+        $request->user()->currentAccessToken()->delete();
+
+        return response()->json([
+            'message' => 'Déconnexion réussie'
         ]);
     }
 }

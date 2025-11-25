@@ -1,0 +1,392 @@
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { useAuth } from '../contexts/AuthContext';
+
+const Signup = () => {
+    const [formData, setFormData] = useState({
+        nom: '',
+        prenom: '',
+        email: '',
+        mdp: '',
+        confirmMdp: '',
+        sexe: '',
+        verificationCode: ''
+    });
+    const [currentStage, setCurrentStage] = useState(1);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
+    const navigate = useNavigate();
+    const { login } = useAuth();
+
+    const handleChange = (e) => {
+        setFormData({
+            ...formData,
+            [e.target.name]: e.target.value
+        });
+        setError('');
+    };
+
+    const validateStage = (stage) => {
+        switch (stage) {
+            case 1:
+                if (!formData.nom.trim() || !formData.email.trim()) {
+                    setError('Veuillez remplir tous les champs obligatoires');
+                    return false;
+                }
+                return true;
+            case 2:
+                if (!formData.mdp || !formData.confirmMdp) {
+                    setError('Veuillez remplir tous les champs obligatoires');
+                    return false;
+                }
+                if (formData.mdp.length < 6) {
+                    setError('Le mot de passe doit contenir au moins 6 caractères');
+                    return false;
+                }
+                if (formData.mdp !== formData.confirmMdp) {
+                    setError('Les mots de passe ne correspondent pas');
+                    return false;
+                }
+                return true;
+            case 4:
+                if (!formData.verificationCode || formData.verificationCode.length !== 6) {
+                    setError('Veuillez entrer un code de vérification valide à 6 chiffres');
+                    return false;
+                }
+                return true;
+            default:
+                return true;
+        }
+    };
+
+    const handleNextStage = () => {
+        if (validateStage(currentStage)) {
+            setCurrentStage(currentStage + 1);
+        }
+    };
+
+    const handlePrevStage = () => {
+        setCurrentStage(currentStage - 1);
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        setError('');
+
+        if (!validateStage(4)) {
+            setLoading(false);
+            return;
+        }
+
+        try {
+            // We'll create this API endpoint in Laravel
+            const response = await axios.post('/api/register', {
+                nom: formData.nom,
+                prenom: formData.prenom,
+                email: formData.email,
+                mdp: formData.mdp,
+                sexe: formData.sexe
+            });
+
+            // Auto-login after registration
+            login(response.data.access_token, response.data.user);
+            navigate('/home');
+        } catch (err) {
+            setError(err.response?.data?.message || 'Erreur lors de l\'inscription');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const renderProgressSteps = () => (
+        <div className="flex justify-between mb-8 relative">
+            <div className="absolute top-5 left-10 right-10 h-0.5 bg-[#262626] -z-10"></div>
+            {[1, 2, 3, 4].map((step) => (
+                <div key={step} className="flex flex-col items-center">
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all ${
+                        step === currentStage 
+                            ? 'bg-white border-white text-black' 
+                            : step < currentStage 
+                            ? 'bg-white border-white text-black'
+                            : 'bg-[#262626] border-[#262626] text-gray-400'
+                    }`}>
+                        {step}
+                    </div>
+                    <span className={`text-xs mt-2 ${
+                        step === currentStage ? 'text-white' : 'text-gray-400'
+                    }`}>
+                        {step === 1 ? 'Infos' : step === 2 ? 'Profil' : step === 3 ? 'Photo' : 'Code'}
+                    </span>
+                </div>
+            ))}
+        </div>
+    );
+
+    const renderStage = () => {
+        switch (currentStage) {
+            case 1:
+                return (
+                    <div className="space-y-4">
+                        <div>
+                            <label className="block text-sm font-medium text-white mb-2">
+                                Nom *
+                            </label>
+                            <input
+                                type="text"
+                                name="nom"
+                                value={formData.nom}
+                                onChange={handleChange}
+                                required
+                                placeholder="Entrez votre nom"
+                                className="w-full px-3 py-2 bg-[#262626] border border-[#262626] rounded-md text-white placeholder-gray-400 focus:outline-none focus:border-gray-500 focus:ring-1 focus:ring-gray-500 transition-colors"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-white mb-2">
+                                Prénom
+                            </label>
+                            <input
+                                type="text"
+                                name="prenom"
+                                value={formData.prenom}
+                                onChange={handleChange}
+                                placeholder="Entrez votre prénom"
+                                className="w-full px-3 py-2 bg-[#262626] border border-[#262626] rounded-md text-white placeholder-gray-400 focus:outline-none focus:border-gray-500 focus:ring-1 focus:ring-gray-500 transition-colors"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-white mb-2">
+                                Email *
+                            </label>
+                            <input
+                                type="email"
+                                name="email"
+                                value={formData.email}
+                                onChange={handleChange}
+                                required
+                                placeholder="Entrez votre email"
+                                className="w-full px-3 py-2 bg-[#262626] border border-[#262626] rounded-md text-white placeholder-gray-400 focus:outline-none focus:border-gray-500 focus:ring-1 focus:ring-gray-500 transition-colors"
+                            />
+                        </div>
+                        <button
+                            type="button"
+                            onClick={handleNextStage}
+                            className="w-full bg-white text-black py-3 px-4 rounded-md font-medium hover:bg-gray-200 transition-all duration-200"
+                        >
+                            Suivant
+                        </button>
+                    </div>
+                );
+            case 2:
+                return (
+                    <div className="space-y-4">
+                        <div>
+                            <label className="block text-sm font-medium text-white mb-2">
+                                Mot de passe *
+                            </label>
+                            <input
+                                type="password"
+                                name="mdp"
+                                value={formData.mdp}
+                                onChange={handleChange}
+                                required
+                                placeholder="Créez un mot de passe"
+                                className="w-full px-3 py-2 bg-[#262626] border border-[#262626] rounded-md text-white placeholder-gray-400 focus:outline-none focus:border-gray-500 focus:ring-1 focus:ring-gray-500 transition-colors"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-white mb-2">
+                                Confirmer le mot de passe *
+                            </label>
+                            <input
+                                type="password"
+                                name="confirmMdp"
+                                value={formData.confirmMdp}
+                                onChange={handleChange}
+                                required
+                                placeholder="Confirmez votre mot de passe"
+                                className="w-full px-3 py-2 bg-[#262626] border border-[#262626] rounded-md text-white placeholder-gray-400 focus:outline-none focus:border-gray-500 focus:ring-1 focus:ring-gray-500 transition-colors"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-white mb-2">
+                                Sexe
+                            </label>
+                            <div className="flex gap-4">
+                                <label className="flex items-center gap-2">
+                                    <input
+                                        type="radio"
+                                        name="sexe"
+                                        value="M"
+                                        checked={formData.sexe === 'M'}
+                                        onChange={handleChange}
+                                        className="text-white"
+                                    />
+                                    <span className="text-white">Masculin</span>
+                                </label>
+                                <label className="flex items-center gap-2">
+                                    <input
+                                        type="radio"
+                                        name="sexe"
+                                        value="F"
+                                        checked={formData.sexe === 'F'}
+                                        onChange={handleChange}
+                                        className="text-white"
+                                    />
+                                    <span className="text-white">Féminin</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div className="flex gap-4">
+                            <button
+                                type="button"
+                                onClick={handlePrevStage}
+                                className="flex-1 bg-[#262626] text-white py-3 px-4 rounded-md font-medium hover:bg-[#363636] transition-all duration-200"
+                            >
+                                Précédent
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleNextStage}
+                                className="flex-1 bg-white text-black py-3 px-4 rounded-md font-medium hover:bg-gray-200 transition-all duration-200"
+                            >
+                                Suivant
+                            </button>
+                        </div>
+                    </div>
+                );
+            case 3:
+                return (
+                    <div className="space-y-4">
+                        <div>
+                            <label className="block text-sm font-medium text-white mb-2">
+                                Photo de profil (optionnelle)
+                            </label>
+                            <input
+                                type="file"
+                                accept="image/*"
+                                className="w-full px-3 py-2 bg-[#262626] border border-[#262626] rounded-md text-white file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-white file:text-black hover:file:bg-gray-200"
+                            />
+                        </div>
+                        <div className="flex gap-4">
+                            <button
+                                type="button"
+                                onClick={handlePrevStage}
+                                className="flex-1 bg-[#262626] text-white py-3 px-4 rounded-md font-medium hover:bg-[#363636] transition-all duration-200"
+                            >
+                                Précédent
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleNextStage}
+                                className="flex-1 bg-white text-black py-3 px-4 rounded-md font-medium hover:bg-gray-200 transition-all duration-200"
+                            >
+                                Suivant
+                            </button>
+                        </div>
+                    </div>
+                );
+            case 4:
+                return (
+                    <div className="space-y-4">
+                        <div className="bg-[#262626] border border-[#363636] rounded-lg p-4">
+                            <p className="text-gray-400 text-sm">
+                                Un code de vérification a été envoyé à votre adresse email. 
+                                Veuillez entrer le code ci-dessous pour compléter votre inscription.
+                            </p>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-white mb-2">
+                                Code de vérification *
+                            </label>
+                            <input
+                                type="text"
+                                name="verificationCode"
+                                value={formData.verificationCode}
+                                onChange={handleChange}
+                                required
+                                placeholder="Entrez le code à 6 chiffres"
+                                maxLength={6}
+                                className="w-full px-3 py-2 bg-[#262626] border border-[#262626] rounded-md text-white placeholder-gray-400 focus:outline-none focus:border-gray-500 focus:ring-1 focus:ring-gray-500 transition-colors"
+                            />
+                        </div>
+                        <button
+                            type="button"
+                            className="text-white text-sm underline hover:no-underline"
+                        >
+                            Renvoyer le code
+                        </button>
+                        <div className="flex gap-4">
+                            <button
+                                type="button"
+                                onClick={handlePrevStage}
+                                className="flex-1 bg-[#262626] text-white py-3 px-4 rounded-md font-medium hover:bg-[#363636] transition-all duration-200"
+                            >
+                                Précédent
+                            </button>
+                            <button
+                                type="submit"
+                                disabled={loading}
+                                className="flex-1 bg-white text-black py-3 px-4 rounded-md font-medium hover:bg-gray-200 transition-all duration-200 disabled:opacity-50"
+                            >
+                                {loading ? 'Inscription...' : 'S\'inscrire'}
+                            </button>
+                        </div>
+                    </div>
+                );
+            default:
+                return null;
+        }
+    };
+
+    return (
+        <div className="min-h-screen bg-black flex items-center justify-center p-4">
+            <div className="bg-[#141414] border border-[#262626] rounded-lg p-8 w-full max-w-md">
+                {/* Logo */}
+                <div className="flex justify-center mb-6">
+                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-white to-gray-400 flex items-center justify-center text-black text-2xl font-bold">
+                        T
+                    </div>
+                </div>
+
+                {/* Header */}
+                <div className="text-center mb-8">
+                    <h1 className="text-3xl font-bold text-white mb-2">Inscription</h1>
+                    <p className="text-gray-400">Créez votre compte Tulk</p>
+                </div>
+
+                {/* Progress Steps */}
+                {renderProgressSteps()}
+
+                {/* Error Message */}
+                {error && (
+                    <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3 mb-4">
+                        <p className="text-red-400 text-sm">{error}</p>
+                    </div>
+                )}
+
+                {/* Signup Form */}
+                <form onSubmit={handleSubmit}>
+                    {renderStage()}
+                </form>
+
+                {/* Login Link */}
+                <div className="text-center pt-4 border-t border-[#262626] mt-6">
+                    <p className="text-gray-400 text-sm">
+                        Vous avez déjà un compte ?{' '}
+                        <Link 
+                            to="/login" 
+                            className="text-white font-medium hover:underline transition-colors"
+                        >
+                            Se connecter
+                        </Link>
+                    </p>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default Signup;

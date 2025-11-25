@@ -281,6 +281,13 @@ Issue: Missing Timestamps
 Development Servers:
 bash
 
+
+### API ROUTE NAMING CONSISTENCY
+- **NO leading slashes** in route definitions
+- **Correct**: `Route::post('login', ...)` → `/api/login`
+- **Incorrect**: `Route::post('/login', ...)` → `/api//login`
+- **Apply to ALL API routes** for consistency
+
 # Backend (Laravel)
 php artisan serve
 

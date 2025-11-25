@@ -3,17 +3,15 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 class Utilisateur extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable;
 
     protected $table = 'Utilisateur';
-    
-    // Add this line to disable timestamps
     public $timestamps = false;
 
     protected $fillable = [
@@ -30,7 +28,6 @@ class Utilisateur extends Authenticatable
         'mdp'
     ];
 
-    // Tell Laravel to use 'mdp' for password
     public function getAuthPassword()
     {
         return $this->mdp;
