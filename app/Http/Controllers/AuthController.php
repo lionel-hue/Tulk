@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 class AuthController extends Controller
@@ -72,8 +73,14 @@ class AuthController extends Controller
             ], 422);
         }
 
-        // TODO: Add email verification logic here
-        // For now, we'll skip the verification check
+        // Verify the verification code
+        $cachedCode = Cache::get('verification_code_' . $request->email);
+
+        if (!$cachedCode || $cachedCode !== $request->verification_code) {
+            return response()->json([
+                'message' => 'Code de vérification invalide ou expiré'
+            ], 422);
+        }
 
         $imagePath = null;
         if ($request->hasFile('image')) {
@@ -94,6 +101,9 @@ class AuthController extends Controller
             'image' => $imagePath,
             'role' => 'user', // Default role
         ]);
+
+        // Clear the verification code after successful registration
+        Cache::forget('verification_code_' . $request->email);
 
         // Create Sanctum token
         $token = $user->createToken('auth_token')->plainTextToken;

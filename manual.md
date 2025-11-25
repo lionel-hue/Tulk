@@ -47,43 +47,11 @@
     add_foreign_keys_to_french_tables - ALL constraints (MUST BE LAST)
 
 🚨 DO NOT CHANGE THIS ORDER - Foreign keys depend on tables existing first!
-5. MIGRATION NAMING CONVENTIONS
-
-    Table creation: create_[french_table_name]_table
-
-    Foreign keys: add_constraints_to_french_schema (for bulk constraints)
-
-    Single table modifications: add_foreign_to_[table]_table
-
-    Use clear, descriptive names - avoid overly generic names
-
-6. AUTHENTICATION & SECURITY
-
-    Custom authentication required (not using Laravel's default users table)
-
-    Password field: mdp (not password)
-
-    User table: Utilisateur (not users)
-
-    Role system: admin, mod, user enums preserved
-
-    Laravel Sanctum for API token authentication
-
-7. LARAVEL 11+ ROUTING CONFIGURATION
-
-    Routes configured in bootstrap/app.php - not RouteServiceProvider
-
-    Must include api: __DIR__.'/../routes/api.php' in withRouting()
-
-    API routes use /api prefix automatically
-
-    Run php artisan route:list to verify routes are loaded
-
-8. API ROUTING IN LARAVEL 11+
+5. API ROUTING IN LARAVEL 11+
 
     Routes in api.php auto-prefixed with /api
 
-    Don't use leading slashes in route definitions
+    NO leading slashes in route definitions
 
     Correct: Route::post('login', ...) → /api/login
 
@@ -91,17 +59,7 @@
 
     Clear cache after route changes: php artisan route:clear
 
-9. API ROUTES & CSRF PROTECTION
-
-    API routes go in routes/api.php - not web.php
-
-    CSRF protection is disabled for API routes by default
-
-    Use Sanctum tokens for API authentication
-
-    419 errors mean CSRF protection is blocking the request
-
-10. FRONTEND-BACKEND INTEGRATION
+6. FRONTEND-BACKEND INTEGRATION
 
     React.js frontend with Laravel API backend
 
@@ -111,86 +69,119 @@
 
     Tailwind CSS v4 with new @source directives (VS Code warnings are normal)
 
-11. CHAT FUNCTIONALITY ARCHITECTURE
-
-    Direct messaging: User-to-user via Message table
-
-    Friendship system: Amitie table with en attente and ami statuses
-
-    Media support: image fields in Message and Article tables
-
-    Social features: Posts (Article), Comments (Commentaire), Likes (Liker)
-
-12. TECHNICAL STACK CONFIGURATION
-
-    Laravel 11+ with custom French database schema
-
-    React 18 with functional components and hooks
-
-    Tailwind CSS v4 (new Vite plugin approach)
-
-    MySQL/MariaDB with tulk database
-
-    Vite build system with React plugin
-
-13. DEVELOPMENT WORKFLOW
-
-    Database first: SQL schema drives migrations
-
-    French consistency: All models, controllers, relationships use French names
-
-    API responses: Consistent JSON structure with French field names
-
-    Error handling: Proper Laravel validation with French error messages
-
 🔧 CURRENT IMPLEMENTATION STATUS
-✅ COMPLETED SETUP
+✅ COMPLETED AUTHENTICATION SYSTEM
 
-    Laravel project initialized with French database schema
+    Multi-step Signup Form with progress indicators
 
-    All migrations created and executed successfully
+    Email Verification with Gmail integration
 
-    Test users seeded (jean@tulk.com / password123)
+    Profile Image Upload with storage management
 
-    API routes configured and working
+    Password Visibility Toggle with eye icons
 
-    React frontend with Login component
+    Form Validation on both frontend and backend
 
-    Authentication endpoint /api/login working (200 status)
+    Loading States for all async operations
 
-    Tailwind CSS v4 with custom dark theme
+✅ BACKEND FEATURES
+
+    Laravel Sanctum token authentication
+
+    Email Service with beautiful templates
+
+    File Upload with validation and storage
+
+    Cache-based Verification Codes (10-minute expiry)
+
+    French Database Schema fully implemented
+
+✅ FRONTEND COMPONENTS
+
+    Login Component with error handling
+
+    Signup Component (4-step process)
+
+    Auth Context for global state management
+
+    Protected Routes with authentication checks
+
+    Responsive Design with Tailwind CSS
 
 🚧 CURRENTLY WORKING ON
 
-    Login component integration with backend
+    Chat interface components
 
-    Token-based authentication with Sanctum
+    Friendship system
 
-    Protected routes in React
+    Real-time messaging
 
-    Dashboard component after login
+    Post and comment features
 
-📋 NEXT PRIORITIES
+🔐 AUTHENTICATION FLOW
+Signup Process (4 Steps):
 
-    Implement Laravel Sanctum for token authentication
+    Basic Info - Nom, Prénom, Email
 
-    Update AuthController to return proper tokens
+    Profile Details - Password, Gender, Password confirmation
 
-    Connect React Login to handle token storage
+    Profile Image - Optional image upload with validation
 
-    Create protected dashboard route
+    Email Verification - 6-digit code sent to email
 
-    Build chat interface components
+Login Process:
+
+    Email/password validation against Utilisateur table
+
+    Sanctum token generation and storage
+
+    Automatic redirect to protected home page
+
+Email Verification:
+
+    Codes stored in Laravel Cache with 10-minute expiry
+
+    Beautiful HTML email templates with dark theme
+
+    Gmail SMTP configuration with App Passwords
+
+    Code validation before user registration
+
+📧 EMAIL SYSTEM CONFIGURATION
+Gmail Setup:
+env
+
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USERNAME=tulksoft@gmail.com
+MAIL_PASSWORD=your_app_password
+MAIL_ENCRYPTION=tls
+MAIL_FROM_ADDRESS=tulksoft@gmail.com
+MAIL_FROM_NAME="Tulk Team"
+
+Email Template:
+
+    Location: resources/views/emails/verification.blade.php
+
+    Dark-themed design matching app aesthetics
+
+    Personalization with user name
+
+    Clear verification code display
 
 🗂️ FILE STRUCTURE & COMPONENTS
 BACKEND (Laravel)
-text
+```
 
 app/
 ├── Models/
 │   └── Utilisateur.php (French user model)
 ├── Http/Controllers/
-│   └── AuthController.php
+│   ├── AuthController.php
+│   └── VerificationController.php
+├── Mail/
+│   └── VerificationCodeMail.php
 routes/
 ├── api.php (API endpoints)
 ├── web.php (React entry point)
@@ -198,38 +189,23 @@ database/
 ├── migrations/ (French schema migrations)
 └── seeders/
     └── UtilisateurSeeder.php
+```
+
 
 FRONTEND (React)
-text
+```
 
 resources/js/
 ├── components/
-│   ├── Login.jsx (Current focus)
-│   ├── Dashboard.jsx
-│   └── Signup.jsx (Next)
+│   ├── Login.jsx
+│   ├── Signup.jsx (Multi-step form)
+│   └── Home.jsx
+├── contexts/
+│   └── AuthContext.jsx (Authentication state)
 ├── App.jsx (Router configuration)
-└── app.jsx (React entry point)
+└── index.jsx (React entry point)
+```
 
-🔐 AUTHENTICATION FLOW
-Current Login Process:
-
-    React Login submits to /api/login
-
-    AuthController validates credentials against Utilisateur table
-
-    Returns user data (needs token implementation)
-
-    React stores authentication state (in progress)
-
-Required Updates:
-php
-
-// In AuthController - Add Sanctum tokens
-$token = $user->createToken('auth_token')->plainTextToken;
-return response()->json([
-    'access_token' => $token,
-    'user' => $user_data
-]);
 
 🎨 UI/UX SPECIFICATIONS
 Color Scheme (Dark Theme)
@@ -244,49 +220,52 @@ Color Scheme (Dark Theme)
 
     Text: #ededed (light gray)
 
-Components Status:
+    Success: #10b981 (green)
 
-    Login.jsx: ✅ Complete (needs token integration)
+    Error: #ef4444 (red)
 
-    Dashboard.jsx: 🚧 Basic structure
+Form Design:
 
-    Signup.jsx: 📋 Not started
+    Multi-step progress indicators
 
-🐛 KNOWN ISSUES & SOLUTIONS
-Issue: VS Code CSS Warnings
+    Real-time validation feedback
 
-    Problem: @source directives show as unknown rules
+    Loading spinners for async operations
 
-    Cause: Tailwind CSS v4 new syntax not recognized by editor
+    Responsive design for all screen sizes
 
-    Solution: Ignore warnings - they don't affect build
+🛠️ TECHNICAL CONFIGURATION
+Image Upload System:
 
-Issue: Double API Prefix
+    Storage: storage/app/public/images/
 
-    Problem: Routes showing as api/api/login
+    Public Access: php artisan storage:link
 
-    Cause: Leading slash in route definition
+    Validation: 5MB max, image types only
 
-    Solution: Use Route::post('login', ...) not Route::post('/login', ...)
+    Naming: Random 20-character filenames
 
-Issue: Missing Timestamps
+Email Verification:
 
-    Problem: updated_at column not found
+    Code Generation: 6-digit random numbers
 
-    Cause: French tables don't have Laravel timestamps
+    Storage: Laravel Cache with 10-minute TTL
 
-    Solution: Add public $timestamps = false; to models
+    Resend functionality with cooldown
+
+Security Features:
+
+    Password hashing with bcrypt
+
+    Sanctum token authentication
+
+    Form validation on both client and server
+
+    XSS protection with Laravel Blade
 
 🚀 QUICK START COMMANDS
 Development Servers:
 bash
-
-
-### API ROUTE NAMING CONSISTENCY
-- **NO leading slashes** in route definitions
-- **Correct**: `Route::post('login', ...)` → `/api/login`
-- **Incorrect**: `Route::post('/login', ...)` → `/api//login`
-- **Apply to ALL API routes** for consistency
 
 # Backend (Laravel)
 php artisan serve
@@ -303,16 +282,26 @@ php artisan migrate
 # Seed test users
 php artisan db:seed --class=UtilisateurSeeder
 
-# Clear cache
-php artisan route:clear && php artisan config:clear
+# Create storage link for images
+php artisan storage:link
 
-Route Verification:
+Email Testing:
 bash
 
-# Check all registered routes
-php artisan route:list
+# Test email configuration
+php artisan tinker
+Mail::raw('Test', fn($m) => $m->to('test@test.com')->subject('Test'))
 
-📞 TESTING CREDENTIALS
+Cache & Configuration:
+bash
+
+# Clear all caches
+php artisan config:clear
+php artisan cache:clear
+php artisan route:clear
+php artisan view:clear
+
+🧪 TESTING CREDENTIALS
 Available Test Users:
 
     Regular User: jean@tulk.com / password123
@@ -321,35 +310,90 @@ Available Test Users:
 
 API Testing Endpoints:
 
-    Login: POST http://localhost:8000/api/login
+    Login: POST /api/login
 
-    Headers: Content-Type: application/json
+    Register: POST /api/register
 
-    Body: {"email": "jean@tulk.com", "password": "password123"}
+    Send Verification: POST /api/send-verification
+
+    Verify Code: POST /api/verify-code
+
+Headers for API Calls:
+json
+
+{
+  "Content-Type": "application/json",
+  "Accept": "application/json"
+}
+
+🐛 KNOWN ISSUES & SOLUTIONS
+Issue: VS Code CSS Warnings
+
+    Problem: @source directives show as unknown rules
+
+    Cause: Tailwind CSS v4 new syntax not recognized by editor
+
+    Solution: Ignore warnings - they don't affect build
+
+Issue: Email Sending Delays
+
+    Problem: Gmail may have slight delays
+
+    Solution: Use loading indicators and retry functionality
+
+Issue: Image Upload Paths
+
+    Problem: Images not accessible via URL
+
+    Solution: Run php artisan storage:link and check permissions
 
 🔄 UPDATE LOG
-Latest Updates:
+Latest Updates (November 25, 2025):
 
-    ✅ API Routing: Fixed double prefix issue in routes/api.php
+    ✅ Complete Authentication System with email verification
 
-    ✅ Database: Test users seeded successfully
+    ✅ Multi-step Signup Form with progress tracking
 
-    ✅ Authentication: Login endpoint returning 200 status
+    ✅ Profile Image Upload with validation
 
-    ✅ Frontend: React Login component ready for integration
+    ✅ Gmail Integration for email verification
 
-Next Updates Planned:
+    ✅ Loading States and error handling
 
-    Implement Sanctum token authentication
+    ✅ Protected Routes with authentication checks
 
-    Connect React Login to store tokens
+Next Features Planned:
 
-    Create authenticated dashboard
+    Chat interface with real-time messaging
 
-    Build chat interface components
+    Friendship system and user search
 
+    Post creation and commenting
 
-Last Updated: November 24, 2025
+    Like functionality for posts
+
+    Real-time notifications
+
+📞 SUPPORT & TROUBLESHOOTING
+Common Setup Issues:
+
+    Email Not Sending: Check Gmail App Password and .env configuration
+
+    Images Not Loading: Verify storage link and file permissions
+
+    Routes Not Working: Clear route cache and check bootstrap/app.php configuration
+
+    Database Errors: Verify migration order and foreign key constraints
+
+Debugging Tools:
+
+    Laravel Logs: tail -f storage/logs/laravel.log
+
+    Route List: php artisan route:list
+
+    Database: php artisan tinker
+
+Last Updated: November 25, 2025
 Database: Tulk (French Schema)
-Stack: Laravel 11 + React 18 + Tailwind CSS v4
-Status: ✅ Backend API Working → 🔄 Frontend Integration
+Stack: Laravel 11 + React 18 + Tailwind CSS v4 + MySQL
+Status: ✅ Authentication Complete → 🚧 Building Chat Features

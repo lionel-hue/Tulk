@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
-import { Eye, EyeOff } from 'lucide-react'; // Add eye icons
+import { Eye, EyeOff, Loader2, CheckCircle } from 'lucide-react';
 
 const Signup = () => {
     const [formData, setFormData] = useState({
@@ -16,12 +16,25 @@ const Signup = () => {
     });
     const [currentStage, setCurrentStage] = useState(1);
     const [loading, setLoading] = useState(false);
+    const [sendingEmail, setSendingEmail] = useState(false);
     const [error, setError] = useState('');
-    const [showPassword, setShowPassword] = useState(false); // Add state for password visibility
-    const [showConfirmPassword, setShowConfirmPassword] = useState(false); // Add state for confirm password visibility
-    const [profileImage, setProfileImage] = useState(null); // Add state for profile image
+    const [success, setSuccess] = useState(''); // New state for success messages
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [profileImage, setProfileImage] = useState(null);
+    const [verificationSent, setVerificationSent] = useState(false);
     const navigate = useNavigate();
     const { login } = useAuth();
+
+    // Improved error handler that extracts specific validation errors
+    const handleApiError = (err) => {
+        if (err.response?.data?.errors) {
+            // Extract all validation errors and join them
+            const errorMessages = Object.values(err.response.data.errors).flat();
+            return errorMessages.join(', ');
+        }
+        return err.response?.data?.message || 'Une erreur est survenue';
+    };
 
     const handleChange = (e) => {
         setFormData({
@@ -29,18 +42,17 @@ const Signup = () => {
             [e.target.name]: e.target.value
         });
         setError('');
+        setSuccess('');
     };
 
-    // Add image handler
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         if (file) {
-            // Validate file type and size
             if (!file.type.startsWith('image/')) {
                 setError('Veuillez sélectionner une image valide');
                 return;
             }
-            if (file.size > 5 * 1024 * 1024) { // 5MB limit
+            if (file.size > 5 * 1024 * 1024) {
                 setError('L\'image ne doit pas dépasser 5MB');
                 return;
             }
@@ -85,51 +97,56 @@ const Signup = () => {
         if (validateStage(currentStage)) {
             // If moving to stage 4, send verification code
             if (currentStage === 3) {
-                setLoading(true);
+                setSendingEmail(true);
+                setError('');
+                setSuccess('');
                 try {
                     await axios.post('/api/send-verification', {
                         email: formData.email,
                         name: formData.prenom || formData.nom
                     });
+                    setVerificationSent(true);
+                    setCurrentStage(currentStage + 1);
                 } catch (err) {
-                    setError(err.response?.data?.message || 'Erreur lors de l\'envoi du code de vérification');
-                    setLoading(false);
-                    return;
+                    setError(handleApiError(err));
+                } finally {
+                    setSendingEmail(false);
                 }
-                setLoading(false);
+            } else {
+                setCurrentStage(currentStage + 1);
             }
-            setCurrentStage(currentStage + 1);
         }
     };
 
-
-
     const handlePrevStage = () => {
         setCurrentStage(currentStage - 1);
+        setError('');
+        setSuccess('');
     };
 
-
     const handleResendCode = async () => {
-        setLoading(true);
+        setSendingEmail(true);
+        setError('');
+        setSuccess('');
         try {
             await axios.post('/api/send-verification', {
                 email: formData.email,
                 name: formData.prenom || formData.nom
             });
-            setError(''); // Clear any previous errors
-            // You can show a success message here
+            setSuccess('Code de vérification renvoyé avec succès!');
+            setVerificationSent(true);
         } catch (err) {
-            setError(err.response?.data?.message || 'Erreur lors de l\'envoi du code de vérification');
+            setError(handleApiError(err));
         } finally {
-            setLoading(false);
+            setSendingEmail(false);
         }
     };
-
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
         setError('');
+        setSuccess('');
 
         if (!validateStage(4)) {
             setLoading(false);
@@ -137,6 +154,24 @@ const Signup = () => {
         }
 
         try {
+            // Optional: Pre-validate the code before registration
+            try {
+                const verifyResponse = await axios.post('/api/verify-code', {
+                    email: formData.email,
+                    code: formData.verificationCode
+                });
+                
+                if (!verifyResponse.data.verified) {
+                    setError('Code de vérification invalide');
+                    setLoading(false);
+                    return;
+                }
+            } catch (verifyErr) {
+                setError(handleApiError(verifyErr));
+                setLoading(false);
+                return;
+            }
+
             // Create FormData to handle file upload
             const submitData = new FormData();
             submitData.append('nom', formData.nom);
@@ -145,7 +180,7 @@ const Signup = () => {
             submitData.append('mdp', formData.mdp);
             submitData.append('sexe', formData.sexe);
             submitData.append('verification_code', formData.verificationCode);
-
+            
             if (profileImage) {
                 submitData.append('image', profileImage);
             }
@@ -156,11 +191,16 @@ const Signup = () => {
                 }
             });
 
-            // Auto-login after registration
-            login(response.data.access_token, response.data.user);
-            navigate('/home');
+            // Show success message instead of auto-login
+            setSuccess('✅ Inscription réussie! Redirection vers la page de connexion...');
+            
+            // Wait 2 seconds to show the success message, then redirect to login
+            setTimeout(() => {
+                navigate('/login');
+            }, 2000);
+
         } catch (err) {
-            setError(err.response?.data?.message || 'Erreur lors de l\'inscription');
+            setError(handleApiError(err));
         } finally {
             setLoading(false);
         }
@@ -171,16 +211,18 @@ const Signup = () => {
             <div className="absolute top-5 left-10 right-10 h-0.5 bg-[#262626] -z-10"></div>
             {[1, 2, 3, 4].map((step) => (
                 <div key={step} className="flex flex-col items-center">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all ${step === currentStage
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all ${
+                        step === currentStage 
+                            ? 'bg-white border-white text-black' 
+                            : step < currentStage 
                             ? 'bg-white border-white text-black'
-                            : step < currentStage
-                                ? 'bg-white border-white text-black'
-                                : 'bg-[#262626] border-[#262626] text-gray-400'
-                        }`}>
+                            : 'bg-[#262626] border-[#262626] text-gray-400'
+                    }`}>
                         {step}
                     </div>
-                    <span className={`text-xs mt-2 ${step === currentStage ? 'text-white' : 'text-gray-400'
-                        }`}>
+                    <span className={`text-xs mt-2 ${
+                        step === currentStage ? 'text-white' : 'text-gray-400'
+                    }`}>
                         {step === 1 ? 'Infos' : step === 2 ? 'Profil' : step === 3 ? 'Photo' : 'Code'}
                     </span>
                 </div>
@@ -237,7 +279,7 @@ const Signup = () => {
                         <button
                             type="button"
                             onClick={handleNextStage}
-                            className="w-full bg-white text-black py-3 px-4 rounded-md font-medium hover:bg-gray-200 transition-all duration-200"
+                            className="w-full bg-white text-black py-3 px-4 rounded-md font-medium hover:bg-gray-200 transition-all duration-200 flex items-center justify-center"
                         >
                             Suivant
                         </button>
@@ -340,7 +382,7 @@ const Signup = () => {
                             <button
                                 type="button"
                                 onClick={handleNextStage}
-                                className="flex-1 bg-white text-black py-3 px-4 rounded-md font-medium hover:bg-gray-200 transition-all duration-200"
+                                className="flex-1 bg-white text-black py-3 px-4 rounded-md font-medium hover:bg-gray-200 transition-all duration-200 flex items-center justify-center"
                             >
                                 Suivant
                             </button>
@@ -377,9 +419,17 @@ const Signup = () => {
                             <button
                                 type="button"
                                 onClick={handleNextStage}
-                                className="flex-1 bg-white text-black py-3 px-4 rounded-md font-medium hover:bg-gray-200 transition-all duration-200"
+                                disabled={sendingEmail}
+                                className="flex-1 bg-white text-black py-3 px-4 rounded-md font-medium hover:bg-gray-200 transition-all duration-200 disabled:opacity-50 flex items-center justify-center gap-2"
                             >
-                                Suivant
+                                {sendingEmail ? (
+                                    <>
+                                        <Loader2 className="h-4 w-4 animate-spin" />
+                                        Envoi du code...
+                                    </>
+                                ) : (
+                                    'Suivant'
+                                )}
                             </button>
                         </div>
                     </div>
@@ -389,9 +439,15 @@ const Signup = () => {
                     <div className="space-y-4">
                         <div className="bg-[#262626] border border-[#363636] rounded-lg p-4">
                             <p className="text-gray-400 text-sm">
-                                Un code de vérification a été envoyé à votre adresse email.
+                                Un code de vérification a été envoyé à <strong>{formData.email}</strong>. 
                                 Veuillez entrer le code ci-dessous pour compléter votre inscription.
                             </p>
+                            {verificationSent && (
+                                <div className="mt-2 text-sm text-green-400 flex items-center gap-1">
+                                    <CheckCircle className="h-4 w-4" />
+                                    Code envoyé avec succès!
+                                </div>
+                            )}
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-white mb-2">
@@ -410,9 +466,18 @@ const Signup = () => {
                         </div>
                         <button
                             type="button"
-                            className="text-white text-sm underline hover:no-underline"
+                            onClick={handleResendCode}
+                            disabled={sendingEmail}
+                            className="text-white text-sm underline hover:no-underline disabled:opacity-50 flex items-center gap-2"
                         >
-                            Renvoyer le code
+                            {sendingEmail ? (
+                                <>
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                    Envoi en cours...
+                                </>
+                            ) : (
+                                'Renvoyer le code'
+                            )}
                         </button>
                         <div className="flex gap-4">
                             <button
@@ -425,9 +490,16 @@ const Signup = () => {
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="flex-1 bg-white text-black py-3 px-4 rounded-md font-medium hover:bg-gray-200 transition-all duration-200 disabled:opacity-50"
+                                className="flex-1 bg-white text-black py-3 px-4 rounded-md font-medium hover:bg-gray-200 transition-all duration-200 disabled:opacity-50 flex items-center justify-center gap-2"
                             >
-                                {loading ? 'Inscription...' : 'S\'inscrire'}
+                                {loading ? (
+                                    <>
+                                        <Loader2 className="h-4 w-4 animate-spin" />
+                                        Inscription...
+                                    </>
+                                ) : (
+                                    'S\'inscrire'
+                                )}
                             </button>
                         </div>
                     </div>
@@ -459,7 +531,20 @@ const Signup = () => {
                 {/* Error Message */}
                 {error && (
                     <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3 mb-4">
-                        <p className="text-red-400 text-sm">{error}</p>
+                        <p className="text-red-400 text-sm flex items-center gap-2">
+                            <span>⚠️</span>
+                            {error}
+                        </p>
+                    </div>
+                )}
+
+                {/* Success Message */}
+                {success && (
+                    <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-3 mb-4">
+                        <p className="text-green-400 text-sm flex items-center gap-2">
+                            <CheckCircle className="h-4 w-4" />
+                            {success}
+                        </p>
                     </div>
                 )}
 
@@ -472,8 +557,8 @@ const Signup = () => {
                 <div className="text-center pt-4 border-t border-[#262626] mt-6">
                     <p className="text-gray-400 text-sm">
                         Vous avez déjà un compte ?{' '}
-                        <Link
-                            to="/login"
+                        <Link 
+                            to="/login" 
                             className="text-white font-medium hover:underline transition-colors"
                         >
                             Se connecter
