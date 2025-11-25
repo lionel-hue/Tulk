@@ -6,6 +6,8 @@ use App\Models\Utilisateur;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
@@ -59,6 +61,8 @@ class AuthController extends Controller
             'email' => 'required|email|unique:Utilisateur,email',
             'mdp' => 'required|min:6',
             'sexe' => 'nullable|in:M,F',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120', // 5MB max
+            'verification_code' => 'required|string|size:6'
         ]);
 
         if ($validator->fails()) {
@@ -68,6 +72,18 @@ class AuthController extends Controller
             ], 422);
         }
 
+        // TODO: Add email verification logic here
+        // For now, we'll skip the verification check
+
+        $imagePath = null;
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = Str::random(20) . '.' . $image->getClientOriginalExtension();
+
+            // Store image in storage/app/public/images
+            $imagePath = $image->storeAs('images', $imageName, 'public');
+        }
+
         // Create user
         $user = Utilisateur::create([
             'nom' => $request->nom,
@@ -75,6 +91,7 @@ class AuthController extends Controller
             'email' => $request->email,
             'mdp' => Hash::make($request->mdp),
             'sexe' => $request->sexe,
+            'image' => $imagePath,
             'role' => 'user', // Default role
         ]);
 
@@ -90,6 +107,7 @@ class AuthController extends Controller
                 'prenom' => $user->prenom,
                 'email' => $user->email,
                 'role' => $user->role,
+                'image' => $imagePath ? Storage::url($imagePath) : null,
             ]
         ], 201);
     }

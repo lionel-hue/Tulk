@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
+import { Eye, EyeOff } from 'lucide-react'; // Add eye icons
 
 const Signup = () => {
     const [formData, setFormData] = useState({
@@ -16,6 +17,9 @@ const Signup = () => {
     const [currentStage, setCurrentStage] = useState(1);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [showPassword, setShowPassword] = useState(false); // Add state for password visibility
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false); // Add state for confirm password visibility
+    const [profileImage, setProfileImage] = useState(null); // Add state for profile image
     const navigate = useNavigate();
     const { login } = useAuth();
 
@@ -25,6 +29,23 @@ const Signup = () => {
             [e.target.name]: e.target.value
         });
         setError('');
+    };
+
+    // Add image handler
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            // Validate file type and size
+            if (!file.type.startsWith('image/')) {
+                setError('Veuillez sélectionner une image valide');
+                return;
+            }
+            if (file.size > 5 * 1024 * 1024) { // 5MB limit
+                setError('L\'image ne doit pas dépasser 5MB');
+                return;
+            }
+            setProfileImage(file);
+        }
     };
 
     const validateStage = (stage) => {
@@ -81,13 +102,23 @@ const Signup = () => {
         }
 
         try {
-            // We'll create this API endpoint in Laravel
-            const response = await axios.post('/api/register', {
-                nom: formData.nom,
-                prenom: formData.prenom,
-                email: formData.email,
-                mdp: formData.mdp,
-                sexe: formData.sexe
+            // Create FormData to handle file upload
+            const submitData = new FormData();
+            submitData.append('nom', formData.nom);
+            submitData.append('prenom', formData.prenom);
+            submitData.append('email', formData.email);
+            submitData.append('mdp', formData.mdp);
+            submitData.append('sexe', formData.sexe);
+            submitData.append('verification_code', formData.verificationCode);
+            
+            if (profileImage) {
+                submitData.append('image', profileImage);
+            }
+
+            const response = await axios.post('/api/register', submitData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
             });
 
             // Auto-login after registration
@@ -186,29 +217,55 @@ const Signup = () => {
                             <label className="block text-sm font-medium text-white mb-2">
                                 Mot de passe *
                             </label>
-                            <input
-                                type="password"
-                                name="mdp"
-                                value={formData.mdp}
-                                onChange={handleChange}
-                                required
-                                placeholder="Créez un mot de passe"
-                                className="w-full px-3 py-2 bg-[#262626] border border-[#262626] rounded-md text-white placeholder-gray-400 focus:outline-none focus:border-gray-500 focus:ring-1 focus:ring-gray-500 transition-colors"
-                            />
+                            <div className="relative">
+                                <input
+                                    type={showPassword ? "text" : "password"}
+                                    name="mdp"
+                                    value={formData.mdp}
+                                    onChange={handleChange}
+                                    required
+                                    placeholder="Créez un mot de passe"
+                                    className="w-full px-3 py-2 bg-[#262626] border border-[#262626] rounded-md text-white placeholder-gray-400 focus:outline-none focus:border-gray-500 focus:ring-1 focus:ring-gray-500 transition-colors pr-10"
+                                />
+                                <button
+                                    type="button"
+                                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                >
+                                    {showPassword ? (
+                                        <EyeOff className="h-5 w-5 text-gray-400" />
+                                    ) : (
+                                        <Eye className="h-5 w-5 text-gray-400" />
+                                    )}
+                                </button>
+                            </div>
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-white mb-2">
                                 Confirmer le mot de passe *
                             </label>
-                            <input
-                                type="password"
-                                name="confirmMdp"
-                                value={formData.confirmMdp}
-                                onChange={handleChange}
-                                required
-                                placeholder="Confirmez votre mot de passe"
-                                className="w-full px-3 py-2 bg-[#262626] border border-[#262626] rounded-md text-white placeholder-gray-400 focus:outline-none focus:border-gray-500 focus:ring-1 focus:ring-gray-500 transition-colors"
-                            />
+                            <div className="relative">
+                                <input
+                                    type={showConfirmPassword ? "text" : "password"}
+                                    name="confirmMdp"
+                                    value={formData.confirmMdp}
+                                    onChange={handleChange}
+                                    required
+                                    placeholder="Confirmez votre mot de passe"
+                                    className="w-full px-3 py-2 bg-[#262626] border border-[#262626] rounded-md text-white placeholder-gray-400 focus:outline-none focus:border-gray-500 focus:ring-1 focus:ring-gray-500 transition-colors pr-10"
+                                />
+                                <button
+                                    type="button"
+                                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                >
+                                    {showConfirmPassword ? (
+                                        <EyeOff className="h-5 w-5 text-gray-400" />
+                                    ) : (
+                                        <Eye className="h-5 w-5 text-gray-400" />
+                                    )}
+                                </button>
+                            </div>
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-white mb-2">
@@ -267,8 +324,14 @@ const Signup = () => {
                             <input
                                 type="file"
                                 accept="image/*"
+                                onChange={handleImageChange}
                                 className="w-full px-3 py-2 bg-[#262626] border border-[#262626] rounded-md text-white file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-white file:text-black hover:file:bg-gray-200"
                             />
+                            {profileImage && (
+                                <div className="mt-2 text-sm text-green-400">
+                                    ✓ Image sélectionnée: {profileImage.name}
+                                </div>
+                            )}
                         </div>
                         <div className="flex gap-4">
                             <button
