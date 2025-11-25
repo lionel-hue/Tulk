@@ -6,27 +6,35 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
+use App\Mail\VerificationCodeMail;
 
 class VerificationController extends Controller
 {
     public function sendVerificationCode(Request $request)
     {
         $request->validate([
-            'email' => 'required|email'
+            'email' => 'required|email',
+            'name' => 'nullable|string' // Optional user name for personalization
         ]);
 
         $code = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-        
+
         // Store code in cache for 10 minutes
         Cache::put('verification_code_' . $request->email, $code, 600);
 
-        // TODO: Send email with verification code
-        // You'll need to set up Laravel Mail for this
-        
-        return response()->json([
-            'message' => 'Code de vérification envoyé',
-            'code' => $code // Remove this in production - only for testing
-        ]);
+        try {
+            // Send email
+            Mail::to($request->email)->send(new VerificationCodeMail($code, $request->name));
+
+            return response()->json([
+                'message' => 'Code de vérification envoyé avec succès',
+                'code' => $code // Remove this in production - only for testing
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Erreur lors de l\'envoi de l\'email: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     public function verifyCode(Request $request)
@@ -40,11 +48,15 @@ class VerificationController extends Controller
 
         if ($cachedCode && $cachedCode === $request->code) {
             Cache::forget('verification_code_' . $request->email);
-            return response()->json(['message' => 'Code vérifié avec succès']);
+            return response()->json([
+                'message' => 'Code vérifié avec succès',
+                'verified' => true
+            ]);
         }
 
         return response()->json([
-            'message' => 'Code de vérification invalide'
+            'message' => 'Code de vérification invalide ou expiré',
+            'verified' => false
         ], 422);
     }
 }

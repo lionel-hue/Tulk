@@ -81,15 +81,50 @@ const Signup = () => {
         }
     };
 
-    const handleNextStage = () => {
+    const handleNextStage = async () => {
         if (validateStage(currentStage)) {
+            // If moving to stage 4, send verification code
+            if (currentStage === 3) {
+                setLoading(true);
+                try {
+                    await axios.post('/api/send-verification', {
+                        email: formData.email,
+                        name: formData.prenom || formData.nom
+                    });
+                } catch (err) {
+                    setError(err.response?.data?.message || 'Erreur lors de l\'envoi du code de vérification');
+                    setLoading(false);
+                    return;
+                }
+                setLoading(false);
+            }
             setCurrentStage(currentStage + 1);
         }
     };
 
+
+
     const handlePrevStage = () => {
         setCurrentStage(currentStage - 1);
     };
+
+
+    const handleResendCode = async () => {
+        setLoading(true);
+        try {
+            await axios.post('/api/send-verification', {
+                email: formData.email,
+                name: formData.prenom || formData.nom
+            });
+            setError(''); // Clear any previous errors
+            // You can show a success message here
+        } catch (err) {
+            setError(err.response?.data?.message || 'Erreur lors de l\'envoi du code de vérification');
+        } finally {
+            setLoading(false);
+        }
+    };
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -110,7 +145,7 @@ const Signup = () => {
             submitData.append('mdp', formData.mdp);
             submitData.append('sexe', formData.sexe);
             submitData.append('verification_code', formData.verificationCode);
-            
+
             if (profileImage) {
                 submitData.append('image', profileImage);
             }
@@ -136,18 +171,16 @@ const Signup = () => {
             <div className="absolute top-5 left-10 right-10 h-0.5 bg-[#262626] -z-10"></div>
             {[1, 2, 3, 4].map((step) => (
                 <div key={step} className="flex flex-col items-center">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all ${
-                        step === currentStage 
-                            ? 'bg-white border-white text-black' 
-                            : step < currentStage 
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all ${step === currentStage
                             ? 'bg-white border-white text-black'
-                            : 'bg-[#262626] border-[#262626] text-gray-400'
-                    }`}>
+                            : step < currentStage
+                                ? 'bg-white border-white text-black'
+                                : 'bg-[#262626] border-[#262626] text-gray-400'
+                        }`}>
                         {step}
                     </div>
-                    <span className={`text-xs mt-2 ${
-                        step === currentStage ? 'text-white' : 'text-gray-400'
-                    }`}>
+                    <span className={`text-xs mt-2 ${step === currentStage ? 'text-white' : 'text-gray-400'
+                        }`}>
                         {step === 1 ? 'Infos' : step === 2 ? 'Profil' : step === 3 ? 'Photo' : 'Code'}
                     </span>
                 </div>
@@ -356,7 +389,7 @@ const Signup = () => {
                     <div className="space-y-4">
                         <div className="bg-[#262626] border border-[#363636] rounded-lg p-4">
                             <p className="text-gray-400 text-sm">
-                                Un code de vérification a été envoyé à votre adresse email. 
+                                Un code de vérification a été envoyé à votre adresse email.
                                 Veuillez entrer le code ci-dessous pour compléter votre inscription.
                             </p>
                         </div>
@@ -439,8 +472,8 @@ const Signup = () => {
                 <div className="text-center pt-4 border-t border-[#262626] mt-6">
                     <p className="text-gray-400 text-sm">
                         Vous avez déjà un compte ?{' '}
-                        <Link 
-                            to="/login" 
+                        <Link
+                            to="/login"
                             className="text-white font-medium hover:underline transition-colors"
                         >
                             Se connecter
