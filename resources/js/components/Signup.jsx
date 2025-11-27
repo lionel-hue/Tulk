@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
-import { Eye, EyeOff, Loader2, CheckCircle } from 'lucide-react';
+import { Eye, EyeOff, Loader2, CheckCircle, Wifi, WifiOff } from 'lucide-react';
 
 const Signup = () => {
     const [formData, setFormData] = useState({
@@ -18,7 +18,7 @@ const Signup = () => {
     const [loading, setLoading] = useState(false);
     const [sendingEmail, setSendingEmail] = useState(false);
     const [error, setError] = useState('');
-    const [success, setSuccess] = useState(''); // New state for success messages
+    const [success, setSuccess] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [profileImage, setProfileImage] = useState(null);
@@ -26,14 +26,46 @@ const Signup = () => {
     const navigate = useNavigate();
     const { login } = useAuth();
 
-    // Improved error handler that extracts specific validation errors
+    // Enhanced error handler that properly handles network errors
     const handleApiError = (err) => {
-        if (err.response?.data?.errors) {
-            // Extract all validation errors and join them
-            const errorMessages = Object.values(err.response.data.errors).flat();
-            return errorMessages.join(', ');
+        // Network errors (no internet, server down, etc.)
+        if (err.code === 'NETWORK_ERROR' || err.code === 'ECONNABORTED' || !err.response) {
+            return {
+                message: 'Problème de connexion internet. Veuillez vérifier votre connexion et réessayer.',
+                isNetworkError: true
+            };
         }
-        return err.response?.data?.message || 'Une erreur est survenue';
+
+        // Axios timeout
+        if (err.code === 'ECONNABORTED' || err.message?.includes('timeout')) {
+            return {
+                message: 'La requête a expiré. Veuillez vérifier votre connexion internet et réessayer.',
+                isNetworkError: true
+            };
+        }
+
+        // Server responded with error status
+        if (err.response?.data?.errors) {
+            const errorMessages = Object.values(err.response.data.errors).flat();
+            return {
+                message: errorMessages.join(', '),
+                isNetworkError: false
+            };
+        }
+
+        // Server responded with error message
+        if (err.response?.data?.message) {
+            return {
+                message: err.response.data.message,
+                isNetworkError: false
+            };
+        }
+
+        // Fallback for unknown errors
+        return {
+            message: 'Une erreur inattendue est survenue. Veuillez réessayer.',
+            isNetworkError: false
+        };
     };
 
     const handleChange = (e) => {
@@ -108,7 +140,8 @@ const Signup = () => {
                     setVerificationSent(true);
                     setCurrentStage(currentStage + 1);
                 } catch (err) {
-                    setError(handleApiError(err));
+                    const errorInfo = handleApiError(err);
+                    setError(errorInfo.message);
                 } finally {
                     setSendingEmail(false);
                 }
@@ -136,7 +169,8 @@ const Signup = () => {
             setSuccess('Code de vérification renvoyé avec succès!');
             setVerificationSent(true);
         } catch (err) {
-            setError(handleApiError(err));
+            const errorInfo = handleApiError(err);
+            setError(errorInfo.message);
         } finally {
             setSendingEmail(false);
         }
@@ -167,7 +201,8 @@ const Signup = () => {
                     return;
                 }
             } catch (verifyErr) {
-                setError(handleApiError(verifyErr));
+                const errorInfo = handleApiError(verifyErr);
+                setError(errorInfo.message);
                 setLoading(false);
                 return;
             }
@@ -200,7 +235,8 @@ const Signup = () => {
             }, 2000);
 
         } catch (err) {
-            setError(handleApiError(err));
+            const errorInfo = handleApiError(err);
+            setError(errorInfo.message);
         } finally {
             setLoading(false);
         }
@@ -229,6 +265,11 @@ const Signup = () => {
             ))}
         </div>
     );
+
+    // Helper function to determine if error is network-related for styling
+    const isNetworkError = (errorMessage) => {
+        return errorMessage.includes('connexion internet') || errorMessage.includes('requête a expiré');
+    };
 
     const renderStage = () => {
         switch (currentStage) {
@@ -530,9 +571,19 @@ const Signup = () => {
 
                 {/* Error Message */}
                 {error && (
-                    <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3 mb-4">
-                        <p className="text-red-400 text-sm flex items-center gap-2">
-                            <span>⚠️</span>
+                    <div className={`${
+                        isNetworkError(error) 
+                            ? 'bg-yellow-500/10 border-yellow-500/20' 
+                            : 'bg-red-500/10 border-red-500/20'
+                    } border rounded-lg p-3 mb-4`}>
+                        <p className={`${
+                            isNetworkError(error) ? 'text-yellow-400' : 'text-red-400'
+                        } text-sm flex items-center gap-2`}>
+                            {isNetworkError(error) ? (
+                                <WifiOff className="h-4 w-4" />
+                            ) : (
+                                <span>⚠️</span>
+                            )}
                             {error}
                         </p>
                     </div>
