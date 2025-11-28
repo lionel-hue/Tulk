@@ -1,9 +1,10 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'; // ADD Router
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-import Login from './components/Login';
-import Home from './components/Home';
-import Signup from './components/Signup';
+import Login from './components/auth/Login';
+import Signup from './components/auth/Signup';
+import Home from './components/main/Home';
+import '../css/app.css';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -49,7 +50,39 @@ function AppRoutes() {
                         <Signup />
                     </PublicRoute>
                 } />
-                <Route path="/home" element={
+                {/* Home route with nested sections */}
+                <Route path="/home/*" element={
+                    <ProtectedRoute>
+                        <Home />
+                    </ProtectedRoute>
+                } />
+                {/* Individual section routes */}
+                <Route path="/feed" element={
+                    <ProtectedRoute>
+                        <Home />
+                    </ProtectedRoute>
+                } />
+                <Route path="/profile" element={
+                    <ProtectedRoute>
+                        <Home />
+                    </ProtectedRoute>
+                } />
+                <Route path="/friends" element={
+                    <ProtectedRoute>
+                        <Home />
+                    </ProtectedRoute>
+                } />
+                <Route path="/messages" element={
+                    <ProtectedRoute>
+                        <Home />
+                    </ProtectedRoute>
+                } />
+                <Route path="/notifications" element={
+                    <ProtectedRoute>
+                        <Home />
+                    </ProtectedRoute>
+                } />
+                <Route path="/dashboard" element={
                     <ProtectedRoute>
                         <Home />
                     </ProtectedRoute>
@@ -62,7 +95,7 @@ function AppRoutes() {
 
 export default function App() {
     return (
-        <Router> {/* ADD THIS WRAPPER */}
+        <Router>
             <AuthProvider>
                 <AppRoutes />
             </AuthProvider>

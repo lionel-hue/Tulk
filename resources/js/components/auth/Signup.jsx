@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../../contexts/AuthContext';
 import { Eye, EyeOff, Loader2, CheckCircle, Wifi, WifiOff } from 'lucide-react';
 
 const Signup = () => {
