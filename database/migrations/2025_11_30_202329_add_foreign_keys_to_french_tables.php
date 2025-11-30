@@ -1,5 +1,5 @@
 <?php
-// Add foreign keys migration
+// database/migrations/xxxx_xx_xx_000007_add_foreign_keys_to_french_tables.php
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;

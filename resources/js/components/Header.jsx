@@ -2,18 +2,19 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { 
-    Search, 
-    Bell, 
-    User, 
+import {
+    Search,
+    Bell,
+    User,
     LogOut,
-    Menu, // Added Menu icon for sidebar toggle
+    Menu,
     MessageCircle,
     Users,
     LayoutDashboard,
     Settings
 } from 'lucide-react';
 import Modal, { useModal } from './Modal';
+import { getImageUrl } from '../utils/imageUrls';
 
 const Header = ({ sidebarOpen, onSidebarToggle, activeSection = "feed" }) => {
     const { user, logout } = useAuth();
@@ -22,8 +23,31 @@ const Header = ({ sidebarOpen, onSidebarToggle, activeSection = "feed" }) => {
     const navigate = useNavigate();
     const location = useLocation();
     const profileDropdownRef = useRef(null);
-    
+
     const { modal, setModal, confirm } = useModal();
+
+    // Get the user's profile image URL or fallback to initials
+    const getUserAvatar = () => {
+        if (user?.image) {
+            const imageUrl = getImageUrl(user.image);
+            return (
+                <img
+                    src={imageUrl}
+                    alt="Profile"
+                    className="w-full h-full rounded-full object-cover"
+                    onError={(e) => {
+                        console.error('Image failed to load:', e.target.src);
+                        e.target.style.display = 'none';
+                    }}
+                />
+            );
+        }
+        return (
+            <div className="w-full h-full rounded-full bg-gradient-to-br from-white to-gray-400 flex items-center justify-center text-black text-sm font-bold">
+                {user?.prenom?.[0]}{user?.nom?.[0]}
+            </div>
+        );
+    };
 
     const getSearchPlaceholder = () => {
         if (activeSection === 'messages') {
@@ -45,7 +69,7 @@ const Header = ({ sidebarOpen, onSidebarToggle, activeSection = "feed" }) => {
 
     const handleProfileAction = async (action) => {
         setIsProfileDropdownOpen(false);
-        
+
         switch (action) {
             case 'profile':
                 navigate('/profile');
@@ -71,7 +95,7 @@ const Header = ({ sidebarOpen, onSidebarToggle, activeSection = "feed" }) => {
 
     useEffect(() => {
         const handleClickOutside = (event) => {
-            if (isProfileDropdownOpen && profileDropdownRef.current && 
+            if (isProfileDropdownOpen && profileDropdownRef.current &&
                 !profileDropdownRef.current.contains(event.target)) {
                 setIsProfileDropdownOpen(false);
             }
@@ -98,7 +122,7 @@ const Header = ({ sidebarOpen, onSidebarToggle, activeSection = "feed" }) => {
         { id: 'messages', icon: MessageCircle, label: 'Messages', badge: 0 },
         { id: 'notifications', icon: Bell, label: 'Notifications', badge: 3 },
         { id: 'profile', icon: User, label: 'Profil', badge: null },
-        ...(user?.role === 'admin' || user?.role === 'mod' ? 
+        ...(user?.role === 'admin' || user?.role === 'mod' ?
             [{ id: 'dashboard', icon: Settings, label: 'Tableau de bord', badge: null }] : [])
     ];
 
@@ -106,12 +130,10 @@ const Header = ({ sidebarOpen, onSidebarToggle, activeSection = "feed" }) => {
         <>
             <header className="home-header">
                 <div className="header-content">
-                    {/* Side Menu Toggle - ALWAYS VISIBLE NOW */}
+                    {/* Side Menu Toggle */}
                     <button className="menu-toggle" onClick={onSidebarToggle}>
                         <Menu size={24} />
                     </button>
-
-                    {/* REMOVED LOGO FROM HEADER */}
 
                     {/* Desktop Navigation */}
                     <nav className="desktop-nav hidden lg:flex">
@@ -132,8 +154,8 @@ const Header = ({ sidebarOpen, onSidebarToggle, activeSection = "feed" }) => {
 
                     {/* Search Bar */}
                     <div className="header-search">
-                        <input 
-                            type="text" 
+                        <input
+                            type="text"
                             placeholder={getSearchPlaceholder()}
                             value={searchQuery}
                             onChange={handleSearchChange}
@@ -143,48 +165,48 @@ const Header = ({ sidebarOpen, onSidebarToggle, activeSection = "feed" }) => {
 
                     {/* User Profile */}
                     <div className="header-profile" ref={profileDropdownRef}>
-                        <div 
+                        <div
                             className="profile-pic cursor-pointer"
                             onClick={toggleProfileDropdown}
                         >
-                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-white to-gray-400 flex items-center justify-center text-black text-sm font-bold">
-                                {user?.prenom?.[0]}{user?.nom?.[0]}
+                            <div className="w-8 h-8 rounded-full overflow-hidden">
+                                {getUserAvatar()}
                             </div>
                         </div>
-                        
+
                         {/* Profile Dropdown Menu */}
                         {isProfileDropdownOpen && (
                             <div className="profile-dropdown-menu">
                                 <div className="profile-dropdown-header">
                                     <div className="user-avatar">
-                                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-white to-gray-400 flex items-center justify-center text-black font-bold">
-                                            {user?.prenom?.[0]}{user?.nom?.[0]}
+                                        <div className="w-12 h-12 rounded-full overflow-hidden">
+                                            {getUserAvatar()}
                                         </div>
                                     </div>
                                     <div className="user-info">
                                         <div className="user-name">{user?.prenom} {user?.nom}</div>
                                         <div className="user-role">
-                                            {user?.role === 'admin' ? 'Administrateur' : 
-                                             user?.role === 'mod' ? 'Modérateur' : 'Utilisateur'}
+                                            {user?.role === 'admin' ? 'Administrateur' :
+                                                user?.role === 'mod' ? 'Modérateur' : 'Utilisateur'}
                                         </div>
                                     </div>
                                 </div>
                                 <div className="profile-dropdown-divider"></div>
-                                <button 
+                                <button
                                     className="profile-dropdown-item"
                                     onClick={() => handleProfileAction('profile')}
                                 >
                                     <User size={18} />
                                     <span>Mon Profil</span>
                                 </button>
-                                <button 
+                                <button
                                     className="profile-dropdown-item"
                                     onClick={() => handleProfileAction('settings')}
                                 >
                                     <Settings size={18} />
                                     <span>Paramètres</span>
                                 </button>
-                                <button 
+                                <button
                                     className="profile-dropdown-item logout-item"
                                     onClick={() => handleProfileAction('logout')}
                                 >

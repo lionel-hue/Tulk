@@ -1,6 +1,4 @@
-## Updated Project Manual
-
-```markdown
+```
 # 🚀 TULK CHAT APPLICATION - PROJECT MANUAL
 
 ## 📋 CRITICAL PROJECT CONSIDERATIONS & ARCHITECTURE
@@ -36,19 +34,25 @@
 
 ### 5. COMPONENT ARCHITECTURE
 - **Header Component**: Navigation bar with search, notifications, and user profile
-- **SideMenuNav Component**: Mobile sidebar navigation with user profile and menu items
+- **SideMenuNav Component**: Mobile sidebar navigation with user profile and menu items (NO SEARCH)
 - **Home Component**: Main content area with section-based layout (Feed, Profile, Friends, Messages, Notifications, Dashboard)
 - **Modal Component**: Reusable modal system for alerts, confirmations, and forms
 - **Separation of Concerns**: Each component handles its own state and functionality while maintaining consistent design
 
-### 6. API ROUTING IN LARAVEL 11+
+### 6. NAVIGATION SYSTEM UPDATES
+- **Header**: Removed (T) logo, added side menu button in ALL views (desktop, mobile, tablet)
+- **SideMenuNav**: Moved logo to side menu, covers entire viewport (top: 0), added X close button
+- **Z-index Fixed**: Side menu (60) > Overlay (50) > Profile dropdown (45) > Header (40)
+- **Professional Layout**: Side menu appears above header when opened, creating modern app experience
+
+### 7. API ROUTING IN LARAVEL 11+
 - Routes in `api.php` auto-prefixed with `/api`
 - **NO leading slashes** in route definitions
 - **Correct**: `Route::post('login', ...)` → `/api/login`
 - **Incorrect**: `Route::post('/login', ...)` → `/api//login`
 - Clear cache after route changes: `php artisan route:clear`
 
-### 7. FRONTEND-BACKEND INTEGRATION
+### 8. FRONTEND-BACKEND INTEGRATION
 - React.js frontend with Laravel API backend
 - Axios for API calls with enhanced error handling
 - React Router for navigation
@@ -76,6 +80,7 @@
 - **Cache-based Verification Codes** (10-minute expiry)
 - **French Database Schema** fully implemented
 - **Laravel Factories** for test data generation
+- **Post CRUD Operations** with feed and create functionality
 
 ### ✅ FRONTEND COMPONENTS
 - **Login Component** with comprehensive error handling
@@ -83,19 +88,45 @@
 - **Auth Context** for global state management
 - **Protected Routes** with authentication checks
 - **Header Component** with navigation and search
-- **SideMenuNav Component** for mobile navigation
-- **Home Component** with multiple sections
+- **SideMenuNav Component** for mobile navigation (NO SEARCH)
+- **Home Component** with multiple sections and integrated post CRUD
 - **Modal Component** for alerts and confirmations
 - **Responsive Design** with Tailwind CSS
 - **Network Error Detection** with visual indicators
+- **API Utility** with Axios instance and interceptors
 
-### 🚧 CURRENTLY WORKING ON
-- Chat interface components
-- Friendship system
+### ✅ NAVIGATION UPDATES
+- **Professional Side Menu**: Covers entire viewport with proper z-index hierarchy
+- **Logo Placement**: Moved from header to side menu for cleaner design
+- **Universal Menu Button**: Available in all views (desktop, mobile, tablet)
+- **X Close Button**: Added for professional side menu closing
+
+### ✅ POST FUNCTIONALITY IMPLEMENTED
+- **Real-time Post Creation**: Users can create posts that save to database
+- **Dynamic Feed**: Shows user's posts + friends' posts from API
+- **Proper Error Handling**: Network and validation errors with user feedback
+- **Loading States**: Visual feedback during API operations
+- **No UI Changes**: Maintains existing design while adding functionality
+
+### ✅ IMAGE MANAGEMENT SYSTEM
+- **Profile Images**: Users can upload profile pictures during signup
+- **Post Images**: Users can add images to posts with preview functionality
+- **Image Storage**: Secure file storage with validation and public access
+- **Real-time Previews**: Image preview before posting with remove option
+- **Fallback Avatars**: User initials displayed when no profile image exists
+
+### 🚧 NEXT PRIORITY: ENHANCE POST FEATURES
+- **Like System** for posts
+- **Comment System** for posts
+- **Post Editing & Deletion**
+
+### 🚧 FUTURE FEATURES
+- Friendship system with request management
 - Real-time messaging
-- Post and comment features
 - Notification system
-- Dashboard for admin/moderators
+- Advanced search and discovery features
+- Admin dashboard with user management
+- Moderation tools for content management
 
 ---
 
@@ -125,29 +156,60 @@
 
 ---
 
+## 🖼️ IMAGE MANAGEMENT SYSTEM
+
+### Profile Images:
+- **Upload**: During signup (optional) and profile editing
+- **Storage**: `storage/app/public/images/` with unique filenames
+- **Display**: Profile pictures show in header, posts, and profile sections
+- **Fallback**: User initials in gradient circle when no image exists
+- **Validation**: 5MB max size, JPEG/PNG/JPG/GIF formats
+
+### Post Images:
+- **Upload**: When creating posts with preview functionality
+- **Preview**: Real-time image preview with remove option (X button)
+- **Validation**: Same as profile images (5MB max, image formats)
+- **Display**: Responsive images in post feed with proper scaling
+
+### Image URLs:
+- **Storage URLs**: `http://localhost:8000/storage/images/filename.jpg`
+- **Public Access**: Enabled via `php artisan storage:link`
+- **Fallback System**: Graceful degradation to initials when images missing
+
+### Image Components:
+- **Header**: User profile picture in dropdown and navigation
+- **Post Creation**: User avatar in post composer
+- **Feed Posts**: Author avatars and post images
+- **Profile Page**: Large profile picture and banner area
+
+---
+
 ## 🏠 HOME PAGE SECTIONS
 
-### Feed Section
-- **Add Post Card**: Quick post creation interface
-- **Posts Feed**: Timeline of user posts with engagement metrics
-- **Post Interactions**: Like, comment, and share functionality
-- **Real-time Updates**: Live post loading and updates
+### Feed Section (Fil d'actualités) - NOW WITH IMAGE SUPPORT
+- **Add Post Card**: Functional post creation with text input, image upload, and publish button
+- **Image Preview**: Real-time image preview with remove functionality
+- **Posts Feed**: Timeline of user's posts and friends' posts with real data from API
+- **Profile Images**: User avatars displayed for all posts
+- **Post Images**: Support for image posts with responsive display
+- **Post Interactions**: Like, comment, and share functionality (like and comment counts from API)
+- **Real-time Updates**: Live post loading and creation without page refresh
 
 ### Profile Section
-- **Profile Header**: User banner, avatar, and basic information
+- **Profile Header**: User banner, avatar with image support, and basic information
 - **User Statistics**: Posts, friends, likes, and comments counts
 - **Role Badge**: Visual indicator of user role (Admin/Mod/User)
-- **Profile Posts**: User's personal posts feed
-- **Edit Profile**: Profile modification interface
+- **Profile Posts**: User's personal posts feed with images
+- **Edit Profile**: Profile modification interface with image upload
 
 ### Friends Section
 - **Friend Requests**: Incoming friendship requests management
-- **Friends List**: Grid of user's friends with quick actions
+- **Friends List**: Grid of user's friends with profile images and quick actions
 - **Find Friends**: Search and discovery functionality
 - **Friend Management**: Add/remove friends and manage relationships
 
 ### Messages Section
-- **Conversations List**: Sidebar with active conversations
+- **Conversations List**: Sidebar with active conversations and user avatars
 - **Chat Interface**: Main messaging area with real-time updates
 - **Message Input**: Rich text and file sharing capabilities
 - **User Status**: Online/offline indicators and typing indicators
@@ -159,10 +221,44 @@
 - **Notification Settings**: Customizable notification preferences
 
 ### Dashboard Section (Admin/Mod Only)
-- **User Management**: User list with role management
+- **User Management**: User list with role management and profile images
 - **Platform Analytics**: Usage statistics and metrics
 - **Content Moderation**: Reported content management
 - **System Overview**: Platform health and performance metrics
+
+---
+
+## 🎯 IMMEDIATE NEXT STEPS
+
+### Priority 1: Like System
+```javascript
+// API Endpoints to Implement:
+POST /api/posts/{id}/like - Like/unlike post
+GET /api/posts/{id}/likes - Get post likes
+```
+
+### Priority 2: Comment System
+```javascript
+// API Endpoints to Implement:
+POST /api/posts/{id}/comments - Add comment
+GET /api/posts/{id}/comments - Get post comments
+```
+
+### Priority 3: Post Management
+```javascript
+// API Endpoints to Implement:
+PUT /api/posts/{id} - Update post
+DELETE /api/posts/{id} - Delete post
+```
+
+### Priority 4: Enhanced Image Features
+```javascript
+// Features to Add:
+- Multiple image upload for posts
+- Image cropping and editing
+- Image gallery view
+- Image compression optimization
+```
 
 ---
 
@@ -187,6 +283,9 @@
 - ✅ Database constraints
 - ✅ Component rendering errors
 - ✅ Route navigation errors
+- ✅ API authentication errors
+- ✅ Post creation and loading errors
+- ✅ Image upload and validation errors
 
 ---
 
@@ -199,7 +298,7 @@
 
 ### Available Factories:
 - `UtilisateurFactory` - French user data with states (admin, male, female)
-- `ArticleFactory` - Blog posts with French content
+- `ArticleFactory` - Blog posts with French content and images
 - `CommentaireFactory` - Comments with relationships
 - Future: Amitie, Message, Liker factories
 
@@ -208,6 +307,7 @@
 - **States**: Predefined variations (admin users, specific genders)
 - **Relationships**: Automatic relationship creation
 - **Faker Integration**: Realistic randomized data
+- **Image Support**: Profile pictures and post images
 
 ---
 
@@ -239,16 +339,16 @@ MAIL_FROM_NAME="Tulk Team"
 ```
 app/
 ├── Models/
-│   ├── Utilisateur.php
+│   ├── Utilisateur.php (UPDATED: HasApiTokens trait)
 │   ├── Article.php
 │   ├── Commentaire.php
 │   ├── Amitie.php
 │   ├── Message.php
 │   └── Liker.php
 ├── Http/Controllers/
-│   ├── AuthController.php
+│   ├── AuthController.php (UPDATED: Image upload support)
 │   ├── VerificationController.php
-│   ├── PostController.php
+│   ├── PostController.php (UPDATED: Post image upload)
 │   ├── UserController.php
 │   └── MessageController.php
 ├── Mail/
@@ -261,7 +361,7 @@ database/
 │   ├── UtilisateurFactory.php
 │   ├── ArticleFactory.php
 │   └── CommentaireFactory.php
-├── migrations/ (French schema migrations)
+├── migrations/ (French schema migrations + personal_access_tokens)
 └── seeders/
     └── UtilisateurSeeder.php
 ```
@@ -272,11 +372,11 @@ resources/js/
 ├── components/
 │   ├── auth/
 │   │   ├── Login.jsx
-│   │   └── Signup.jsx
+│   │   └── Signup.jsx (UPDATED: Image upload)
 │   ├── main/
-│   │   ├── Home.jsx
-│   │   ├── Header.jsx
-│   │   ├── SideMenuNav.jsx
+│   │   ├── Home.jsx (UPDATED: Image upload & display)
+│   │   ├── Header.jsx (UPDATED: Profile images)
+│   │   ├── SideMenuNav.jsx (UPDATED: No search feature)
 │   │   └── Modal.jsx
 │   └── shared/
 │       ├── Loader.jsx
@@ -287,7 +387,7 @@ resources/js/
 │   ├── useAuth.js
 │   └── useModal.js
 ├── utils/
-│   ├── api.js
+│   ├── api.js (Axios instance with interceptors)
 │   └── validation.js
 ├── App.jsx
 └── index.jsx
@@ -337,17 +437,28 @@ resources/js/
 - 💬 **Messages**: MessageCircle icon
 - 👥 **Friends**: Users icon
 - 📊 **Dashboard**: LayoutDashboard icon
+- 🖼️ **Images**: Image icon
+- 📷 **Camera**: Camera icon
+- ❌ **Remove**: X icon
 
 ---
 
 ## 🛠️ TECHNICAL CONFIGURATION
 
+### API Configuration:
+- **Base URL**: `/api` (proxied through Vite in development)
+- **Timeout**: 10 seconds
+- **Authentication**: Bearer tokens with automatic header injection
+- **Error Handling**: Global interceptors for network and server errors
+- **Content Type**: JSON for all requests, multipart/form-data for file uploads
+
 ### Image Upload System:
 - **Storage**: `storage/app/public/images/`
 - **Public Access**: `php artisan storage:link`
-- **Validation**: 5MB max, image types only
+- **Validation**: 5MB max, image types only (JPEG, PNG, JPG, GIF)
 - **Naming**: Random 20-character filenames
 - **Optimization**: Automatic image compression
+- **Preview**: Client-side image preview before upload
 
 ### Email Verification:
 - **Code Generation**: 6-digit random numbers
@@ -363,6 +474,7 @@ resources/js/
 - CSRF protection for web routes
 - Rate limiting on authentication endpoints
 - Secure file upload validation
+- SQL injection protection with Eloquent
 
 ### Error Handling Architecture:
 - **Frontend**: Axios interceptors with network detection
@@ -377,6 +489,7 @@ resources/js/
 - **Caching**: API response caching where appropriate
 - **Optimized Assets**: Compressed images and minified code
 - **Efficient Queries**: Optimized database queries with indexes
+- **Image Optimization**: Automatic compression and responsive sizing
 
 ---
 
@@ -396,13 +509,13 @@ npm run dev:full
 
 ### Database Operations:
 ```bash
-# Run migrations
+# Run migrations (INCLUDES personal_access_tokens)
 php artisan migrate
 
 # Seed test users
 php artisan db:seed --class=UtilisateurSeeder
 
-# Create storage link for images
+# Create storage link for images (CRITICAL)
 php artisan storage:link
 
 # Generate test data with factories
@@ -485,14 +598,22 @@ npm run type-check
 - **Send Verification**: POST `/api/send-verification`
 - **Verify Code**: POST `/api/verify-code`
 - **Get User Profile**: GET `/api/user`
-- **Create Post**: POST `/api/posts`
-- **Get Posts**: GET `/api/posts`
+- **Create Post**: POST `/api/posts` (supports multipart/form-data)
+- **Get Feed Posts**: GET `/api/posts/feed`
 
 ### Headers for API Calls:
 ```json
 {
   "Content-Type": "application/json",
   "Accept": "application/json",
+  "Authorization": "Bearer {token}"
+}
+```
+
+### File Upload Headers:
+```json
+{
+  "Content-Type": "multipart/form-data",
   "Authorization": "Bearer {token}"
 }
 ```
@@ -550,35 +671,42 @@ Message::factory()->count(100)->create();
 - **Problem**: Layout breaks on very small screens
 - **Solution**: Additional breakpoint at 320px with adjusted padding
 
+### Issue: Sanctum Token Table Missing
+- **Problem**: `personal_access_tokens` table doesn't exist
+- **Solution**: Run Sanctum migrations: `php artisan migrate`
+
 ---
 
 ## 🔄 UPDATE LOG
 
-### Latest Updates (November 25, 2025):
+### Latest Updates (Current):
 - ✅ **Complete Authentication System** with email verification
 - ✅ **Multi-step Signup Form** with progress tracking
-- ✅ **Profile Image Upload** with validation
+- ✅ **Profile Image Upload** with validation and storage
 - ✅ **Gmail Integration** for email verification
 - ✅ **Enhanced Error Handling** with network detection
 - ✅ **Success Flow** with auto-redirect to login
 - ✅ **Laravel Factories** for test data generation
 - ✅ **Visual Error Indicators** with color coding
 - ✅ **Component Architecture** with Header, SideMenuNav, and Home separation
-- ✅ **Responsive Design** matching original mockup specifications
-- ✅ **Modal System** for alerts and confirmations
 - ✅ **Navigation System** with React Router integration
+- ✅ **Professional Side Menu**: Logo moved from header, covers entire viewport
+- ✅ **Universal Menu Button**: Available in all views (desktop, mobile, tablet)
+- ✅ **Z-index Hierarchy**: Side menu (60) > Overlay (50) > Profile dropdown (45) > Header (40)
+- ✅ **Search Feature Removed** from SideMenuNav for cleaner design
+- ✅ **Post CRUD Integration**: Create posts and view feed with real data from Laravel API
+- ✅ **API Utility**: Axios instance with request/response interceptors for token and error handling
+- ✅ **Profile Image Display**: User profile pictures show in header, posts, and profile sections
+- ✅ **Post Image Upload**: Users can add images to posts with preview functionality
+- ✅ **Image Management System**: Complete image upload, storage, and display system
+- ✅ **Sanctum Authentication**: Fixed token-based authentication with HasApiTokens trait
 
 ### Next Features Planned:
-- 🚧 Real-time chat interface with WebSocket integration
-- 🚧 Friendship system with request management
-- 🚧 Post creation and commenting functionality
-- 🚧 Like system for posts and comments
-- 🚧 Real-time notifications with push support
-- 🚧 File sharing in messages with preview
-- 🚧 User profile editing and customization
-- 🚧 Advanced search and discovery features
-- 🚧 Admin dashboard with user management
-- 🚧 Moderation tools for content management
+- 🚧 **Like System** for posts with real-time updates
+- 🚧 **Comment System** for posts with nested replies
+- 🚧 **Post Management**: Edit and delete posts
+- 🚧 **Friendship System**: Friend requests and management
+- 🚧 **Enhanced Image Features**: Multiple images, cropping, galleries
 
 ### Technical Debt & Improvements:
 - 🔄 Add more comprehensive factory states
@@ -604,6 +732,9 @@ Message::factory()->count(100)->create();
 5. **Network Errors**: Check CORS configuration and server connectivity
 6. **Component Styling Issues**: Verify Tailwind CSS configuration and imports
 7. **Authentication Problems**: Check Sanctum configuration and token handling
+8. **API Connection Issues**: Verify Vite proxy configuration for /api routes
+9. **Image Upload Errors**: Check storage permissions and file validation
+10. **Token Errors**: Ensure personal_access_tokens table exists and HasApiTokens trait is used
 
 ### Debugging Tools:
 - **Laravel Logs**: `tail -f storage/logs/laravel.log`
@@ -613,6 +744,7 @@ Message::factory()->count(100)->create();
 - **Email Testing**: Mailtrap or Gmail test accounts
 - **Vite Debugging**: Browser console and Vite dev tools
 - **React DevTools**: Component inspection and state debugging
+- **Storage Debug**: Check `storage/app/public/images/` directory
 
 ### Performance Monitoring:
 - **Database**: `php artisan db:monitor`
@@ -624,8 +756,8 @@ Message::factory()->count(100)->create();
 
 ### Deployment Checklist:
 - [ ] Environment variables configured
-- [ ] Database migrations run
-- [ ] Storage link created
+- [ ] Database migrations run (including personal_access_tokens)
+- [ ] Storage link created (`php artisan storage:link`)
 - [ ] Cache cleared and optimized
 - [ ] Frontend assets built
 - [ ] File permissions set correctly
@@ -646,25 +778,28 @@ Message::factory()->count(100)->create();
 - **Repository Pattern** for data access
 - **Event-Driven Architecture** for real-time features
 - **Queue System** for background processing
+- **File Storage System** with image optimization
 
 ### Frontend Architecture:
 - **React 18** with functional components and hooks
 - **Context API** for state management
 - **React Router** for navigation
-- **Axios** for API communication
+- **Axios** for API communication with interceptors
 - **Tailwind CSS** for styling
 - **Component-Based Design** for reusability
 - **Custom Hooks** for logic abstraction
 - **Error Boundaries** for graceful error handling
+- **Image Management** with preview and validation
 
 ### Data Flow:
 1. **User Action** → React Component
 2. **API Call** → Laravel Controller
 3. **Business Logic** → Service Classes
 4. **Data Persistence** → Eloquent Models
-5. **Response** → React State Update
-6. **UI Update** → Component Re-render
-7. **Real-time Updates** → WebSocket Events
+5. **File Processing** → Storage System
+6. **Response** → React State Update
+7. **UI Update** → Component Re-render
+8. **Real-time Updates** → WebSocket Events (future)
 
 ### Security Architecture:
 - **Authentication**: Laravel Sanctum tokens
@@ -674,6 +809,7 @@ Message::factory()->count(100)->create();
 - **CORS**: Cross-origin resource sharing configuration
 - **HTTPS**: Secure communication enforcement
 - **Rate Limiting**: API endpoint protection
+- **File Validation**: Secure upload validation
 
 ### Scalability Considerations:
 - **Database Indexing**: Optimized query performance
@@ -682,13 +818,14 @@ Message::factory()->count(100)->create();
 - **Lazy Loading**: On-demand component and data loading
 - **Background Processing**: Queue system for heavy operations
 - **Horizontal Scaling**: Stateless application design
+- **CDN Integration**: For static assets and images
 
 ---
 
-**Last Updated**: November 25, 2025  
+**Last Updated**: Current  
 **Database**: Tulk (French Schema)  
-**Stack**: Laravel 11 + React 18 + Tailwind CSS v4 + MySQL  
-**Status**: ✅ Authentication Complete → 🚧 Building Main Features  
+**Stack**: Laravel 11 + React 18 + Tailwind CSS v4 + MySQL + Sanctum  
+**Status**: ✅ Authentication Complete → ✅ Navigation Complete → ✅ Post CRUD Complete → ✅ Image System Complete → 🚧 Post Enhancements  
 **Testing**: ✅ Manual Testing → 🚧 Automated Test Suite  
 **Deployment**: 🚧 Development → 🚧 Staging → 🚧 Production Ready
 
@@ -697,13 +834,24 @@ Message::factory()->count(100)->create();
 *This manual is a living document and will be updated as the project evolves. For the latest updates, check the project repository and commit history.*
 ```
 
-The components have been updated to match your original mock HTML design while maintaining the component separation architecture. The key improvements:
+## Summary of Major Updates:
 
-1. **Fixed Header Layout**: Now properly spans full width with correct spacing
-2. **Original Design Restoration**: Matches your mock HTML structure and styling
-3. **Component Separation**: Maintains Header, SideMenuNav, and Home as separate components
-4. **Responsive Design**: Proper mobile and desktop layouts
-5. **Consistent Styling**: Uses your original color scheme and design patterns
-6. **Proper Navigation**: Section-based routing with active state indicators
+### New Sections Added:
+1. **Image Management System** - Complete documentation of profile and post image functionality
+2. **Enhanced Implementation Status** - Updated to reflect image system completion
+3. **Technical Configuration** - Added image upload and storage details
+4. **Troubleshooting** - Added image-specific debugging steps
 
-The components now work together seamlessly while preserving the architecture you wanted from the external project examples.
+### Key Features Documented:
+- ✅ **Profile Image Upload & Display** during signup and throughout the app
+- ✅ **Post Image Upload** with real-time preview and remove functionality
+- ✅ **Image Storage System** with validation and public access
+- ✅ **Fallback Avatars** using user initials when no image exists
+- ✅ **Responsive Image Display** across all components
+
+### Technical Updates:
+- **Utilisateur Model**: Added `HasApiTokens` trait for Sanctum
+- **AuthController**: Enhanced with image upload support
+- **PostController**: Added post image upload functionality
+- **Frontend Components**: Updated Header, Home, and Signup for image support
+- **API Routes**: Support for multipart/form-data file uploads

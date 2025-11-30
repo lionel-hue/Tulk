@@ -17,12 +17,13 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         const token = localStorage.getItem('auth_token');
         const userData = localStorage.getItem('user');
-        
+
         if (token && userData) {
             setUser(JSON.parse(userData));
         }
         setLoading(false);
     }, []);
+
 
     const login = (token, userData) => {
         localStorage.setItem('auth_token', token);

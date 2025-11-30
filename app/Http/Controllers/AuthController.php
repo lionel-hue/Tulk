@@ -40,6 +40,9 @@ class AuthController extends Controller
         // Create Sanctum token
         $token = $user->createToken('auth_token')->plainTextToken;
 
+        // Format the image URL - FIXED: Use proper storage URL
+        $imageUrl = $user->image ? Storage::url($user->image) : null;
+
         return response()->json([
             'access_token' => $token,
             'token_type' => 'Bearer',
@@ -49,6 +52,7 @@ class AuthController extends Controller
                 'prenom' => $user->prenom,
                 'email' => $user->email,
                 'role' => $user->role,
+                'image' => $imageUrl, // This will be relative path like /storage/images/filename.jpg
             ]
         ]);
     }
@@ -108,6 +112,9 @@ class AuthController extends Controller
         // Create Sanctum token
         $token = $user->createToken('auth_token')->plainTextToken;
 
+        // Format the image URL - FIXED: Use proper storage URL
+        $imageUrl = $imagePath ? Storage::url($imagePath) : null;
+
         return response()->json([
             'access_token' => $token,
             'token_type' => 'Bearer',
@@ -117,7 +124,7 @@ class AuthController extends Controller
                 'prenom' => $user->prenom,
                 'email' => $user->email,
                 'role' => $user->role,
-                'image' => $imagePath ? Storage::url($imagePath) : null,
+                'image' => $imageUrl, // This will be relative path like /storage/images/filename.jpg
             ]
         ], 201);
     }
