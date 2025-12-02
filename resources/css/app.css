@@ -7,6 +7,7 @@
         opacity: 0;
         transform: translateY(20px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -39,7 +40,8 @@
     border-bottom: 1px solid #262626;
     position: sticky;
     top: 0;
-    z-index: 40; /* Reduced from 50 to 40 */
+    z-index: 40;
+    /* Reduced from 50 to 40 */
 }
 
 .header-content {
@@ -182,7 +184,8 @@
     border: 1px solid #262626;
     border-radius: 0.5rem;
     box-shadow: 0 10px 15px rgba(0, 0, 0, 0.5);
-    z-index: 45; /* Above header (40) but below overlay (50) and side menu (60) */
+    z-index: 45;
+    /* Above header (40) but below overlay (50) and side menu (60) */
 }
 
 .profile-dropdown-header {
@@ -226,7 +229,8 @@
     position: fixed;
     inset: 0;
     background-color: rgba(0, 0, 0, 0.5);
-    z-index: 50; /* Between header (40) and side menu (60) */
+    z-index: 50;
+    /* Between header (40) and side menu (60) */
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.2s;
@@ -247,7 +251,8 @@
     border-right: 1px solid #262626;
     transform: translateX(-100%);
     transition: transform 0.3s;
-    z-index: 60; /* Increased from 50 to 60 - HIGHEST */
+    z-index: 60;
+    /* Increased from 50 to 60 - HIGHEST */
     overflow-y: auto;
 }
 
@@ -759,15 +764,15 @@
     .header-content {
         padding: 0.5rem;
     }
-    
+
     .section-content {
         padding: 1rem 0.5rem;
     }
-    
+
     .desktop-nav {
         display: none;
     }
-    
+
     .header-search {
         margin: 0 0.5rem;
         max-width: 16rem;
@@ -777,6 +782,216 @@
 /* Make menu toggle always visible in all views */
 @media (min-width: 769px) {
     .menu-toggle {
-        display: flex !important; /* Force display in desktop */
+        display: flex !important;
+        /* Force display in desktop */
     }
+}
+
+
+/* Add these styles to your existing app.css */
+
+/* Professional Image Sizing */
+.post-image-container {
+    margin-bottom: 0.75rem;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    max-height: 500px;
+    /* Professional max height */
+    position: relative;
+}
+
+.post-image {
+    width: 100%;
+    height: auto;
+    max-height: 500px;
+    object-fit: contain;
+    /* Changed from cover to contain for better image display */
+    background-color: #1f1f1f;
+    display: block;
+}
+
+/* Comments Section */
+.comments-section {
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid #262626;
+}
+
+.comments-list {
+    max-height: 300px;
+    overflow-y: auto;
+    margin-bottom: 1rem;
+}
+
+.comment-item {
+    display: flex;
+    gap: 0.75rem;
+    padding: 0.5rem 0;
+}
+
+.comment-item:not(:last-child) {
+    border-bottom: 1px solid #262626;
+}
+
+.comment-user-avatar {
+    flex-shrink: 0;
+}
+
+.comment-content {
+    flex: 1;
+}
+
+.comment-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.25rem;
+}
+
+.comment-user-name {
+    font-weight: 600;
+    color: #ffffff;
+    font-size: 0.875rem;
+}
+
+.comment-date {
+    font-size: 0.75rem;
+    color: #9ca3af;
+}
+
+.comment-text {
+    color: #ededed;
+    font-size: 0.875rem;
+    line-height: 1.4;
+}
+
+/* Add Comment Form */
+.add-comment-form {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding-top: 0.5rem;
+}
+
+.comment-input-container {
+    flex: 1;
+    position: relative;
+}
+
+.comment-input {
+    width: 100%;
+    padding: 0.5rem 2.5rem 0.5rem 1rem;
+    background-color: #262626;
+    border: 1px solid #262626;
+    border-radius: 9999px;
+    color: #ffffff;
+    font-size: 0.875rem;
+    transition: border-color 0.2s;
+}
+
+.comment-input:focus {
+    outline: none;
+    border-color: #6b7280;
+}
+
+.comment-input::placeholder {
+    color: #9ca3af;
+}
+
+.comment-submit-btn {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 0.25rem;
+    color: #9ca3af;
+    transition: color 0.2s;
+}
+
+.comment-submit-btn:hover {
+    color: #ffffff;
+}
+
+.comment-submit-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Like button animation */
+.post-action-btn {
+    transition: all 0.2s ease;
+}
+
+.post-action-btn:hover {
+    transform: scale(1.05);
+}
+
+/* Delete button styling */
+.post-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+/* Ensure the post content has proper spacing */
+.post-content {
+    margin-bottom: 0.75rem;
+    line-height: 1.5;
+    color: #ffffff;
+}
+
+/* Scrollbar styling for comments */
+.comments-list::-webkit-scrollbar {
+    width: 4px;
+}
+
+.comments-list::-webkit-scrollbar-track {
+    background: #1f1f1f;
+    border-radius: 2px;
+}
+
+.comments-list::-webkit-scrollbar-thumb {
+    background: #6b7280;
+    border-radius: 2px;
+}
+
+.comments-list::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+}
+
+/* Post actions spacing */
+.post-actions {
+    gap: 1.5rem;
+}
+
+/* Responsive adjustments for mobile */
+@media (max-width: 640px) {
+    .post-image-container {
+        max-height: 400px;
+    }
+
+    .post-image {
+        max-height: 400px;
+    }
+
+    .comments-list {
+        max-height: 250px;
+    }
+}
+
+/* Loading state for comments */
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+}
+
+.loading-comments {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }

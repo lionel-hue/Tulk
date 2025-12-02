@@ -1,4 +1,3 @@
-```
 # 🚀 TULK CHAT APPLICATION - PROJECT MANUAL
 
 ## 📋 CRITICAL PROJECT CONSIDERATIONS & ARCHITECTURE
@@ -27,7 +26,7 @@
 3. `create_commentaire_table` - Comments table
 4. `create_amitie_table` - Friendships table
 5. `create_message_table` - Messages table
-6. `create_liker_table` - Likes table
+6. `create_liker_table` - Likes table (NO date column - French schema)
 7. `add_foreign_keys_to_french_tables` - ALL constraints (MUST BE LAST)
 
 🚨 **DO NOT CHANGE THIS ORDER** - Foreign keys depend on tables existing first!
@@ -80,7 +79,9 @@
 - **Cache-based Verification Codes** (10-minute expiry)
 - **French Database Schema** fully implemented
 - **Laravel Factories** for test data generation
-- **Post CRUD Operations** with feed and create functionality
+- **Post CRUD Operations** with feed, create, and delete functionality
+- **Like System** with toggle functionality
+- **Comment System** with full CRUD operations
 
 ### ✅ FRONTEND COMPONENTS
 - **Login Component** with comprehensive error handling
@@ -89,7 +90,7 @@
 - **Protected Routes** with authentication checks
 - **Header Component** with navigation and search
 - **SideMenuNav Component** for mobile navigation (NO SEARCH)
-- **Home Component** with multiple sections and integrated post CRUD
+- **Home Component** with multiple sections and integrated post CRUD, like, comment, and delete
 - **Modal Component** for alerts and confirmations
 - **Responsive Design** with Tailwind CSS
 - **Network Error Detection** with visual indicators
@@ -104,9 +105,12 @@
 ### ✅ POST FUNCTIONALITY IMPLEMENTED
 - **Real-time Post Creation**: Users can create posts that save to database
 - **Dynamic Feed**: Shows user's posts + friends' posts from API
+- **Like System**: Toggle like/unlike with real-time count updates
+- **Comment System**: View and add comments to posts
+- **Post Deletion**: Users can delete their own posts with confirmation
+- **Professional Image Display**: Post images with proper sizing and responsive design
 - **Proper Error Handling**: Network and validation errors with user feedback
 - **Loading States**: Visual feedback during API operations
-- **No UI Changes**: Maintains existing design while adding functionality
 
 ### ✅ IMAGE MANAGEMENT SYSTEM
 - **Profile Images**: Users can upload profile pictures during signup
@@ -114,11 +118,8 @@
 - **Image Storage**: Secure file storage with validation and public access
 - **Real-time Previews**: Image preview before posting with remove option
 - **Fallback Avatars**: User initials displayed when no profile image exists
-
-### 🚧 NEXT PRIORITY: ENHANCE POST FEATURES
-- **Like System** for posts
-- **Comment System** for posts
-- **Post Editing & Deletion**
+- **Correct Storage Path**: Images stored in `storage/app/public/images/`
+- **Proper URL Generation**: Frontend correctly constructs image URLs via `getImageUrl()` utility
 
 ### 🚧 FUTURE FEATURES
 - Friendship system with request management
@@ -127,6 +128,9 @@
 - Advanced search and discovery features
 - Admin dashboard with user management
 - Moderation tools for content management
+- Post editing functionality
+- Multiple image upload for posts
+- Image cropping and editing features
 
 ---
 
@@ -156,7 +160,24 @@
 
 ---
 
-## 🖼️ IMAGE MANAGEMENT SYSTEM
+## 🖼️ IMAGE MANAGEMENT SYSTEM - CRITICAL UPDATES
+
+### Storage Architecture:
+```
+CORRECT STRUCTURE:
+storage/app/public/images/              # Actual storage location
+public/storage → symlink to storage/app/public   # Created by php artisan storage:link
+
+WRONG STRUCTURE (AVOID):
+storage/app/public/public/images/      # Nested public directory (incorrect)
+```
+
+### Image Upload Process:
+1. **Frontend**: User selects image → preview shown → FormData created with image file
+2. **Backend**: `PostController::createPost()` receives the image
+3. **Storage**: `$image->store('images', 'public')` saves to `storage/app/public/images/`
+4. **Database**: Path stored as `'images/filename.jpg'` (relative to storage/app/public)
+5. **Frontend Display**: `getImageUrl()` converts to full URL: `http://localhost:8000/storage/images/filename.jpg`
 
 ### Profile Images:
 - **Upload**: During signup (optional) and profile editing
@@ -169,37 +190,54 @@
 - **Upload**: When creating posts with preview functionality
 - **Preview**: Real-time image preview with remove option (X button)
 - **Validation**: Same as profile images (5MB max, image formats)
-- **Display**: Responsive images in post feed with proper scaling
+- **Display**: Professional sizing (max-height: 500px) with responsive design
+- **Professional Aspect**: Images maintain aspect ratio with `object-fit: contain`
 
-### Image URLs:
+### Image URL System:
 - **Storage URLs**: `http://localhost:8000/storage/images/filename.jpg`
 - **Public Access**: Enabled via `php artisan storage:link`
+- **Utility Function**: `getImageUrl()` handles all path conversions
 - **Fallback System**: Graceful degradation to initials when images missing
+
+### Critical Fixes Applied:
+1. **Storage Symlink**: Must be created with `php artisan storage:link`
+2. **Permissions**: `chmod -R 755 storage/app/public` required
+3. **Path Consistency**: Store only `'images/filename.jpg'` in database
+4. **Frontend URL Construction**: Use `getImageUrl()` utility function
 
 ### Image Components:
 - **Header**: User profile picture in dropdown and navigation
 - **Post Creation**: User avatar in post composer
-- **Feed Posts**: Author avatars and post images
+- **Feed Posts**: Author avatars and professionally sized post images
 - **Profile Page**: Large profile picture and banner area
+- **Comments**: User avatars in comment threads
 
 ---
 
-## 🏠 HOME PAGE SECTIONS
+## 🏠 HOME PAGE SECTIONS - ENHANCED WITH SOCIAL FEATURES
 
-### Feed Section (Fil d'actualités) - NOW WITH IMAGE SUPPORT
+### Feed Section (Fil d'actualités) - COMPLETE SOCIAL FEATURES
 - **Add Post Card**: Functional post creation with text input, image upload, and publish button
 - **Image Preview**: Real-time image preview with remove functionality
 - **Posts Feed**: Timeline of user's posts and friends' posts with real data from API
 - **Profile Images**: User avatars displayed for all posts
-- **Post Images**: Support for image posts with responsive display
-- **Post Interactions**: Like, comment, and share functionality (like and comment counts from API)
+- **Post Images**: Professional image display with max-height: 500px
+- **Post Interactions**:
+  - **Like System**: Heart icon toggles like/unlike with real-time count
+  - **Comment System**: Message icon toggles comment section
+  - **Delete Post**: Trash icon (only shown on user's own posts)
+- **Comment Features**:
+  - View all comments for a post
+  - Add new comments with Enter key or submit button
+  - Real-time comment count updates
+  - User avatars in comments
 - **Real-time Updates**: Live post loading and creation without page refresh
 
 ### Profile Section
 - **Profile Header**: User banner, avatar with image support, and basic information
-- **User Statistics**: Posts, friends, likes, and comments counts
+- **User Statistics**: Dynamic counts for posts, friends, likes, and comments
 - **Role Badge**: Visual indicator of user role (Admin/Mod/User)
-- **Profile Posts**: User's personal posts feed with images
+- **Profile Posts**: User's personal posts feed with all social features
 - **Edit Profile**: Profile modification interface with image upload
 
 ### Friends Section
@@ -228,37 +266,55 @@
 
 ---
 
-## 🎯 IMMEDIATE NEXT STEPS
+## 🎯 COMPLETED FEATURES
 
-### Priority 1: Like System
+### ✅ Like System - FULLY IMPLEMENTED
 ```javascript
-// API Endpoints to Implement:
+// API Endpoints Implemented:
 POST /api/posts/{id}/like - Like/unlike post
-GET /api/posts/{id}/likes - Get post likes
+// Returns: { success: boolean, liked: boolean, likes_count: number }
 ```
 
-### Priority 2: Comment System
+**Features:**
+- Toggle like/unlike with single click
+- Real-time like count updates
+- Heart icon fills when liked (red color)
+- Visual feedback with color change
+
+### ✅ Comment System - FULLY IMPLEMENTED
 ```javascript
-// API Endpoints to Implement:
-POST /api/posts/{id}/comments - Add comment
+// API Endpoints Implemented:
 GET /api/posts/{id}/comments - Get post comments
+POST /api/posts/{id}/comments - Add comment
+// Returns: { success: boolean, comment: object, comments_count: number }
 ```
 
-### Priority 3: Post Management
+**Features:**
+- View comments by clicking comment button
+- Add comments with Enter key or submit button
+- User avatars in comments
+- Real-time comment count updates
+- Scrollable comments section
+
+### ✅ Post Deletion - FULLY IMPLEMENTED
 ```javascript
-// API Endpoints to Implement:
-PUT /api/posts/{id} - Update post
-DELETE /api/posts/{id} - Delete post
+// API Endpoints Implemented:
+DELETE /api/posts/{post} - Delete post
+// Returns: { success: boolean, message: string }
 ```
 
-### Priority 4: Enhanced Image Features
-```javascript
-// Features to Add:
-- Multiple image upload for posts
-- Image cropping and editing
-- Image gallery view
-- Image compression optimization
-```
+**Features:**
+- Delete button only shown on user's own posts
+- Confirmation modal before deletion
+- Automatic cleanup of associated likes and comments
+- Image file deletion from storage
+
+### ✅ Professional Image Display
+- **Max Height**: 500px (400px on mobile)
+- **Aspect Ratio**: Maintained with `object-fit: contain`
+- **Responsive Design**: Works on all screen sizes
+- **Error Handling**: Graceful fallback on image load failure
+- **Preview System**: Real-time image preview before posting
 
 ---
 
@@ -286,6 +342,8 @@ DELETE /api/posts/{id} - Delete post
 - ✅ API authentication errors
 - ✅ Post creation and loading errors
 - ✅ Image upload and validation errors
+- ✅ Like/comment operation errors
+- ✅ Post deletion errors (permission checks)
 
 ---
 
@@ -333,28 +391,28 @@ MAIL_FROM_NAME="Tulk Team"
 
 ---
 
-## 🗂️ FILE STRUCTURE & COMPONENTS
+## 🗂️ UPDATED FILE STRUCTURE & COMPONENTS
 
 ### BACKEND (Laravel)
 ```
 app/
 ├── Models/
-│   ├── Utilisateur.php (UPDATED: HasApiTokens trait)
-│   ├── Article.php
-│   ├── Commentaire.php
-│   ├── Amitie.php
+│   ├── Utilisateur.php (HasApiTokens trait, image relationships)
+│   ├── Article.php (With likes, comments, utilisateur relationships)
+│   ├── Commentaire.php (With utilisateur, article relationships)
+│   ├── Amitie.php (Friendship relationships)
 │   ├── Message.php
-│   └── Liker.php
+│   └── Liker.php (Like relationships - NO date column)
 ├── Http/Controllers/
-│   ├── AuthController.php (UPDATED: Image upload support)
+│   ├── AuthController.php (Image upload support)
 │   ├── VerificationController.php
-│   ├── PostController.php (UPDATED: Post image upload)
+│   ├── PostController.php (Complete: create, feed, like, comment, delete)
 │   ├── UserController.php
 │   └── MessageController.php
 ├── Mail/
 │   └── VerificationCodeMail.php
 routes/
-├── api.php (API endpoints)
+├── api.php (API endpoints with social features)
 ├── web.php (React entry point)
 database/
 ├── factories/
@@ -366,18 +424,18 @@ database/
     └── UtilisateurSeeder.php
 ```
 
-### FRONTEND (React)
+### FRONTEND (React) - UPDATED
 ```
 resources/js/
 ├── components/
 │   ├── auth/
 │   │   ├── Login.jsx
-│   │   └── Signup.jsx (UPDATED: Image upload)
+│   │   └── Signup.jsx (Image upload)
 │   ├── main/
-│   │   ├── Home.jsx (UPDATED: Image upload & display)
-│   │   ├── Header.jsx (UPDATED: Profile images)
-│   │   ├── SideMenuNav.jsx (UPDATED: No search feature)
-│   │   └── Modal.jsx
+│   │   ├── Home.jsx (COMPLETE: posts, likes, comments, delete, images)
+│   │   ├── Header.jsx (Profile images)
+│   │   ├── SideMenuNav.jsx (No search feature)
+│   │   └── Modal.jsx (Confirm dialogs)
 │   └── shared/
 │       ├── Loader.jsx
 │       └── ErrorBoundary.jsx
@@ -388,7 +446,8 @@ resources/js/
 │   └── useModal.js
 ├── utils/
 │   ├── api.js (Axios instance with interceptors)
-│   └── validation.js
+│   ├── validation.js
+│   └── imageUrls.js (CRITICAL: getImageUrl() function)
 ├── App.jsx
 └── index.jsx
 ```
@@ -408,6 +467,7 @@ resources/js/
 - **Error**: #ef4444 (red)
 - **Warning**: #f59e0b (yellow)
 - **Accent**: #3b82f6 (blue)
+- **Like Active**: #ef4444 (red)
 
 ### Typography Scale
 - **Headers**: 1.5rem - 2rem (bold)
@@ -440,25 +500,28 @@ resources/js/
 - 🖼️ **Images**: Image icon
 - 📷 **Camera**: Camera icon
 - ❌ **Remove**: X icon
+- ❤️ **Like**: Heart icon (filled when active)
+- 🗑️ **Delete**: Trash2 icon
+- 💬 **Comment**: MessageCircle icon
 
 ---
 
-## 🛠️ TECHNICAL CONFIGURATION
+## 🛠️ TECHNICAL CONFIGURATION - UPDATED
 
 ### API Configuration:
 - **Base URL**: `/api` (proxied through Vite in development)
 - **Timeout**: 10 seconds
 - **Authentication**: Bearer tokens with automatic header injection
 - **Error Handling**: Global interceptors for network and server errors
-- **Content Type**: JSON for all requests, multipart/form-data for file uploads
+- **Content Type**: JSON for most requests, multipart/form-data for file uploads
 
-### Image Upload System:
-- **Storage**: `storage/app/public/images/`
-- **Public Access**: `php artisan storage:link`
+### Image Upload System - CRITICAL UPDATES:
+- **Storage**: `storage/app/public/images/` (NOT nested public directory)
+- **Public Access**: `php artisan storage:link` creates symlink
 - **Validation**: 5MB max, image types only (JPEG, PNG, JPG, GIF)
-- **Naming**: Random 20-character filenames
-- **Optimization**: Automatic image compression
-- **Preview**: Client-side image preview before upload
+- **Naming**: `time()_uniqueid.extension` format
+- **Database Storage**: Store only `'images/filename.jpg'` (relative path)
+- **URL Construction**: Use `getImageUrl()` utility in frontend
 
 ### Email Verification:
 - **Code Generation**: 6-digit random numbers
@@ -475,6 +538,7 @@ resources/js/
 - Rate limiting on authentication endpoints
 - Secure file upload validation
 - SQL injection protection with Eloquent
+- **Post Deletion**: Permission checks (users can only delete their own posts)
 
 ### Error Handling Architecture:
 - **Frontend**: Axios interceptors with network detection
@@ -493,12 +557,12 @@ resources/js/
 
 ---
 
-## 🚀 QUICK START COMMANDS
+## 🚀 QUICK START COMMANDS - UPDATED
 
 ### Development Servers:
 ```bash
 # Backend (Laravel)
-php artisan serve
+php artisan serve --port=8000
 
 # Frontend (Vite)
 npm run dev
@@ -515,7 +579,7 @@ php artisan migrate
 # Seed test users
 php artisan db:seed --class=UtilisateurSeeder
 
-# Create storage link for images (CRITICAL)
+# Create storage link for images (CRITICAL - MUST RUN)
 php artisan storage:link
 
 # Generate test data with factories
@@ -523,6 +587,19 @@ php artisan db:seed
 
 # Reset and reseed database
 php artisan migrate:fresh --seed
+```
+
+### Storage Setup - CRITICAL:
+```bash
+# Fix storage permissions and structure
+chmod -R 755 storage/app/public
+chmod -R 755 public/storage
+
+# Ensure correct directory structure
+mkdir -p storage/app/public/images
+
+# Remove incorrect nested directories if they exist
+rm -rf storage/app/public/public 2>/dev/null || true
 ```
 
 ### Email Testing:
@@ -537,7 +614,7 @@ php artisan vendor:publish --tag=laravel-mail
 
 ### Cache & Configuration:
 ```bash
-# Clear all caches
+# Clear all caches (run after major changes)
 php artisan config:clear
 php artisan cache:clear
 php artisan route:clear
@@ -588,18 +665,21 @@ npm run type-check
 ## 🧪 TESTING CREDENTIALS
 
 ### Available Test Users:
-- **Regular User**: jean@tulk.com / password123
-- **Admin User**: admin@tulk.com / admin123
-- **Moderator User**: mod@tulk.com / mod123
+- **Regular User**: sissolionel@gmail.com / 123456
+- **Admin User**: admin@tulk.com / admin123 (if created)
+- **Moderator User**: mod@tulk.com / mod123 (if created)
 
 ### API Testing Endpoints:
 - **Login**: POST `/api/login`
 - **Register**: POST `/api/register`
 - **Send Verification**: POST `/api/send-verification`
 - **Verify Code**: POST `/api/verify-code`
-- **Get User Profile**: GET `/api/user`
-- **Create Post**: POST `/api/posts` (supports multipart/form-data)
 - **Get Feed Posts**: GET `/api/posts/feed`
+- **Create Post**: POST `/api/posts` (supports multipart/form-data)
+- **Like Post**: POST `/api/posts/{id}/like`
+- **Get Comments**: GET `/api/posts/{id}/comments`
+- **Add Comment**: POST `/api/posts/{id}/comments`
+- **Delete Post**: DELETE `/api/posts/{post}`
 
 ### Headers for API Calls:
 ```json
@@ -640,7 +720,30 @@ Message::factory()->count(100)->create();
 
 ---
 
-## 🐛 KNOWN ISSUES & SOLUTIONS
+## 🐛 KNOWN ISSUES & SOLUTIONS - UPDATED
+
+### Issue: Image Upload Fails with "Image was not saved to disk"
+- **Problem**: Images weren't being saved to correct location
+- **Root Cause**: Incorrect storage path in PostController
+- **Solution**: Use `$image->store('images', 'public')` instead of custom path logic
+
+### Issue: Liker Table Column Not Found Error
+- **Problem**: `SQLSTATE[42S22]: Column not found: 1054 Unknown column 'date'`
+- **Root Cause**: Liker table doesn't have date column (French schema)
+- **Solution**: Remove `'date' => now()` from Liker creation in PostController
+
+### Issue: Images Not Displaying After Upload
+- **Problem**: Database had image paths but files didn't exist
+- **Root Cause**: Files saved to wrong location or not saved at all
+- **Solution**: 
+  1. Clean database: `UPDATE Article SET image = NULL WHERE image IS NOT NULL`
+  2. Fix PostController storage logic
+  3. Ensure `php artisan storage:link` is run
+
+### Issue: Nested Public Directory
+- **Problem**: `storage/app/public/public/` directory created
+- **Root Cause**: Incorrect path construction in old PostController
+- **Solution**: Remove nested directory and use correct storage path
 
 ### Issue: VS Code CSS Warnings
 - **Problem**: `@source` directives show as unknown rules
@@ -650,10 +753,6 @@ Message::factory()->count(100)->create();
 ### Issue: Email Sending Delays
 - **Problem**: Gmail may have slight delays
 - **Solution**: Use loading indicators and retry functionality
-
-### Issue: Image Upload Paths
-- **Problem**: Images not accessible via URL
-- **Solution**: Run `php artisan storage:link` and check permissions
 
 ### Issue: Network Error Detection
 - **Problem**: Some network conditions not caught
@@ -677,7 +776,7 @@ Message::factory()->count(100)->create();
 
 ---
 
-## 🔄 UPDATE LOG
+## 🔄 UPDATE LOG - MAJOR MILESTONES
 
 ### Latest Updates (Current):
 - ✅ **Complete Authentication System** with email verification
@@ -694,19 +793,27 @@ Message::factory()->count(100)->create();
 - ✅ **Universal Menu Button**: Available in all views (desktop, mobile, tablet)
 - ✅ **Z-index Hierarchy**: Side menu (60) > Overlay (50) > Profile dropdown (45) > Header (40)
 - ✅ **Search Feature Removed** from SideMenuNav for cleaner design
-- ✅ **Post CRUD Integration**: Create posts and view feed with real data from Laravel API
-- ✅ **API Utility**: Axios instance with request/response interceptors for token and error handling
-- ✅ **Profile Image Display**: User profile pictures show in header, posts, and profile sections
-- ✅ **Post Image Upload**: Users can add images to posts with preview functionality
-- ✅ **Image Management System**: Complete image upload, storage, and display system
-- ✅ **Sanctum Authentication**: Fixed token-based authentication with HasApiTokens trait
+- ✅ **Post CRUD Integration**: Create posts and view feed with real data
+- ✅ **API Utility**: Axios instance with request/response interceptors
+- ✅ **Profile Image Display**: User profile pictures throughout app
+- ✅ **Post Image Upload**: Users can add images to posts
+- ✅ **Image Management System**: Complete upload, storage, and display
+- ✅ **Sanctum Authentication**: Token-based authentication
+- ✅ **Like System**: Toggle like/unlike with real-time updates
+- ✅ **Comment System**: Full comment functionality with user avatars
+- ✅ **Post Deletion**: Users can delete their own posts with confirmation
+- ✅ **Professional Image Sizing**: Post images with max-height: 500px
+- ✅ **Storage Architecture Fix**: Correct image storage paths implemented
+- ✅ **French Schema Compliance**: Liker table without date column handled
 
 ### Next Features Planned:
-- 🚧 **Like System** for posts with real-time updates
-- 🚧 **Comment System** for posts with nested replies
-- 🚧 **Post Management**: Edit and delete posts
-- 🚧 **Friendship System**: Friend requests and management
-- 🚧 **Enhanced Image Features**: Multiple images, cropping, galleries
+- 🔄 **Friendship System**: Friend requests and management
+- 🔄 **Real-time Messaging**: Chat functionality
+- 🔄 **Notification System**: Real-time notifications
+- 🔄 **Post Editing**: Edit existing posts
+- 🔄 **Multiple Images**: Support for multiple images per post
+- 🔄 **Image Cropping**: In-app image editing
+- 🔄 **Admin Dashboard**: User management and analytics
 
 ### Technical Debt & Improvements:
 - 🔄 Add more comprehensive factory states
@@ -722,19 +829,26 @@ Message::factory()->count(100)->create();
 
 ---
 
-## 📞 SUPPORT & TROUBLESHOOTING
+## 📞 SUPPORT & TROUBLESHOOTING - UPDATED
 
 ### Common Setup Issues:
 1. **Email Not Sending**: Check Gmail App Password and .env configuration
-2. **Images Not Loading**: Verify storage link and file permissions
+2. **Images Not Loading**: 
+   - Verify storage link: `php artisan storage:link`
+   - Check permissions: `chmod -R 755 storage/app/public`
+   - Clear caches: `php artisan config:clear` etc.
 3. **Routes Not Working**: Clear route cache and check bootstrap/app.php configuration
 4. **Database Errors**: Verify migration order and foreign key constraints
 5. **Network Errors**: Check CORS configuration and server connectivity
 6. **Component Styling Issues**: Verify Tailwind CSS configuration and imports
 7. **Authentication Problems**: Check Sanctum configuration and token handling
 8. **API Connection Issues**: Verify Vite proxy configuration for /api routes
-9. **Image Upload Errors**: Check storage permissions and file validation
+9. **Image Upload Errors**: 
+   - Check storage permissions
+   - Ensure `storage/app/public/images/` directory exists
+   - Verify PostController uses `store('images', 'public')`
 10. **Token Errors**: Ensure personal_access_tokens table exists and HasApiTokens trait is used
+11. **Like Errors**: Ensure Liker model doesn't expect date column (French schema)
 
 ### Debugging Tools:
 - **Laravel Logs**: `tail -f storage/logs/laravel.log`
@@ -768,7 +882,7 @@ Message::factory()->count(100)->create();
 
 ---
 
-## 🏗️ ARCHITECTURE OVERVIEW
+## 🏗️ ARCHITECTURE OVERVIEW - UPDATED
 
 ### Backend Architecture:
 - **Laravel 11+** with modern application structure
@@ -778,28 +892,28 @@ Message::factory()->count(100)->create();
 - **Repository Pattern** for data access
 - **Event-Driven Architecture** for real-time features
 - **Queue System** for background processing
-- **File Storage System** with image optimization
+- **File Storage System** with correct image paths
 
 ### Frontend Architecture:
 - **React 18** with functional components and hooks
-- **Context API** for state management
+- **Context API** for state management (AuthContext)
 - **React Router** for navigation
 - **Axios** for API communication with interceptors
 - **Tailwind CSS** for styling
 - **Component-Based Design** for reusability
 - **Custom Hooks** for logic abstraction
 - **Error Boundaries** for graceful error handling
-- **Image Management** with preview and validation
+- **Image Management** with preview and URL construction
 
-### Data Flow:
-1. **User Action** → React Component
-2. **API Call** → Laravel Controller
-3. **Business Logic** → Service Classes
-4. **Data Persistence** → Eloquent Models
-5. **File Processing** → Storage System
+### Data Flow - Enhanced:
+1. **User Action** → React Component (Home.jsx)
+2. **API Call** → Laravel Controller (PostController)
+3. **Business Logic** → Service Methods (like, comment, delete)
+4. **Data Persistence** → Eloquent Models (French schema)
+5. **File Processing** → Storage System (correct path: storage/app/public/images/)
 6. **Response** → React State Update
-7. **UI Update** → Component Re-render
-8. **Real-time Updates** → WebSocket Events (future)
+7. **UI Update** → Component Re-render with new data
+8. **Real-time Updates** → Future: WebSocket Events
 
 ### Security Architecture:
 - **Authentication**: Laravel Sanctum tokens
@@ -810,6 +924,7 @@ Message::factory()->count(100)->create();
 - **HTTPS**: Secure communication enforcement
 - **Rate Limiting**: API endpoint protection
 - **File Validation**: Secure upload validation
+- **Permission Checks**: Users can only delete their own posts
 
 ### Scalability Considerations:
 - **Database Indexing**: Optimized query performance
@@ -822,36 +937,11 @@ Message::factory()->count(100)->create();
 
 ---
 
-**Last Updated**: Current  
-**Database**: Tulk (French Schema)  
+**Last Updated**: December 2024  
+**Database**: Tulk (French Schema - Liker without date column)  
 **Stack**: Laravel 11 + React 18 + Tailwind CSS v4 + MySQL + Sanctum  
-**Status**: ✅ Authentication Complete → ✅ Navigation Complete → ✅ Post CRUD Complete → ✅ Image System Complete → 🚧 Post Enhancements  
+**Status**: ✅ Authentication Complete → ✅ Navigation Complete → ✅ Post CRUD Complete → ✅ Image System Complete → ✅ Like System Complete → ✅ Comment System Complete → ✅ Post Deletion Complete  
 **Testing**: ✅ Manual Testing → 🚧 Automated Test Suite  
-**Deployment**: 🚧 Development → 🚧 Staging → 🚧 Production Ready
+**Deployment**: 🚧 Development → 🚧 Staging → 🚧 Production Ready  
 
 ---
-
-*This manual is a living document and will be updated as the project evolves. For the latest updates, check the project repository and commit history.*
-```
-
-## Summary of Major Updates:
-
-### New Sections Added:
-1. **Image Management System** - Complete documentation of profile and post image functionality
-2. **Enhanced Implementation Status** - Updated to reflect image system completion
-3. **Technical Configuration** - Added image upload and storage details
-4. **Troubleshooting** - Added image-specific debugging steps
-
-### Key Features Documented:
-- ✅ **Profile Image Upload & Display** during signup and throughout the app
-- ✅ **Post Image Upload** with real-time preview and remove functionality
-- ✅ **Image Storage System** with validation and public access
-- ✅ **Fallback Avatars** using user initials when no image exists
-- ✅ **Responsive Image Display** across all components
-
-### Technical Updates:
-- **Utilisateur Model**: Added `HasApiTokens` trait for Sanctum
-- **AuthController**: Enhanced with image upload support
-- **PostController**: Added post image upload functionality
-- **Frontend Components**: Updated Header, Home, and Signup for image support
-- **API Routes**: Support for multipart/form-data file uploads

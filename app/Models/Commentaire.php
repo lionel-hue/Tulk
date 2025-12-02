@@ -1,20 +1,22 @@
 <?php
-// app/Models/Liker.php
+// app/Models/Commentaire.php
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Liker extends Model
+class Commentaire extends Model
 {
     use HasFactory;
 
-    protected $table = 'Liker';
+    protected $table = 'Commentaire';
     public $timestamps = false;
 
     protected $fillable = [
-        'id_uti',
-        'id_arti'
+        'texte',
+        'date',
+        'id_arti',
+        'id_uti'
     ];
 
     public function utilisateur()
