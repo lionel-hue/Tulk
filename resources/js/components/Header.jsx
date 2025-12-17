@@ -11,20 +11,33 @@ import {
     MessageCircle,
     Users,
     LayoutDashboard,
-    Settings
+    Settings,
+    X
 } from 'lucide-react';
 import Modal, { useModal } from './Modal';
 import { getImageUrl } from '../utils/imageUrls';
 
-const Header = ({ sidebarOpen, onSidebarToggle, activeSection = "feed" }) => {
+const Header = ({ 
+    sidebarOpen, 
+    onSidebarToggle, 
+    activeSection = "feed",
+    searchQuery,
+    onSearchChange 
+}) => {
     const { user, logout } = useAuth();
     const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
-    const [searchQuery, setSearchQuery] = useState('');
+    const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery || '');
     const navigate = useNavigate();
     const location = useLocation();
     const profileDropdownRef = useRef(null);
+    const searchInputRef = useRef(null);
 
     const { modal, setModal, confirm } = useModal();
+
+    // Sync local search query with parent
+    useEffect(() => {
+        setLocalSearchQuery(searchQuery || '');
+    }, [searchQuery]);
 
     // Get the user's profile image URL or fallback to initials
     const getUserAvatar = () => {
@@ -60,7 +73,39 @@ const Header = ({ sidebarOpen, onSidebarToggle, activeSection = "feed" }) => {
     };
 
     const handleSearchChange = (e) => {
-        setSearchQuery(e.target.value);
+        const value = e.target.value;
+        setLocalSearchQuery(value);
+        if (onSearchChange) {
+            onSearchChange(value);
+        }
+    };
+
+    const handleSearchFocus = () => {
+        if (activeSection === 'friends' && onSearchChange) {
+            // Notify parent about search focus for friends section
+            onSearchChange(localSearchQuery);
+        }
+    };
+
+    const handleSearchBlur = () => {
+        // If search is empty, clear it
+        if (localSearchQuery.trim() === '') {
+            setLocalSearchQuery('');
+            if (onSearchChange) {
+                onSearchChange('');
+            }
+        }
+    };
+
+    const clearSearch = () => {
+        setLocalSearchQuery('');
+        if (onSearchChange) {
+            onSearchChange('');
+        }
+        // Focus the search input after clearing
+        if (searchInputRef.current) {
+            searchInputRef.current.focus();
+        }
     };
 
     const toggleProfileDropdown = () => {
@@ -90,6 +135,13 @@ const Header = ({ sidebarOpen, onSidebarToggle, activeSection = "feed" }) => {
     };
 
     const handleNavigation = (section) => {
+        // Clear search when navigating to a different section
+        if (section !== activeSection) {
+            setLocalSearchQuery('');
+            if (onSearchChange) {
+                onSearchChange('');
+            }
+        }
         navigate(`/${section}`);
     };
 
@@ -109,12 +161,14 @@ const Header = ({ sidebarOpen, onSidebarToggle, activeSection = "feed" }) => {
         const handleEscape = (event) => {
             if (event.key === 'Escape' && isProfileDropdownOpen) {
                 setIsProfileDropdownOpen(false);
+            } else if (event.key === 'Escape' && localSearchQuery) {
+                clearSearch();
             }
         };
 
         document.addEventListener('keydown', handleEscape);
         return () => document.removeEventListener('keydown', handleEscape);
-    }, [isProfileDropdownOpen]);
+    }, [isProfileDropdownOpen, localSearchQuery]);
 
     const navItems = [
         { id: 'feed', icon: LayoutDashboard, label: 'Fil', badge: null },
@@ -155,12 +209,24 @@ const Header = ({ sidebarOpen, onSidebarToggle, activeSection = "feed" }) => {
                     {/* Search Bar */}
                     <div className="header-search">
                         <input
+                            ref={searchInputRef}
                             type="text"
                             placeholder={getSearchPlaceholder()}
-                            value={searchQuery}
+                            value={localSearchQuery}
                             onChange={handleSearchChange}
+                            onFocus={handleSearchFocus}
+                            onBlur={handleSearchBlur}
                         />
-                        <Search size={18} />
+                        {localSearchQuery ? (
+                            <button 
+                                onClick={clearSearch}
+                                className="absolute right-8 text-gray-400 hover:text-white transition-colors"
+                            >
+                                <X size={18} />
+                            </button>
+                        ) : (
+                            <Search size={18} className="absolute right-3" />
+                        )}
                     </div>
 
                     {/* User Profile */}

@@ -6,15 +6,16 @@ export const getImageUrl = (imagePath) => {
         return imagePath;
     }
     
-    // For relative paths starting with /storage/, use as is
+    // For relative paths starting with /storage/, use as is (Vite will proxy)
     if (imagePath.startsWith('/storage/')) {
-        return `${window.location.origin}${imagePath}`;
+        return imagePath;
     }
     
     // For database paths (without /storage/), prepend /storage/
-    return `${window.location.origin}/storage/${imagePath}`;
+    // Vite will proxy this to http://127.0.0.1:8000/storage/images/...
+    return `/storage/${imagePath}`;
 };
 
 export const getApiBaseUrl = () => {
-    return import.meta.env.VITE_API_URL || '/api';
+    return '/api'; // Vite will proxy this
 };
