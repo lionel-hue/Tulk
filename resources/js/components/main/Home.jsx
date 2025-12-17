@@ -4,6 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Header from '../Header';
 import SideMenuNav from '../SideMenuNav';
+import Amitie from './Amitie';
 import {
     Heart,
     Share,
@@ -15,8 +16,7 @@ import {
     Image,
     Send,
     X,
-    Trash2,
-    MoreVertical
+    Trash2
 } from 'lucide-react';
 import { api } from '../../utils/api';
 import Modal, { useModal } from '../Modal';
@@ -29,6 +29,13 @@ const Home = () => {
     const { modal, setModal, confirm } = useModal();
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [activeSection, setActiveSection] = useState('feed');
+    
+    // Search state for friends section
+    const [searchQuery, setSearchQuery] = useState('');
+    const [isSearchFocused, setIsSearchFocused] = useState(false);
+    const [searchActive, setSearchActive] = useState(false);
+
+    // Posts state for feed and profile sections
     const [posts, setPosts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [posting, setPosting] = useState(false);
@@ -75,6 +82,41 @@ const Home = () => {
         else if (path.includes('/dashboard')) setActiveSection('dashboard');
         else setActiveSection('feed');
     }, [location.pathname]);
+
+    // Clear search when switching sections
+    useEffect(() => {
+        setSearchQuery('');
+        setIsSearchFocused(false);
+        setSearchActive(false);
+    }, [activeSection]);
+
+    // Handle search from Header
+    const handleSearchChange = (query) => {
+        setSearchQuery(query);
+        if (activeSection === 'friends' && query.trim().length >= 2) {
+            setIsSearchFocused(true);
+            setSearchActive(true);
+        } else if (activeSection === 'friends' && query.trim().length === 0) {
+            setIsSearchFocused(false);
+            setSearchActive(false);
+        }
+    };
+
+    const handleSearchFocus = () => {
+        if (activeSection === 'friends') {
+            setIsSearchFocused(true);
+        }
+    };
+
+    const handleSearchBlur = () => {
+        // Delay to allow click events on search results
+        setTimeout(() => {
+            if (searchQuery.trim().length === 0) {
+                setIsSearchFocused(false);
+                setSearchActive(false);
+            }
+        }, 200);
+    };
 
     // Load posts from API
     const loadPosts = async () => {
@@ -752,34 +794,11 @@ const Home = () => {
     );
 
     const renderFriendsSection = () => (
-        <div className="section-content">
-            <div className="friends-container">
-                <div className="section-header">
-                    <h2>Amis</h2>
-                    <button className="btn-primary">Trouver des amis</button>
-                </div>
-
-                {/* Friend Requests */}
-                <div className="friends-card">
-                    <h3>Demandes d'amitié</h3>
-                    <div className="friend-requests-list">
-                        <div className="text-center py-8 text-gray-400">
-                            Aucune demande d'amitié pour le moment
-                        </div>
-                    </div>
-                </div>
-
-                {/* Friends List */}
-                <div className="friends-card">
-                    <h3>Mes amis</h3>
-                    <div className="friends-list">
-                        <div className="text-center py-8 text-gray-400">
-                            Aucun ami pour le moment
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <Amitie 
+            searchQuery={searchQuery}
+            onSearchFocus={handleSearchFocus}
+            onSearchBlur={handleSearchBlur}
+        />
     );
 
     const renderMessagesSection = () => (
@@ -863,18 +882,28 @@ const Home = () => {
         }
     };
 
+    const toggleSidebar = () => {
+        setSidebarOpen(!sidebarOpen);
+    };
+
+    const closeSidebar = () => {
+        setSidebarOpen(false);
+    };
+
     return (
         <div className="home-page">
             <SideMenuNav
                 isOpen={sidebarOpen}
-                onClose={() => setSidebarOpen(false)}
+                onClose={closeSidebar}
             />
 
             <div className="home-main">
                 <Header
                     sidebarOpen={sidebarOpen}
-                    onSidebarToggle={() => setSidebarOpen(!sidebarOpen)}
+                    onSidebarToggle={toggleSidebar}
                     activeSection={activeSection}
+                    searchQuery={searchQuery}
+                    onSearchChange={handleSearchChange}
                 />
 
                 <main className="home-main-content">
