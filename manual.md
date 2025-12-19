@@ -51,28 +51,43 @@
 - **Incorrect**: `Route::post('/login', ...)` → `/api//login`
 - Clear cache after route changes: `php artisan route:clear`
 
-### 8. ARCHITECTURE TYPE: MONOLITHIC LARAVEL + REACT (CRITICAL)
-**IMPORTANT**: This project uses a **MONOLITHIC ARCHITECTURE** where:
-- React is **EMBEDDED** inside Laravel using Vite
-- There is **NO separate React app** - everything is in `resources/js/`
-- Laravel serves both API endpoints AND the React frontend
-- Vite development server proxies API calls to avoid CORS issues
-- In production, Laravel serves compiled React assets
+## 🔧 **NEW ARCHITECTURE: SEPARATE REACT + LARAVEL API** (Updated December 2024)
 
-**NEVER DO THESE (Will Break App):**
-- ❌ Don't create a separate React project
-- ❌ Don't move React code outside Laravel
-- ❌ Don't use `create-react-app` or similar
-- ❌ Don't treat frontend/backend as separate services
-- ❌ Don't change API URL construction logic
-- ❌ Don't hardcode IP addresses in frontend code
+### **ARCHITECTURE TYPE: SEPARATE REACT FRONTEND + LARAVEL API BACKEND**
+**IMPORTANT**: This project now uses a **SEPARATE ARCHITECTURE** where:
+- **React Frontend** is a standalone application in `/front/` folder
+- **Laravel Backend** is a pure API in `/back/` folder
+- **Two separate servers** run during development:
+  - React: `http://localhost:3000` (Vite dev server)
+  - Laravel: `http://localhost:8000` (PHP artisan serve)
+- **No proxy needed** - React calls Laravel API directly
+- **CORS configured** for cross-origin communication
 
-### 9. FRONTEND-BACKEND INTEGRATION
-- React.js frontend with Laravel API backend
-- Axios for API calls with enhanced error handling
-- React Router for navigation
-- Tailwind CSS v4 with custom dark theme
-- Component-based architecture with proper separation
+**Benefits of New Architecture:**
+- ✅ **No Vite proxy configuration** headaches
+- ✅ **Clean separation** of frontend and backend
+- ✅ **Easy mobile testing** - run both on network IP
+- ✅ **Independent deployment** possible
+- ✅ **Better development experience** with React hot reload
+
+### **Project Structure:**
+```
+Tulk-project/                # Parent directory
+├── front/                   # React frontend application (PORT 3000)
+│   ├── src/                 # React components (moved from back/resources/js/)
+│   ├── package.json         # React dependencies
+│   ├── vite.config.js       # Vite for React only
+│   └── .env                 # Frontend environment: VITE_API_URL
+│
+├── back/                    # Laravel API backend (PORT 8000)
+│   ├── app/                 # Laravel application
+│   ├── routes/api.php       # API endpoints
+│   ├── composer.json        # PHP dependencies
+│   ├── .env                 # Laravel environment
+│   └── storage/app/public/  # Image storage
+│
+└── manual.md                # This documentation
+```
 
 ---
 
@@ -99,7 +114,7 @@
 - **Like System** with toggle functionality
 - **Comment System** with full CRUD operations
 
-### ✅ FRONTEND COMPONENTS
+### ✅ FRONTEND COMPONENTS (Now in `/front/src/`)
 - **Login Component** with comprehensive error handling
 - **Signup Component** (4-step process)
 - **Auth Context** for global state management
@@ -276,28 +291,41 @@ POST /api/friends/remove - Remove friend or cancel request
 
 ---
 
-## 🖼️ IMAGE MANAGEMENT SYSTEM - CRITICAL UPDATES
+## 🖼️ IMAGE MANAGEMENT SYSTEM - UPDATED FOR SEPARATE ARCHITECTURE
 
 ### Storage Architecture:
 ```
 CORRECT STRUCTURE:
-storage/app/public/images/              # Actual storage location
-public/storage → symlink to storage/app/public   # Created by php artisan storage:link
-
-WRONG STRUCTURE (AVOID):
-storage/app/public/public/images/      # Nested public directory (incorrect)
+back/storage/app/public/images/              # Laravel storage location
+back/public/storage → symlink to storage/app/public   # Created by php artisan storage:link
 ```
 
-### Image Upload Process:
-1. **Frontend**: User selects image → preview shown → FormData created with image file
-2. **Backend**: `PostController::createPost()` receives the image
-3. **Storage**: `$image->store('images', 'public')` saves to `storage/app/public/images/`
-4. **Database**: Path stored as `'images/filename.jpg'` (relative to storage/app/public)
-5. **Frontend Display**: `getImageUrl()` converts to full URL: `http://localhost:8000/storage/images/filename.jpg`
+### Image Upload Flow (New Architecture):
+1. **React Frontend**: User selects image → FormData created → POST to `/api/posts`
+2. **Laravel API**: Receives image → `$image->store('images', 'public')` → saves to `back/storage/app/public/images/`
+3. **Database**: Stores path as `'images/filename.jpg'` (relative path)
+4. **Image Display**: Frontend uses `getImageUrl()` which now uses `window.location.origin`:
+
+```javascript
+// Updated getImageUrl() for separate architecture
+export const getImageUrl = (imagePath) => {
+    if (!imagePath) return null;
+    
+    if (imagePath.startsWith('http')) return imagePath;
+    
+    const baseUrl = window.location.origin; // Gets current origin (localhost:3000 or your-ip:3000)
+    
+    if (imagePath.startsWith('/storage/')) {
+        return baseUrl + imagePath;
+    }
+    
+    return baseUrl + '/storage/' + imagePath;
+};
+```
 
 ### Profile Images:
 - **Upload**: During signup (optional) and profile editing
-- **Storage**: `storage/app/public/images/` with unique filenames
+- **Storage**: `back/storage/app/public/images/` with unique filenames
 - **Display**: Profile pictures show in header, posts, and profile sections
 - **Fallback**: User initials in gradient circle when no image exists
 - **Validation**: 5MB max size, JPEG/PNG/JPG/GIF formats
@@ -309,17 +337,17 @@ storage/app/public/public/images/      # Nested public directory (incorrect)
 - **Display**: Professional sizing (max-height: 500px) with responsive design
 - **Professional Aspect**: Images maintain aspect ratio with `object-fit: contain`
 
-### Image URL System:
+### Image URL System (Updated):
 - **Storage URLs**: `http://localhost:8000/storage/images/filename.jpg`
-- **Public Access**: Enabled via `php artisan storage:link`
-- **Utility Function**: `getImageUrl()` handles all path conversions
-- **Fallback System**: Graceful degradation to initials when images missing
+- **Public Access**: Enabled via `php artisan storage:link` in Laravel
+- **Utility Function**: `getImageUrl()` now uses `window.location.origin` for correct paths
+- **CORS Required**: Laravel must allow React's origin (localhost:3000)
 
 ### Critical Fixes Applied:
-1. **Storage Symlink**: Must be created with `php artisan storage:link`
-2. **Permissions**: `chmod -R 755 storage/app/public` required
+1. **Storage Symlink**: Must be created with `php artisan storage:link` in Laravel
+2. **CORS Configuration**: Laravel must allow React origin
 3. **Path Consistency**: Store only `'images/filename.jpg'` in database
-4. **Frontend URL Construction**: Use `getImageUrl()` utility function
+4. **Frontend URL Construction**: Updated `getImageUrl()` for separate architecture
 
 ### Image Components:
 - **Header**: User profile picture in dropdown and navigation
@@ -482,6 +510,7 @@ POST /api/friends/remove - Remove friend/cancel request
 - ✅ Post deletion errors (permission checks)
 - ✅ Friend request/management errors
 - ✅ Search functionality errors
+- ✅ CORS errors (new for separate architecture)
 
 ---
 
@@ -529,67 +558,74 @@ MAIL_FROM_NAME="Tulk Team"
 
 ---
 
-## 🗂️ UPDATED FILE STRUCTURE & COMPONENTS
+## 🗂️ UPDATED FILE STRUCTURE FOR SEPARATE ARCHITECTURE
 
-### BACKEND (Laravel)
+### BACKEND (Laravel) - `/back/`
 ```
-app/
-├── Models/
-│   ├── Utilisateur.php (HasApiTokens trait, image relationships)
-│   ├── Article.php (With likes, comments, utilisateur relationships)
-│   ├── Commentaire.php (With utilisateur, article relationships)
-│   ├── Amitie.php (Friendship relationships - composite keys)
-│   ├── Message.php
-│   └── Liker.php (Like relationships - NO date column)
-├── Http/Controllers/
-│   ├── AuthController.php (Image upload support)
-│   ├── VerificationController.php
-│   ├── PostController.php (Complete: create, feed, like, comment, delete)
-│   ├── AmitieController.php (Complete friend management)
-│   ├── UserController.php
-│   └── MessageController.php
-├── Mail/
-│   └── VerificationCodeMail.php
-routes/
-├── api.php (API endpoints with social features + friends)
-├── web.php (React entry point)
-database/
-├── factories/
-│   ├── UtilisateurFactory.php
-│   ├── ArticleFactory.php
-│   └── CommentaireFactory.php
-├── migrations/ (French schema migrations + personal_access_tokens)
-└── seeders/
-    └── UtilisateurSeeder.php
+back/
+├── app/
+│   ├── Models/
+│   │   ├── Utilisateur.php (HasApiTokens trait, image relationships)
+│   │   ├── Article.php (With likes, comments, utilisateur relationships)
+│   │   ├── Commentaire.php (With utilisateur, article relationships)
+│   │   ├── Amitie.php (Friendship relationships - composite keys)
+│   │   ├── Message.php
+│   │   └── Liker.php (Like relationships - NO date column)
+│   ├── Http/Controllers/
+│   │   ├── AuthController.php (Image upload support)
+│   │   ├── VerificationController.php
+│   │   ├── PostController.php (Complete: create, feed, like, comment, delete)
+│   │   ├── AmitieController.php (Complete friend management)
+│   │   ├── UserController.php
+│   │   └── MessageController.php
+│   └── Mail/
+│       └── VerificationCodeMail.php
+├── routes/
+│   └── api.php (API endpoints only - no web routes for React)
+├── database/
+│   ├── factories/
+│   │   ├── UtilisateurFactory.php
+│   │   ├── ArticleFactory.php
+│   │   └── CommentaireFactory.php
+│   ├── migrations/ (French schema migrations + personal_access_tokens)
+│   └── seeders/
+│       └── UtilisateurSeeder.php
+├── storage/app/public/images/ (Image storage)
+└── .env (Laravel environment)
 ```
 
-### FRONTEND (React) - UPDATED
+### FRONTEND (React) - `/front/` (New Location!)
 ```
-resources/js/
-├── components/
-│   ├── auth/
-│   │   ├── Login.jsx
-│   │   └── Signup.jsx (Image upload)
-│   ├── main/
-│   │   ├── Home.jsx (COMPLETE: posts, likes, comments, delete, images)
-│   │   ├── Header.jsx (Profile images + integrated search)
-│   │   ├── SideMenuNav.jsx (No search feature)
-│   │   ├── Amitie.jsx (Complete friends section)
-│   │   └── Modal.jsx (Confirm dialogs)
-│   └── shared/
-│       ├── Loader.jsx
-│       └── ErrorBoundary.jsx
-├── contexts/
-│   └── AuthContext.jsx
-├── hooks/
-│   ├── useAuth.js
-│   └── useModal.js
-├── utils/
-│   ├── api.js (Axios instance with interceptors)
-│   ├── validation.js
-│   └── imageUrls.js (CRITICAL: getImageUrl() function)
-├── App.jsx
-└── index.jsx
+front/
+├── src/
+│   ├── components/
+│   │   ├── auth/
+│   │   │   ├── Login.jsx
+│   │   │   └── Signup.jsx (Image upload)
+│   │   ├── main/
+│   │   │   ├── Home.jsx (COMPLETE: posts, likes, comments, delete, images)
+│   │   │   ├── Header.jsx (Profile images + integrated search)
+│   │   │   ├── SideMenuNav.jsx (No search feature)
+│   │   │   ├── Amitie.jsx (Complete friends section)
+│   │   │   └── Modal.jsx (Confirm dialogs)
+│   │   └── shared/
+│   │       ├── Loader.jsx
+│   │       └── ErrorBoundary.jsx
+│   ├── contexts/
+│   │   └── AuthContext.jsx
+│   ├── hooks/
+│   │   ├── useAuth.js
+│   │   └── useModal.js
+│   ├── utils/
+│   │   ├── api.js (Axios instance with interceptors - UPDATED for separate arch)
+│   │   ├── validation.js
+│   │   └── imageUrls.js (CRITICAL: updated getImageUrl() function)
+│   ├── App.jsx
+│   └── index.jsx
+├── public/ (Static assets)
+├── package.json (React dependencies)
+├── vite.config.js (Vite for React only - simplified)
+└── .env (Frontend environment: VITE_API_URL)
 ```
 
 ---
@@ -648,218 +684,178 @@ resources/js/
 
 ---
 
-## 🛠️ TECHNICAL CONFIGURATION - UPDATED
+## 🛠️ TECHNICAL CONFIGURATION - UPDATED FOR SEPARATE ARCHITECTURE
 
-### ARCHITECTURE & DEVELOPMENT SETUP
+## 🔧 **DEVELOPMENT SETUP - SEPARATE ARCHITECTURE**
 
-#### **Monolithic Architecture (CRITICAL)**
-- **React is embedded in Laravel** via Vite, not a separate application
-- **Single `.env` file** for both frontend and backend configuration
-- **Vite development server** proxies API calls to avoid CORS
-- **Production builds** are served directly by Laravel
+### **Environment Configuration**
 
-#### **Development Configuration:**
+#### **Frontend (`front/.env`):**
+```env
+VITE_API_URL=http://localhost:8000/api
+# For mobile testing: VITE_API_URL=http://YOUR_IP:8000/api
+```
 
-**1. `.env` File (Standard Development):**
+#### **Backend (`back/.env`):**
 ```env
 APP_NAME=Laravel
 APP_ENV=local
-APP_KEY=base64:your-key-here
 APP_DEBUG=true
-APP_URL=http://localhost:8000  # MUST match Laravel server URL
+APP_URL=http://localhost:8000
+
+# Database configuration
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=Tulk
+DB_USERNAME=tulk_user
+DB_PASSWORD=Tulk123!
+
+# CORS configuration (CRITICAL for separate architecture)
+FRONTEND_URL=http://localhost:3000
+# For mobile testing: FRONTEND_URL=http://YOUR_IP:3000
+
+# Email configuration
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USERNAME=tulksoft@gmail.com
+MAIL_PASSWORD=gmxaokplajawlrjd
+MAIL_ENCRYPTION=tls
+MAIL_FROM_ADDRESS=tulksoft@gmail.com
+MAIL_FROM_NAME="Tulk"
 ```
 
-**2. Vite Configuration (`vite.config.js`):**
+### **Frontend Vite Configuration (`front/vite.config.js`):**
 ```javascript
-import { defineConfig } from 'vite';
-import laravel from 'laravel-vite-plugin';
-import tailwindcss from '@tailwindcss/vite';
-import react from '@vitejs/plugin-react';
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
-    plugins: [
-        laravel({
-            input: ['resources/css/app.css', 'resources/js/index.jsx'],
-            refresh: true,
-        }),
-        tailwindcss(),
-        react(),
-    ],
-
-    server: {
-        host: 'localhost',  // Use localhost for standard development
-        port: 5173,
-        cors: true,
-        headers: {
-            'Access-Control-Allow-Origin': '*',
-        },
-        // Proxy configuration to avoid CORS
-        proxy: {
-            '/api': {
-                target: 'http://localhost:8000',  // Laravel server
-                changeOrigin: true,
-                secure: false,
-            },
-            '/storage': {
-                target: 'http://localhost:8000',  // Laravel server
-                changeOrigin: true,
-                secure: false,
-            }
-        }
-    },
-});
+  plugins: [
+    react(),
+    tailwindcss(),
+  ],
+  server: {
+    host: '0.0.0.0', // Allow network access for mobile testing
+    port: 3000,
+    cors: true,
+  },
+  build: {
+    outDir: 'dist',
+    sourcemap: true,
+  }
+})
 ```
 
-**3. Mobile/Network Testing Configuration:**
-
-Create `vite.config.mobile.js` for mobile testing:
-```javascript
-import { defineConfig } from 'vite';
-import laravel from 'laravel-vite-plugin';
-import tailwindcss from '@tailwindcss/vite';
-import react from '@vitejs/plugin-react';
-
-// Replace with your computer's local IP address
-const YOUR_LOCAL_IP = '192.168.1.100'; // Find with: hostname -I or ipconfig
-
-export default defineConfig({
-    plugins: [
-        laravel({
-            input: ['resources/css/app.css', 'resources/js/index.jsx'],
-            refresh: true,
-        }),
-        tailwindcss(),
-        react(),
-    ],
-
-    server: {
-        host: YOUR_LOCAL_IP,  // Use your local IP for network access
-        port: 5173,
-        cors: true,
-        headers: {
-            'Access-Control-Allow-Origin': '*',
-        },
-        // Proxy to Laravel running on network
-        proxy: {
-            '/api': {
-                target: `http://${YOUR_LOCAL_IP}:8000`,
-                changeOrigin: true,
-                secure: false,
-            },
-            '/storage': {
-                target: `http://${YOUR_LOCAL_IP}:8000`,
-                changeOrigin: true,
-                secure: false,
-            }
-        }
-    },
-});
+### **Backend CORS Configuration (`back/config/cors.php`):**
+```php
+'paths' => ['api/*', 'sanctum/csrf-cookie'],
+'allowed_methods' => ['*'],
+'allowed_origins' => [env('FRONTEND_URL', 'http://localhost:3000')],
+'allowed_origins_patterns' => [],
+'allowed_headers' => ['*'],
+'exposed_headers' => [],
+'max_age' => 0,
+'supports_credentials' => true,
 ```
 
-#### **Development Commands:**
+### **Development Commands:**
 
-**Standard Development (Localhost only):**
+#### **Standard Development (Localhost only):**
 ```bash
-# Terminal 1: Laravel Server
-php artisan serve --host=localhost --port=8000
+# Terminal 1: Laravel API
+cd back
+php artisan serve --port=8000
 
-# Terminal 2: Vite Development Server
+# Terminal 2: React frontend
+cd front
 npm run dev
 
-# Access at: http://localhost:5173
+# Access:
+# React: http://localhost:3000
+# Laravel API: http://localhost:8000/api
 ```
 
-**Mobile/Network Testing:**
+#### **Mobile Testing on Same Network:**
 ```bash
-# 1. Find your local IP address
-hostname -I  # Linux/Mac
-# or
-ipconfig | findstr "IPv4"  # Windows
+# Find your computer's IP address
+hostname -I  # Linux/Mac (example: 192.168.1.100)
 
-# 2. Update YOUR_LOCAL_IP in vite.config.mobile.js
+# Update environment files
+# In front/.env: VITE_API_URL=http://192.168.1.100:8000/api
+# In back/.env: FRONTEND_URL=http://192.168.1.100:3000
 
-# Terminal 1: Laravel Server (Network Accessible)
+# Terminal 1: Laravel on network
+cd back
 php artisan serve --host=0.0.0.0 --port=8000
 
-# Terminal 2: Vite with Mobile Config
-npm run dev:mobile  # Configure package.json script
+# Terminal 2: React on network
+cd front
+npm run dev -- --host 0.0.0.0
 
-# Access from computer: http://localhost:5173
-# Access from phone: http://YOUR_LOCAL_IP:5173
+# On phone browser: http://192.168.1.100:3000
 ```
 
-#### **Package.json Scripts:**
-```json
-{
-  "scripts": {
-    "dev": "vite",
-    "dev:mobile": "vite --config vite.config.mobile.js",
-    "build": "vite build",
-    "dev:full": "concurrently \"php artisan serve --port=8000\" \"vite\"",
-    "start:mobile": "concurrently \"php artisan serve --host=0.0.0.0 --port=8000\" \"npm run dev:mobile\""
+### **API Communication - Updated for Separate Architecture:**
+
+#### **Frontend API Configuration (`front/src/utils/api.js`):**
+```javascript
+import axios from 'axios';
+
+const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000/api',
+  timeout: 10000,
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
   }
-}
+});
+
+// Request interceptor to add token
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('auth_token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  }
+);
+
+export default api;
 ```
 
-#### **Image URL Configuration:**
-
-**`getImageUrl()` Utility (Standard):**
+#### **Image URL Helper - Updated (`front/src/utils/imageUrls.js`):**
 ```javascript
 export const getImageUrl = (imagePath) => {
     if (!imagePath) return null;
     
+    // If it's already a full URL, return as is
     if (imagePath.startsWith('http')) {
         return imagePath;
     }
     
+    // Get current origin (localhost:3000 or your-ip:3000)
+    const baseUrl = window.location.origin;
+    
+    // For relative paths starting with /storage/, use current origin
     if (imagePath.startsWith('/storage/')) {
-        return imagePath;  // Vite will proxy this
+        return baseUrl + imagePath;
     }
     
-    return `/storage/${imagePath}`;  // Vite will proxy this
+    // For database paths (without /storage/), prepend /storage/
+    return baseUrl + '/storage/' + imagePath;
 };
 ```
 
-**Mobile Testing Notes:**
-1. **Phone must be on same Wi-Fi network** as your computer
-2. **Firewall may block connections** - allow ports 5173 and 8000
-3. **Use `0.0.0.0` for Laravel** to accept network connections
-4. **Update `YOUR_LOCAL_IP`** in mobile config file
-5. **Clear browser cache** on phone after updates
-
-#### **Security Notes:**
-- Never commit hardcoded IP addresses to repository
-- Mobile testing exposes dev server to local network only
-- Use environment variables for sensitive configuration
-- Disable mobile testing when not needed
-
-### API Configuration:
-- **Base URL**: `/api` (proxied through Vite in development)
-- **Timeout**: 10 seconds
-- **Authentication**: Bearer tokens with automatic header injection
-- **Error Handling**: Global interceptors for network and server errors
-- **Content Type**: JSON for most requests, multipart/form-data for file uploads
-
-### Image Upload System - CRITICAL UPDATES:
-- **Storage**: `storage/app/public/images/` (NOT nested public directory)
-- **Public Access**: `php artisan storage:link` creates symlink
-- **Validation**: 5MB max, image types only (JPEG, PNG, JPG, GIF)
-- **Naming**: `time()_uniqueid.extension` format
-- **Database Storage**: Store only `'images/filename.jpg'` (relative path)
-- **URL Construction**: Use `getImageUrl()` utility in frontend
-
-### Email Verification:
-- **Code Generation**: 6-digit random numbers
-- **Storage**: Laravel Cache with 10-minute TTL
-- **Resend functionality** with cooldown
-- **Rate Limiting**: Maximum 3 attempts per code
-
-### Security Features:
+### **Security Features:**
 - Password hashing with bcrypt
 - Sanctum token authentication
 - Form validation on both client and server
-- XSS protection with Laravel Blade
-- CSRF protection for web routes
+- XSS protection with React's built-in escaping
+- CORS properly configured for cross-origin requests
 - Rate limiting on authentication endpoints
 - Secure file upload validation
 - SQL injection protection with Eloquent
@@ -867,14 +863,7 @@ export const getImageUrl = (imagePath) => {
 - **Friendship Validation**: Prevents self-friending and duplicate requests
 - **Authorization**: Users can only manage their own friendships
 
-### Error Handling Architecture:
-- **Frontend**: Axios interceptors with network detection
-- **Backend**: Laravel validation with French messages
-- **Visual**: Color-coded error states with icons
-- **User Experience**: Clear, actionable error messages
-- **Logging**: Comprehensive error logging and monitoring
-
-### Performance Optimization:
+### **Performance Optimization:**
 - **Lazy Loading**: Component and image lazy loading
 - **Code Splitting**: Route-based code splitting
 - **Caching**: API response caching where appropriate
@@ -886,28 +875,62 @@ export const getImageUrl = (imagePath) => {
 
 ---
 
-## 🚀 QUICK START COMMANDS - UPDATED
+## 🚀 QUICK START COMMANDS - UPDATED FOR SEPARATE ARCHITECTURE
 
-### Development Servers:
+### **Initial Setup:**
 ```bash
-# Standard Development (Localhost only)
-php artisan serve --host=localhost --port=8000
-npm run dev
+# Clone repository
+git clone <your-repo>
+cd Tulk-project
 
-# Mobile/Network Testing
-php artisan serve --host=0.0.0.0 --port=8000
-npm run dev:mobile  # Requires vite.config.mobile.js setup
+# Backend setup
+cd back
+composer install
+cp .env.example .env
+php artisan key:generate
+php artisan migrate
+php artisan storage:link
 
-# Both with process manager (standard)
-npm run dev:full
-
-# Mobile testing with process manager
-npm run start:mobile
+# Frontend setup
+cd ../front
+npm install
 ```
 
-### Database Operations:
+### **Development Servers:**
+```bash
+# Standard Development (two terminals)
+# Terminal 1: Laravel API
+cd back && php artisan serve --port=8000
+
+# Terminal 2: React
+cd front && npm run dev
+
+# Access: http://localhost:3000
+```
+
+### **Mobile Testing:**
+```bash
+# Find your IP
+hostname -I
+
+# Update .env files with your IP
+# front/.env: VITE_API_URL=http://YOUR_IP:8000/api
+# back/.env: FRONTEND_URL=http://YOUR_IP:3000
+
+# Start servers for mobile
+# Terminal 1: Laravel on network
+cd back && php artisan serve --host=0.0.0.0 --port=8000
+
+# Terminal 2: React on network
+cd front && npm run dev -- --host 0.0.0.0
+
+# On phone: http://YOUR_IP:3000
+```
+
+### **Database Operations:**
 ```bash
 # Run migrations (INCLUDES personal_access_tokens)
+cd back
 php artisan migrate
 
 # Seed test users
@@ -923,9 +946,13 @@ php artisan db:seed
 php artisan migrate:fresh --seed
 ```
 
-### Storage Setup - CRITICAL:
+### **Storage Setup - CRITICAL:**
 ```bash
-# Fix storage permissions and structure
+# In Laravel backend
+cd back
+php artisan storage:link
+
+# Ensure permissions
 chmod -R 755 storage/app/public
 chmod -R 755 public/storage
 
@@ -936,9 +963,10 @@ mkdir -p storage/app/public/images
 rm -rf storage/app/public/public 2>/dev/null || true
 ```
 
-### Email Testing:
+### **Email Testing:**
 ```bash
 # Test email configuration
+cd back
 php artisan tinker
 Mail::raw('Test', fn($m) => $m->to('test@test.com')->subject('Test'))
 
@@ -946,9 +974,10 @@ Mail::raw('Test', fn($m) => $m->to('test@test.com')->subject('Test'))
 php artisan vendor:publish --tag=laravel-mail
 ```
 
-### Cache & Configuration:
+### **Cache & Configuration:**
 ```bash
 # Clear all caches (run after major changes)
+cd back
 php artisan config:clear
 php artisan cache:clear
 php artisan route:clear
@@ -962,9 +991,10 @@ php artisan config:cache
 php artisan route:cache
 ```
 
-### Factory Commands:
+### **Factory Commands:**
 ```bash
 # Create a factory
+cd back
 php artisan make:factory UtilisateurFactory
 
 # Generate test data
@@ -983,9 +1013,10 @@ App\Models\Amitie::create([
 ])
 ```
 
-### Frontend Development:
+### **Frontend Development:**
 ```bash
 # Install dependencies
+cd front
 npm install
 
 # Development build
@@ -994,11 +1025,8 @@ npm run dev
 # Production build
 npm run build
 
-# Code linting
-npm run lint
-
-# Type checking (if using TypeScript)
-npm run type-check
+# Preview production build
+npm run preview
 ```
 
 ---
@@ -1072,7 +1100,15 @@ Message::factory()->count(100)->create();
 
 ---
 
-## 🐛 KNOWN ISSUES & SOLUTIONS - UPDATED
+## 🐛 KNOWN ISSUES & SOLUTIONS - UPDATED FOR SEPARATE ARCHITECTURE
+
+### Issue: CORS Errors in Browser Console
+- **Problem**: React (localhost:3000) can't call Laravel API (localhost:8000)
+- **Root Cause**: Missing or incorrect CORS configuration
+- **Solution**:
+  1. Install CORS package: `composer require fruitcake/laravel-cors`
+  2. Update `back/config/cors.php` with correct origins
+  3. Clear cache: `php artisan config:clear`
 
 ### Issue: Image Upload Fails with "Image was not saved to disk"
 - **Problem**: Images weren't being saved to correct location
@@ -1112,10 +1148,31 @@ Message::factory()->count(100)->create();
 - **Root Cause**: Search state management issues
 - **Solution**: Ensure proper state handling and debouncing in Amitie.jsx
 
-### Issue: VS Code CSS Warnings
-- **Problem**: `@source` directives show as unknown rules
-- **Cause**: Tailwind CSS v4 new syntax not recognized by editor
-- **Solution**: Ignore warnings - they don't affect build
+### Issue: Images Not Loading on Mobile
+- **Problem**: Images show broken on phone but work on computer
+- **Root Cause**: Image URLs pointing to localhost instead of network IP
+- **Solution**: Update `getImageUrl()` to use `window.location.origin`
+
+### Issue: Mobile Testing - Can't Connect from Phone
+- **Problem**: Phone can't access development server
+- **Solution**:
+  1. Ensure phone and computer are on same Wi-Fi network
+  2. Check firewall allows ports 3000 and 8000
+  3. Use correct local IP address in environment files
+  4. Run Laravel with `--host=0.0.0.0`
+  5. Run React with `--host 0.0.0.0`
+
+### Issue: API Calls Going to Wrong URL
+- **Problem**: React still trying to call `/api` instead of full URL
+- **Root Cause**: `VITE_API_URL` not set in frontend `.env`
+- **Solution**: Ensure `front/.env` has `VITE_API_URL=http://localhost:8000/api`
+
+### Issue: React Hot Reload Not Working
+- **Problem**: Changes to React components don't reflect immediately
+- **Solution**: 
+  1. Ensure running `npm run dev` not `npm run build`
+  2. Check Vite is running on correct port (3000)
+  3. Clear browser cache
 
 ### Issue: Email Sending Delays
 - **Problem**: Gmail may have slight delays
@@ -1141,23 +1198,20 @@ Message::factory()->count(100)->create();
 - **Problem**: `personal_access_tokens` table doesn't exist
 - **Solution**: Run Sanctum migrations: `php artisan migrate`
 
-### Issue: Mobile Testing - Can't Connect from Phone
-- **Problem**: Phone can't access development server
-- **Solution**:
-  1. Ensure phone is on same Wi-Fi network
-  2. Check firewall allows ports 5173 and 8000
-  3. Use correct local IP address in vite.config.mobile.js
-  4. Run Laravel with `--host=0.0.0.0`
-
-### Issue: Images Not Loading on Mobile
-- **Problem**: Images show broken on phone but work on computer
-- **Solution**: Ensure Vite proxy configuration is correct in mobile config file
-
 ---
 
 ## 🔄 UPDATE LOG - MAJOR MILESTONES
 
-### Latest Updates (Current):
+### Latest Updates (December 2024):
+- ✅ **ARCHITECTURE CHANGE**: Switched from Monolithic to Separate React + Laravel API
+- ✅ **Frontend Moved**: React components now in `/front/src/` folder
+- ✅ **Backend Simplified**: Laravel now pure API in `/back/` folder
+- ✅ **CORS Configured**: Proper cross-origin communication setup
+- ✅ **Mobile Testing Simplified**: No more Vite proxy headaches
+- ✅ **Image URLs Updated**: `getImageUrl()` uses `window.location.origin`
+- ✅ **Environment Separation**: Separate `.env` files for frontend and backend
+
+### Previous Updates:
 - ✅ **Complete Authentication System** with email verification
 - ✅ **Multi-step Signup Form** with progress tracking
 - ✅ **Profile Image Upload** with validation and storage
@@ -1189,8 +1243,6 @@ Message::factory()->count(100)->create();
 - ✅ **Mutual Friends Algorithm**: Smart friend suggestions
 - ✅ **Composite Key Support**: Amitie model with proper database configuration
 - ✅ **Real-time Updates**: Automatic refresh after friend actions
-- ✅ **Monolithic Architecture Documentation**: Critical architecture details added
-- ✅ **Mobile Testing Setup**: Complete configuration for mobile device testing
 
 ### Next Features Planned:
 - 🔄 **Real-time Messaging**: Chat functionality
@@ -1225,68 +1277,86 @@ Message::factory()->count(100)->create();
 ## 📞 SUPPORT & TROUBLESHOOTING - UPDATED
 
 ### Common Setup Issues:
-1. **Email Not Sending**: Check Gmail App Password and .env configuration
+1. **CORS Errors**: 
+   - Install CORS: `composer require fruitcake/laravel-cors`
+   - Update `back/config/cors.php`
+   - Set `FRONTEND_URL` in Laravel `.env`
+
 2. **Images Not Loading**:
-   - Verify storage link: `php artisan storage:link`
-   - Check permissions: `chmod -R 755 storage/app/public`
-   - Clear caches: `php artisan config:clear` etc.
-   - Check Vite proxy configuration
-3. **Routes Not Working**: Clear route cache and check bootstrap/app.php configuration
-4. **Database Errors**: Verify migration order and foreign key constraints
-5. **Network Errors**: Check CORS configuration and server connectivity
-6. **Component Styling Issues**: Verify Tailwind CSS configuration and imports
-7. **Authentication Problems**: Check Sanctum configuration and token handling
-8. **API Connection Issues**: Verify Vite proxy configuration for /api routes
-9. **Image Upload Errors**:
-   - Check storage permissions
-   - Ensure `storage/app/public/images/` directory exists
-   - Verify PostController uses `store('images', 'public')`
-10. **Token Errors**: Ensure personal_access_tokens table exists and HasApiTokens trait is used
-11. **Like Errors**: Ensure Liker model doesn't expect date column (French schema)
-12. **Friends System Errors**:
+   - Verify storage link: `php artisan storage:link` in Laravel
+   - Check permissions: `chmod -R 755 back/storage/app/public`
+   - Update `getImageUrl()` to use `window.location.origin`
+
+3. **API Connection Issues**:
+   - Check `VITE_API_URL` in frontend `.env`
+   - Verify Laravel is running: `php artisan serve --port=8000`
+   - Check React is running: `npm run dev` in front/
+
+4. **Mobile Testing Issues**:
+   - Phone and computer on same Wi-Fi
+   - Update IP addresses in both `.env` files
+   - Run both servers with `--host=0.0.0.0`
+   - Check firewall allows ports 3000 and 8000
+
+5. **Email Not Sending**: Check Gmail App Password and .env configuration
+
+6. **Routes Not Working**: Clear route cache: `php artisan route:clear`
+
+7. **Database Errors**: Verify migration order and foreign key constraints
+
+8. **Component Styling Issues**: Verify Tailwind CSS configuration and imports
+
+9. **Authentication Problems**: Check Sanctum configuration and token handling
+
+10. **Image Upload Errors**:
+    - Check storage permissions
+    - Ensure `back/storage/app/public/images/` directory exists
+    - Verify PostController uses `store('images', 'public')`
+
+11. **Token Errors**: Ensure personal_access_tokens table exists and HasApiTokens trait is used
+
+12. **Like Errors**: Ensure Liker model doesn't expect date column (French schema)
+
+13. **Friends System Errors**:
     - Check Amitie model has composite key configuration
     - Verify friends routes are inside sanctum middleware
     - Check database has Amitie table with proper structure
-13. **Mobile Testing Issues**:
-    - Phone not connecting: Check firewall and network settings
-    - Images not loading: Verify Vite mobile configuration
-    - API calls failing: Ensure Laravel running on `0.0.0.0`
 
 ### Debugging Tools:
-- **Laravel Logs**: `tail -f storage/logs/laravel.log`
-- **Route List**: `php artisan route:list`
-- **Database**: `php artisan tinker`
+- **Laravel Logs**: `tail -f back/storage/logs/laravel.log`
+- **Route List**: `php artisan route:list` (in back/)
+- **Database**: `php artisan tinker` (in back/)
 - **Frontend**: Browser DevTools Network tab
 - **Email Testing**: Mailtrap or Gmail test accounts
-- **Vite Debugging**: Browser console and Vite dev tools
 - **React DevTools**: Component inspection and state debugging
-- **Storage Debug**: Check `storage/app/public/images/` directory
+- **Storage Debug**: Check `back/storage/app/public/images/` directory
 - **API Testing**: Postman or Insomnia for endpoint testing
 
 ### Performance Monitoring:
-- **Database**: `php artisan db:monitor`
-- **Cache**: `php artisan cache:stats`
-- **Queue**: `php artisan queue:monitor`
-- **Storage**: `php artisan storage:info`
+- **Database**: `php artisan db:monitor` (in back/)
+- **Cache**: `php artisan cache:stats` (in back/)
+- **Queue**: `php artisan queue:monitor` (in back/)
+- **Storage**: `php artisan storage:info` (in back/)
 - **Frontend**: Lighthouse audits and performance profiling
 - **Backend**: Laravel Debugbar and query monitoring
 - **Network**: Browser DevTools Network tab for API call timings
 
 ### Mobile Testing Checklist:
 - [ ] Computer and phone on same Wi-Fi network
-- [ ] Firewall allows ports 5173 and 8000
-- [ ] Correct local IP in vite.config.mobile.js
-- [ ] Laravel running with `--host=0.0.0.0`
-- [ ] Vite running with mobile configuration
+- [ ] Firewall allows ports 3000 and 8000
+- [ ] Correct IP in `front/.env` (VITE_API_URL)
+- [ ] Correct IP in `back/.env` (FRONTEND_URL)
+- [ ] Laravel running with `--host=0.0.0.0` (in back/)
+- [ ] React running with `--host 0.0.0.0` (in front/)
 - [ ] Browser cache cleared on phone
 - [ ] Test connection from phone browser
 
 ### Deployment Checklist:
-- [ ] Environment variables configured (.env.production)
+- [ ] Environment variables configured for production
 - [ ] Database migrations run (including personal_access_tokens)
 - [ ] Storage link created (`php artisan storage:link`)
 - [ ] Cache cleared and optimized
-- [ ] Frontend assets built (`npm run build`)
+- [ ] React built for production (`npm run build` in front/)
 - [ ] File permissions set correctly
 - [ ] SSL certificate installed
 - [ ] Backup system configured
@@ -1301,9 +1371,11 @@ Message::factory()->count(100)->create();
 
 ---
 
-## 🏗️ ARCHITECTURE OVERVIEW - UPDATED
+## 🏗️ ARCHITECTURE OVERVIEW - UPDATED FOR SEPARATE ARCHITECTURE
 
-### Backend Architecture:
+### **New Architecture: Separate React + Laravel API**
+
+#### **Backend Architecture (Laravel - `/back/`):**
 - **Laravel 11+** with modern application structure
 - **French Database Schema** with custom migrations
 - **API-First Design** with Laravel Sanctum
@@ -1312,8 +1384,9 @@ Message::factory()->count(100)->create();
 - **Event-Driven Architecture** for real-time features
 - **Queue System** for background processing
 - **File Storage System** with correct image paths
+- **Pure API** - no frontend rendering responsibilities
 
-### Frontend Architecture:
+#### **Frontend Architecture (React - `/front/`):**
 - **React 18** with functional components and hooks
 - **Context API** for state management (AuthContext)
 - **React Router** for navigation
@@ -1323,53 +1396,47 @@ Message::factory()->count(100)->create();
 - **Custom Hooks** for logic abstraction
 - **Error Boundaries** for graceful error handling
 - **Image Management** with preview and URL construction
+- **Standalone Application** - independent from Laravel
 
-### **Monolithic Architecture (CRITICAL):**
-- **Single Codebase**: React embedded in Laravel via Vite
-- **Unified Deployment**: One server for both frontend and backend
-- **Development Proxy**: Vite proxies API calls to avoid CORS
-- **Production Build**: Compiled React assets served by Laravel
-- **Shared Configuration**: Single `.env` file for entire application
-
-### Data Flow - Enhanced:
-1. **User Action** → React Component (Home.jsx, Amitie.jsx)
-2. **API Call** → Laravel Controller (PostController, AmitieController)
+#### **Data Flow - Separate Architecture:**
+1. **User Action** → React Component (in `/front/src/`)
+2. **API Call** → Laravel Controller (in `/back/app/Http/Controllers/`)
 3. **Business Logic** → Service Methods (like, comment, friend management)
 4. **Data Persistence** → Eloquent Models (French schema with composite keys)
-5. **File Processing** → Storage System (correct path: `storage/app/public/images/`)
+5. **File Processing** → Storage System (correct path: `back/storage/app/public/images/`)
 6. **Response** → React State Update
 7. **UI Update** → Component Re-render with new data
 8. **Real-time Updates** → Future: WebSocket Events
 
-### Development Workflow:
+#### **Development Workflow - New:**
 1. **Local Development**:
-   - Laravel: `localhost:8000`
-   - Vite: `localhost:5173` (proxies to Laravel)
-   - No CORS issues due to proxy
+   - Laravel: `localhost:8000` (API only)
+   - React: `localhost:3000` (frontend only)
+   - CORS configured for cross-origin communication
 
 2. **Mobile Testing**:
    - Laravel: `0.0.0.0:8000` (network accessible)
-   - Vite: `YOUR_IP:5173` (network accessible)
-   - Phone accesses via network IP
+   - React: `YOUR_IP:3000` (network accessible)
+   - Phone accesses React, which calls Laravel API
 
 3. **Production**:
-   - Laravel serves compiled React assets
-   - Single origin: `your-domain.com`
-   - No proxy needed
+   - Option 1: Combined (React build in Laravel public folder)
+   - Option 2: Separate (React on Vercel, Laravel on Forge)
+   - Same API endpoints, different deployment strategies
 
-### Security Architecture:
+#### **Security Architecture:**
 - **Authentication**: Laravel Sanctum tokens
 - **Authorization**: Role-based access control
 - **Validation**: Form request validation with French messages
 - **Sanitization**: Input filtering and output escaping
-- **CORS**: Cross-origin resource sharing configuration
+- **CORS**: Cross-origin resource sharing configuration (critical for separate architecture)
 - **HTTPS**: Secure communication enforcement
 - **Rate Limiting**: API endpoint protection
 - **File Validation**: Secure upload validation (5MB max, image types)
 - **Permission Checks**: Users can only manage their own content and friendships
 - **Friendship Security**: Prevents self-friending and duplicate requests
 
-### Scalability Considerations:
+#### **Scalability Considerations:**
 - **Database Indexing**: Optimized query performance with proper indexes
 - **Caching Strategy**: Multi-layer caching system (Redis/Memcached)
 - **Asset Optimization**: Minified and compressed resources
@@ -1380,14 +1447,35 @@ Message::factory()->count(100)->create();
 - **API Rate Limiting**: Prevent abuse and ensure fair usage
 - **Database Read Replicas**: For high-traffic scenarios
 - **Microservices Ready**: Modular design for future decomposition
+- **Independent Scaling**: Frontend and backend can scale independently
+
+#### **Benefits of Separate Architecture:**
+1. ✅ **Clear Separation**: Frontend and backend responsibilities clearly defined
+2. ✅ **Independent Development**: Can work on frontend without running Laravel
+3. ✅ **Better Tooling**: Use best tools for each part (Vite for React, Laravel for API)
+4. ✅ **Easier Testing**: Test API independently with Postman, test UI independently
+5. ✅ **Flexible Deployment**: Can deploy separately (React to static hosting, Laravel to API server)
+6. ✅ **Team Scalability**: Frontend and backend teams can work independently
+7. ✅ **Technology Flexibility**: Can swap frontend framework without affecting backend
+8. ✅ **Performance**: Static frontend assets can be served from CDN
+9. ✅ **Mobile Testing**: Much simpler setup without proxy configuration
+10. ✅ **Future Proof**: Ready for mobile apps using same API
+
+#### **Migration Path from Monolithic:**
+1. **Extracted React**: Moved from `back/resources/js/` to `front/src/`
+2. **Updated API Calls**: Changed from relative `/api` to absolute `VITE_API_URL`
+3. **Updated Image URLs**: `getImageUrl()` now uses `window.location.origin`
+4. **Added CORS**: Laravel configured to accept requests from React origin
+5. **Separated Environment**: Different `.env` files for frontend and backend
+6. **Simplified Vite Config**: No more Laravel Vite plugin or proxy configuration
 
 ---
 
 **Last Updated**: December 2024  
 **Database**: Tulk (French Schema - Liker without date column, Amitie with composite keys)  
 **Stack**: Laravel 11 + React 18 + Tailwind CSS v4 + MySQL + Sanctum  
-**Architecture**: ✅ Monolithic (React embedded in Laravel)  
+**Architecture**: ✅ **SEPARATE** (React Frontend + Laravel API Backend)  
 **Development**: ✅ Localhost + Mobile Testing Configurations  
-**Status**: ✅ Authentication Complete → ✅ Navigation Complete → ✅ Post CRUD Complete → ✅ Image System Complete → ✅ Like System Complete → ✅ Comment System Complete → ✅ Post Deletion Complete → ✅ Friends System Complete  
+**Status**: ✅ Authentication Complete → ✅ Navigation Complete → ✅ Post CRUD Complete → ✅ Image System Complete → ✅ Like System Complete → ✅ Comment System Complete → ✅ Post Deletion Complete → ✅ Friends System Complete → ✅ Architecture Migration Complete  
 **Testing**: ✅ Manual Testing → 🚧 Automated Test Suite  
-**Deployment**: 🚧 Development → 🚧 Staging → 🚧 Production Ready  
+**Deployment**: 🚧 Development → 🚧 Staging → 🚧 Production Ready

@@ -1,17 +1,17 @@
-// resources/js/utils/api.js
 import axios from 'axios';
 
-// Create axios instance with base configuration
+// Simple API client - NO CSRF, NO cookies
 const api = axios.create({
-    baseURL: '/api',
+    baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000/api',
     timeout: 10000,
     headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-    }
+    },
+    // NO withCredentials! You're using tokens, not cookies
 });
 
-// Request interceptor to add auth token
+// Add auth token to requests
 api.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('auth_token');
@@ -25,42 +25,24 @@ api.interceptors.request.use(
     }
 );
 
-// Response interceptor to handle errors globally
+// Handle errors
 api.interceptors.response.use(
-    (response) => {
-        return response;
-    },
+    (response) => response,
     (error) => {
-        // Handle network errors
         if (!error.response) {
-            console.error('Network error:', error);
-            throw new Error('Problème de connexion internet. Veuillez vérifier votre connexion et réessayer.');
+            throw new Error('Network error. Please check your connection.');
         }
-
-        // Handle specific HTTP status codes
+        
         const { status, data } = error.response;
         
-        switch (status) {
-            case 401:
-                // Unauthorized - clear token but DON'T redirect here
-                localStorage.removeItem('auth_token');
-                localStorage.removeItem('user');
-                console.log('Token expired or invalid, cleared from storage');
-                break;
-            case 422:
-                // Validation errors - pass through the validation messages
-                throw new Error(data.message || 'Données invalides');
-            case 500:
-                console.error('Server error:', data);
-                throw new Error('Erreur serveur. Veuillez réessayer plus tard.');
-            default:
-                throw new Error(data?.message || 'Une erreur est survenue');
+        if (status === 401) {
+            localStorage.removeItem('auth_token');
+            localStorage.removeItem('user');
         }
         
-        return Promise.reject(error);
+        throw new Error(data?.message || 'An error occurred');
     }
 );
 
-// Export the api instance as both default and named export
 export default api;
 export { api };

@@ -6,16 +6,16 @@ export const getImageUrl = (imagePath) => {
         return imagePath;
     }
     
-    // For relative paths starting with /storage/, use as is (Vite will proxy)
-    if (imagePath.startsWith('/storage/')) {
-        return imagePath;
-    }
+    // Get Laravel backend URL from environment variable
+    // Remove /api from the base URL to get the Laravel root
+    const baseUrl = import.meta.env.VITE_API_URL 
+        ? import.meta.env.VITE_API_URL.replace('/api', '')
+        : 'http://localhost:8000';
     
-    // For database paths (without /storage/), prepend /storage/
-    // Vite will proxy this to http://127.0.0.1:8000/storage/images/...
-    return `/storage/${imagePath}`;
+    // For database paths (like 'images/filename.jpg'), prepend /storage/
+    return `${baseUrl}/storage/${imagePath}`;
 };
 
 export const getApiBaseUrl = () => {
-    return '/api'; // Vite will proxy this
+    return import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 };
