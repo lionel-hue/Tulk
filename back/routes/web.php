@@ -2,8 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 
-// API routes are in api.php
-// This catch-all route should serve your React app for all frontend routes
+// NO CSRF route - you don't need it!
+// Just serve the React app if someone visits the Laravel URL directly
 Route::get('/{any?}', function () {
     return view('welcome');
 })->where('any', '.*');

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../utils/api';
 import { useAuth } from '../../contexts/AuthContext';
 
 const Login = () => {
@@ -27,15 +27,16 @@ const Login = () => {
         setError('');
 
         try {
-            const response = await axios.post('/api/login', formData);
+            // SIMPLE: Just send email/password, get token back
+            const response = await api.post('/login', formData);
             
-            // Use the auth context to login
+            // Save the token
             login(response.data.access_token, response.data.user);
             
-            // Redirect to home 
+            // Redirect to home
             navigate('/home');
         } catch (err) {
-            setError(err.response?.data?.message || 'Erreur de connexion');
+            setError(err.message || 'Erreur de connexion');
         } finally {
             setLoading(false);
         }

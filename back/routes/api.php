@@ -5,8 +5,9 @@ use App\Http\Controllers\VerificationController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\AmitieController;
+use App\Http\Middleware\ThrottleLogin;
 
-Route::post('login', [AuthController::class, 'login']);
+Route::post('/login', [AuthController::class, 'login'])->middleware(ThrottleLogin::class);
 Route::post('register', [AuthController::class, 'register']);
 Route::post('send-verification', [VerificationController::class, 'sendVerificationCode']);
 Route::post('verify-code', [VerificationController::class, 'verifyCode']);
