@@ -40,3 +40,6 @@ pnpm-lock.yaml
 !.yarn/plugins
 !.yarn/releases
 !.yarn/versions
+
+# test files
+test.txt
