@@ -1060,3 +1060,29 @@
     height: 6rem;
   }
 }
+
+/* Default Avatar Fallback Styles */
+.default-avatar {
+  @apply w-full h-full rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold;
+}
+
+.default-avatar.small {
+  @apply text-sm;
+}
+
+.default-avatar.medium {
+  @apply text-lg;
+}
+
+.default-avatar.large {
+  @apply text-3xl;
+}
+
+/* Ensure fallback displays properly when image fails */
+.profile-image-container img + div {
+  display: none;
+}
+
+.profile-image-container img[style*='display: none'] + div {
+  display: flex !important;
+}

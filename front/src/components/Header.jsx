@@ -38,26 +38,43 @@ const Header = ({
     setLocalSearchQuery(searchQuery || '')
   }, [searchQuery])
 
-  // Get the user's profile image URL or fallback to initials
-  const getUserAvatar = () => {
+  // Get the user's profile image URL with fallback on error
+  const getUserAvatar = (size = 'w-full h-full') => {
+    const initials = `${user?.prenom?.[0] || ''}${
+      user?.nom?.[0] || ''
+    }`.toUpperCase()
+
     if (user?.image) {
       const imageUrl = getImageUrl(user.image)
       return (
-        <img
-          src={imageUrl}
-          alt='Profile'
-          className='w-full h-full rounded-full object-cover'
-          onError={e => {
-            console.error('Image failed to load:', e.target.src)
-            e.target.style.display = 'none'
-          }}
-        />
+        <>
+          <img
+            src={imageUrl}
+            alt='Profile'
+            className={`${size} rounded-full object-cover`}
+            onError={e => {
+              e.target.style.display = 'none'
+              e.target.nextElementSibling?.style.setProperty(
+                'display',
+                'flex',
+                'important'
+              )
+            }}
+          />
+          <div
+            className={`${size} rounded-full bg-gradient-to-br from-white to-gray-400 flex items-center justify-center text-black text-sm font-bold hidden`}
+            style={{ display: 'none' }}
+          >
+            {initials || '?'}
+          </div>
+        </>
       )
     }
     return (
-      <div className='w-full h-full rounded-full bg-gradient-to-br from-white to-gray-400 flex items-center justify-center text-black text-sm font-bold'>
-        {user?.prenom?.[0]}
-        {user?.nom?.[0]}
+      <div
+        className={`${size} rounded-full bg-gradient-to-br from-white to-gray-400 flex items-center justify-center text-black text-sm font-bold`}
+      >
+        {initials || '?'}
       </div>
     )
   }
@@ -82,13 +99,11 @@ const Header = ({
 
   const handleSearchFocus = () => {
     if (activeSection === 'friends' && onSearchChange) {
-      // Notify parent about search focus for friends section
       onSearchChange(localSearchQuery)
     }
   }
 
   const handleSearchBlur = () => {
-    // If search is empty, clear it
     if (localSearchQuery.trim() === '') {
       setLocalSearchQuery('')
       if (onSearchChange) {
@@ -102,13 +117,12 @@ const Header = ({
     if (onSearchChange) {
       onSearchChange('')
     }
-    // Focus the search input after clearing
     if (searchInputRef.current) {
       searchInputRef.current.focus()
     }
   }
 
-  // NEW: Handle search form submission - navigate to search results page
+  // Handle search form submission - navigate to search results page
   const handleSearchSubmit = e => {
     e.preventDefault()
     if (localSearchQuery.trim().length >= 2) {
@@ -145,7 +159,6 @@ const Header = ({
   }
 
   const handleNavigation = section => {
-    // Clear search when navigating to a different section
     if (section !== activeSection) {
       setLocalSearchQuery('')
       if (onSearchChange) {
@@ -227,7 +240,7 @@ const Header = ({
             ))}
           </nav>
 
-          {/* Search Bar - UPDATED with form submission */}
+          {/* Search Bar - with form submission */}
           <div className='header-search'>
             <form onSubmit={handleSearchSubmit} className='w-full'>
               <input
@@ -258,7 +271,7 @@ const Header = ({
               className='profile-pic cursor-pointer'
               onClick={toggleProfileDropdown}
             >
-              <div className='w-8 h-8 rounded-full overflow-hidden'>
+              <div className='w-8 h-8 rounded-full overflow-hidden relative'>
                 {getUserAvatar()}
               </div>
             </div>
@@ -268,8 +281,8 @@ const Header = ({
               <div className='profile-dropdown-menu'>
                 <div className='profile-dropdown-header'>
                   <div className='user-avatar'>
-                    <div className='w-12 h-12 rounded-full overflow-hidden'>
-                      {getUserAvatar()}
+                    <div className='w-12 h-12 rounded-full overflow-hidden relative'>
+                      {getUserAvatar('w-full h-full')}
                     </div>
                   </div>
                   <div className='user-info'>

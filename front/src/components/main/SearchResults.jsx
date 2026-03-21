@@ -167,23 +167,33 @@ const SearchResults = () => {
     }
   }
 
+  // Replace getUserAvatar with:
   const getUserAvatar = userData => {
+    const initials = `${userData?.prenom?.[0] || ''}${
+      userData?.nom?.[0] || ''
+    }`.toUpperCase()
+
     if (userData?.image) {
       return (
-        <img
-          src={getImageUrl(userData.image)}
-          alt={`${userData.prenom} ${userData.nom}`}
-          className='w-full h-full rounded-full object-cover'
-          onError={e => {
-            e.target.style.display = 'none'
-          }}
-        />
+        <>
+          <img
+            src={getImageUrl(userData.image)}
+            alt={`${userData.prenom} ${userData.nom}`}
+            className='w-full h-full rounded-full object-cover'
+            onError={e => {
+              e.target.style.display = 'none'
+              e.target.nextElementSibling.style.display = 'flex'
+            }}
+          />
+          <div className='hidden w-full h-full rounded-full bg-gradient-to-br from-white to-gray-400 flex items-center justify-center text-black text-sm font-bold'>
+            {initials || '?'}
+          </div>
+        </>
       )
     }
     return (
       <div className='w-full h-full rounded-full bg-gradient-to-br from-white to-gray-400 flex items-center justify-center text-black text-sm font-bold'>
-        {userData?.prenom?.[0]}
-        {userData?.nom?.[0]}
+        {initials || '?'}
       </div>
     )
   }
@@ -229,7 +239,7 @@ const SearchResults = () => {
                 className='bg-[#141414] border border-[#262626] rounded-xl p-4'
               >
                 <div className='flex items-start gap-4 mb-4'>
-                  <div className='w-16 h-16 rounded-full overflow-hidden flex-shrink-0'>
+                  <div className='w-16 h-16 rounded-full overflow-hidden flex-shrink-0 relative'>
                     {getUserAvatar(userData)}
                   </div>
                   <div className='flex-1 min-w-0'>

@@ -171,19 +171,31 @@ const Notifications = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
   }
 
   const getUserAvatar = userData => {
+    const initials = `${userData?.prenom?.[0] || ''}${
+      userData?.nom?.[0] || ''
+    }`.toUpperCase()
+
     if (userData?.image) {
       return (
-        <img
-          src={getImageUrl(userData.image)}
-          alt={userData.prenom}
-          className='w-full h-full rounded-full object-cover'
-        />
+        <>
+          <img
+            src={getImageUrl(userData.image)}
+            alt={userData.prenom}
+            className='w-full h-full rounded-full object-cover'
+            onError={e => {
+              e.target.style.display = 'none'
+              e.target.nextElementSibling.style.display = 'flex'
+            }}
+          />
+          <div className='hidden w-full h-full rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-sm'>
+            {initials || '?'}
+          </div>
+        </>
       )
     }
     return (
       <div className='w-full h-full rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-sm'>
-        {userData?.prenom?.[0]}
-        {userData?.nom?.[0]}
+        {initials || '?'}
       </div>
     )
   }
@@ -336,7 +348,7 @@ const Notifications = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
                     {/* Sender Info */}
                     {notification.sender && (
                       <div className='flex items-center gap-3 mt-3 pt-3 border-t border-[#262626]'>
-                        <div className='w-8 h-8 rounded-full overflow-hidden flex-shrink-0'>
+                        <div className='w-8 h-8 rounded-full overflow-hidden flex-shrink-0 relative'>
                           {getUserAvatar(notification.sender)}
                         </div>
                         <span className='text-sm text-gray-300'>
