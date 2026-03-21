@@ -217,7 +217,12 @@ const Profile = () => {
   // Handle profile update
   const handleSaveProfile = async () => {
     try {
-      const response = await api.put('/profile', editData)
+      const submitData = { ...editData }
+      if (submitData.website && !submitData.website.startsWith('http')) {
+        submitData.website = 'https://' + submitData.website
+      }
+
+      const response = await api.put('/profile', submitData)
 
       if (response.data.success) {
         setProfile(prev => ({ ...prev, ...response.data.user }))
