@@ -1,1 +1,1 @@
-lscat.sh -d front/src/ back/app back/database/migrations/ back/database/seeders/ back/resources/ back/routes/ -f front/vite.config.js  front/.env  back/.env -C -H none -D test.txt
+lscat -d front/src/ back/app back/database/migrations/ back/database/seeders/ back/resources/ back/routes/ -f front/vite.config.js  front/.env  back/.env -c -H none -D test.txt
