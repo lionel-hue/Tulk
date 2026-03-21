@@ -20,15 +20,7 @@ import {
   UserPlus,
   UserCheck,
   UserX,
-  Clock,
-  MoreVertical,
-  Image as ImageIcon,
-  Trash2,
-  LayoutDashboard,
-  Bell,
-  Settings,
-  LogOut,
-  Menu
+  Clock
 } from 'lucide-react'
 import Header from '../Header'
 import SideMenuNav from '../SideMenuNav'
@@ -49,10 +41,11 @@ const Profile = () => {
   const [uploadingImage, setUploadingImage] = useState(false)
   const [uploadingBanner, setUploadingBanner] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [likingProfile, setLikingProfile] = useState(false)
+  const [following, setFollowing] = useState(false)
   const fileInputRef = useRef(null)
   const bannerInputRef = useRef(null)
 
-  // Load profile data
   useEffect(() => {
     console.log('Profile component mounted, userId:', userId)
     console.log('Current user:', currentUser)
@@ -104,7 +97,6 @@ const Profile = () => {
     }
   }
 
-  // Load user posts
   useEffect(() => {
     if (profile && activeTab === 'posts') {
       loadPosts()
@@ -124,7 +116,6 @@ const Profile = () => {
     }
   }
 
-  // Handle image upload
   const handleImageUpload = async e => {
     const file = e.target.files[0]
     if (!file) return
@@ -175,7 +166,6 @@ const Profile = () => {
     }
   }
 
-  // Handle banner upload
   const handleBannerUpload = async e => {
     const file = e.target.files[0]
     if (!file) return
@@ -208,7 +198,6 @@ const Profile = () => {
     }
   }
 
-  // Handle profile update
   const handleSaveProfile = async () => {
     try {
       const submitData = { ...editData }
@@ -225,7 +214,6 @@ const Profile = () => {
           title: 'Succès',
           message: 'Profil mis à jour'
         })
-        // Reload profile to ensure all data is fresh
         loadProfile()
       }
     } catch (error) {
@@ -239,7 +227,6 @@ const Profile = () => {
     }
   }
 
-  // Handle friend actions
   const handleSendRequest = async () => {
     try {
       const response = await api.post('/friends/request', {
@@ -321,6 +308,109 @@ const Profile = () => {
     }
   }
 
+  const handleLikeProfile = async () => {
+    try {
+      setLikingProfile(true)
+      const response = await api.post(`/profile/${profile.id}/like`)
+      if (response.data.success) {
+        setProfile(prev => ({
+          ...prev,
+          has_liked_profile: response.data.liked,
+          stats: {
+            ...prev.stats,
+            likes_received: response.data.likes_count
+          }
+        }))
+        setModal({
+          show: true,
+          type: 'success',
+          title: 'Succès',
+          message: response.data.liked
+            ? 'Profil liké avec succès!'
+            : 'Like retiré'
+        })
+      }
+    } catch (error) {
+      setModal({
+        show: true,
+        type: 'error',
+        title: 'Erreur',
+        message: error.response?.data?.message || 'Erreur lors du like'
+      })
+    } finally {
+      setLikingProfile(false)
+    }
+  }
+
+  const handleFollow = async () => {
+    try {
+      setFollowing(true)
+      const response = await api.post(`/profile/${profile.id}/follow`)
+      if (response.data.success) {
+        setProfile(prev => ({
+          ...prev,
+          is_following: true,
+          stats: {
+            ...prev.stats,
+            followers: prev.stats.followers + 1
+          }
+        }))
+        setModal({
+          show: true,
+          type: 'success',
+          title: 'Succès',
+          message: 'Utilisateur suivi avec succès!'
+        })
+      }
+    } catch (error) {
+      setModal({
+        show: true,
+        type: 'error',
+        title: 'Erreur',
+        message: error.response?.data?.message || 'Erreur lors du follow'
+      })
+    } finally {
+      setFollowing(false)
+    }
+  }
+
+  const handleUnfollow = async () => {
+    const confirmed = await confirm(
+      'Voulez-vous vraiment vous désabonner ?',
+      'Confirmer'
+    )
+    if (!confirmed) return
+    try {
+      setFollowing(true)
+      const response = await api.delete(`/profile/${profile.id}/follow`)
+      if (response.data.success) {
+        setProfile(prev => ({
+          ...prev,
+          is_following: false,
+          stats: {
+            ...prev.stats,
+            followers: Math.max(0, prev.stats.followers - 1)
+          }
+        }))
+        setModal({
+          show: true,
+          type: 'success',
+          title: 'Succès',
+          message: 'Utilisateur non suivi'
+        })
+      }
+    } catch (error) {
+      setModal({
+        show: true,
+        type: 'error',
+        title: 'Erreur',
+        message: error.response?.data?.message || 'Erreur lors du unfollow'
+      })
+    } finally {
+      setFollowing(false)
+    }
+  }
+
   const formatDate = dateString => {
     return new Date(dateString).toLocaleDateString('fr-FR', {
       year: 'numeric',
@@ -341,7 +431,6 @@ const Profile = () => {
     setSidebarOpen(false)
   }
 
-  // Loading state
   if (loading) {
     return (
       <div className='min-h-screen bg-black flex items-center justify-center'>
@@ -350,7 +439,6 @@ const Profile = () => {
     )
   }
 
-  // Error state
   if (error) {
     return (
       <div className='min-h-screen bg-black flex items-center justify-center'>
@@ -367,7 +455,6 @@ const Profile = () => {
     )
   }
 
-  // No profile state
   if (!profile) {
     return (
       <div className='min-h-screen bg-black flex items-center justify-center'>
@@ -402,7 +489,6 @@ const Profile = () => {
             >
               <div className='absolute inset-0 bg-black/30'></div>
             </div>
-            {/* Banner Upload (Owner Only) */}
             {isOwner && (
               <button
                 onClick={() => bannerInputRef.current?.click()}
@@ -452,7 +538,6 @@ const Profile = () => {
                       {getInitials(profile)}
                     </div>
                   </div>
-                  {/* Avatar Upload (Owner Only) */}
                   {isOwner && (
                     <button
                       onClick={() => fileInputRef.current?.click()}
@@ -583,7 +668,7 @@ const Profile = () => {
                 </div>
 
                 {/* Action Buttons */}
-                <div className='flex gap-3'>
+                <div className='flex gap-3 flex-wrap'>
                   {isOwner ? (
                     !isEditing ? (
                       <button
@@ -623,6 +708,42 @@ const Profile = () => {
                     )
                   ) : (
                     <>
+                      {/* Like Profile */}
+                      <button
+                        onClick={handleLikeProfile}
+                        disabled={likingProfile}
+                        className={`px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition-all ${
+                          profile.has_liked_profile
+                            ? 'bg-red-500/20 text-red-400 border border-red-500/30'
+                            : 'bg-[#262626] text-gray-400 hover:text-white'
+                        }`}
+                      >
+                        <Heart
+                          size={18}
+                          fill={
+                            profile.has_liked_profile ? 'currentColor' : 'none'
+                          }
+                        />
+                        <span>{profile.stats.likes_received}</span>
+                      </button>
+
+                      {/* Follow/Unfollow */}
+                      <button
+                        onClick={
+                          profile.is_following ? handleUnfollow : handleFollow
+                        }
+                        disabled={following}
+                        className={`px-6 py-2 rounded-lg font-medium flex items-center gap-2 transition-all ${
+                          profile.is_following
+                            ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
+                            : 'bg-white text-black hover:bg-gray-200'
+                        }`}
+                      >
+                        <UserCheck size={18} />
+                        {profile.is_following ? 'Abonné' : "S'abonner"}
+                      </button>
+
+                      {/* Friend Actions */}
                       {profile.is_friend ? (
                         <button
                           onClick={handleRemoveFriend}
@@ -663,7 +784,7 @@ const Profile = () => {
               </div>
 
               {/* Stats Grid */}
-              <div className='grid grid-cols-2 md:grid-cols-4 gap-4 mt-8 pt-8 border-t border-[#262626]'>
+              <div className='grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mt-8 pt-8 border-t border-[#262626]'>
                 <div className='text-center p-4 bg-[#1f1f1f] rounded-xl'>
                   <div className='flex items-center justify-center gap-2 text-gray-400 mb-2'>
                     <FileText size={20} />
@@ -685,10 +806,28 @@ const Profile = () => {
                 <div className='text-center p-4 bg-[#1f1f1f] rounded-xl'>
                   <div className='flex items-center justify-center gap-2 text-gray-400 mb-2'>
                     <Heart size={20} />
-                    <span className='text-sm'>Likes reçus</span>
+                    <span className='text-sm'>Likes profil</span>
                   </div>
                   <div className='text-2xl md:text-3xl font-bold text-white'>
                     {profile.stats.likes_received}
+                  </div>
+                </div>
+                <div className='text-center p-4 bg-[#1f1f1f] rounded-xl'>
+                  <div className='flex items-center justify-center gap-2 text-gray-400 mb-2'>
+                    <UserCheck size={20} />
+                    <span className='text-sm'>Followers</span>
+                  </div>
+                  <div className='text-2xl md:text-3xl font-bold text-white'>
+                    {profile.stats.followers}
+                  </div>
+                </div>
+                <div className='text-center p-4 bg-[#1f1f1f] rounded-xl'>
+                  <div className='flex items-center justify-center gap-2 text-gray-400 mb-2'>
+                    <Users size={20} />
+                    <span className='text-sm'>Following</span>
+                  </div>
+                  <div className='text-2xl md:text-3xl font-bold text-white'>
+                    {profile.stats.following}
                   </div>
                 </div>
                 <div className='text-center p-4 bg-[#1f1f1f] rounded-xl'>

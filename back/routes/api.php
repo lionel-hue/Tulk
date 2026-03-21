@@ -57,4 +57,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/all', [App\Http\Controllers\NotificationController::class, 'deleteAll']);
         Route::post('/delete-old', [App\Http\Controllers\NotificationController::class, 'deleteOld']);
     });
+
+    // Profile Like routes
+    Route::post('/profile/{userId}/like', [ProfileLikeController::class, 'toggleLike']);
+
+    // Follow routes
+    Route::post('/profile/{userId}/follow', [FollowController::class, 'follow']);
+    Route::delete('/profile/{userId}/follow', [FollowController::class, 'unfollow']);
+    Route::get('/profile/{userId}/followers', [FollowController::class, 'getFollowers']);
+    Route::get('/profile/{userId}/following', [FollowController::class, 'getFollowing']);
 });

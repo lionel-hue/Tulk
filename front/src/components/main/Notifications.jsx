@@ -1,5 +1,4 @@
-// front/src/components/Notifications.jsx
-
+// front/src/components/main/Notifications.jsx
 import React, { useState, useEffect } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
 import api from '../../utils/api'
@@ -27,7 +26,7 @@ const Notifications = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
   const [notifications, setNotifications] = useState([])
   const [loading, setLoading] = useState(true)
   const [unreadCount, setUnreadCount] = useState(0)
-  const [filter, setFilter] = useState('all') // all, unread, read
+  const [filter, setFilter] = useState('all')
 
   useEffect(() => {
     loadNotifications()
@@ -149,7 +148,9 @@ const Notifications = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
       friend_accepted: <UserCheck className='text-green-500' size={20} />,
       mention: <AtSign className='text-yellow-500' size={20} />,
       welcome: <Gift className='text-pink-500' size={20} />,
-      system: <Settings className='text-gray-500' size={20} />
+      system: <Settings className='text-gray-500' size={20} />,
+      profile_like: <Heart className='text-red-500' size={20} />,
+      follow: <UserCheck className='text-purple-500' size={20} />
     }
     return icons[type] || <Bell className='text-gray-500' size={20} />
   }
@@ -162,7 +163,9 @@ const Notifications = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
       friend_accepted: 'bg-green-500/10 border-green-500/20',
       mention: 'bg-yellow-500/10 border-yellow-500/20',
       welcome: 'bg-pink-500/10 border-pink-500/20',
-      system: 'bg-gray-500/10 border-gray-500/20'
+      system: 'bg-gray-500/10 border-gray-500/20',
+      profile_like: 'bg-red-500/10 border-red-500/20',
+      follow: 'bg-purple-500/10 border-purple-500/20'
     }
     return colors[type] || 'bg-gray-500/10 border-gray-500/20'
   }
@@ -297,7 +300,6 @@ const Notifications = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
                   <div className='flex-shrink-0 w-10 h-10 rounded-full bg-[#1f1f1f] flex items-center justify-center'>
                     {getNotificationIcon(notification.type)}
                   </div>
-
                   {/* Content */}
                   <div className='flex-1 min-w-0'>
                     <div className='flex items-start justify-between gap-2'>
@@ -331,7 +333,6 @@ const Notifications = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
                         </button>
                       </div>
                     </div>
-
                     {/* Sender Info */}
                     {notification.sender && (
                       <div className='flex items-center gap-3 mt-3 pt-3 border-t border-[#262626]'>

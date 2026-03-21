@@ -45,6 +45,8 @@ class Notification extends Model
     const TYPE_SYSTEM = 'system';
     const TYPE_WELCOME = 'welcome';
     const TYPE_SECURITY = 'security';
+    const TYPE_PROFILE_LIKE = 'profile_like';
+    const TYPE_FOLLOW = 'follow';
 
     // Notification Subtypes
     const SUBTYPE_POST_CREATED = 'post_created';
@@ -62,6 +64,8 @@ class Notification extends Model
     const SUBTYPE_LOGIN_ALERT = 'login_alert';
     const SUBTYPE_PASSWORD_CHANGED = 'password_changed';
     const SUBTYPE_SYSTEM_ANNOUNCEMENT = 'system_announcement';
+    const SUBTYPE_PROFILE_LIKED = 'profile_liked';
+    const SUBTYPE_STARTED_FOLLOWING = 'started_following';
 
     // Priority Levels
     const PRIORITY_LOW = 'low';
@@ -74,25 +78,21 @@ class Notification extends Model
     const CHANNEL_EMAIL = 'email';
     const CHANNEL_BOTH = 'both';
 
-    // Relationship with recipient user
     public function utilisateur()
     {
         return $this->belongsTo(Utilisateur::class, 'id_uti');
     }
 
-    // Relationship with sender user
     public function utilisateurFrom()
     {
         return $this->belongsTo(Utilisateur::class, 'id_uti_from');
     }
 
-    // Polymorphic relationship with related model
     public function notifiable()
     {
         return $this->morphTo();
     }
 
-    // Mark notification as read
     public function markAsRead()
     {
         $this->update([
@@ -101,7 +101,6 @@ class Notification extends Model
         ]);
     }
 
-    // Get notification icon based on type and subtype
     public function getIconAttribute()
     {
         $icons = [
@@ -113,12 +112,12 @@ class Notification extends Model
             self::TYPE_SYSTEM => '⚙️',
             self::TYPE_POST => '📝',
             self::TYPE_SECURITY => '🔒',
+            self::TYPE_PROFILE_LIKE => '❤️',
+            self::TYPE_FOLLOW => '👥',
         ];
-
         return $icons[$this->type] ?? '🔔';
     }
 
-    // Get notification color based on type
     public function getColorAttribute()
     {
         $colors = [
@@ -130,12 +129,12 @@ class Notification extends Model
             self::TYPE_SYSTEM => 'text-gray-500 bg-gray-500/10 border-gray-500/20',
             self::TYPE_POST => 'text-green-500 bg-green-500/10 border-green-500/20',
             self::TYPE_SECURITY => 'text-orange-500 bg-orange-500/10 border-orange-500/20',
+            self::TYPE_PROFILE_LIKE => 'text-red-500 bg-red-500/10 border-red-500/20',
+            self::TYPE_FOLLOW => 'text-purple-500 bg-purple-500/10 border-purple-500/20',
         ];
-
         return $colors[$this->type] ?? 'text-gray-500 bg-gray-500/10 border-gray-500/20';
     }
 
-    // Get notification badge color
     public function getBadgeColorAttribute()
     {
         $colors = [
@@ -144,36 +143,30 @@ class Notification extends Model
             self::PRIORITY_HIGH => 'bg-orange-500',
             self::PRIORITY_CRITICAL => 'bg-red-500',
         ];
-
         return $colors[$this->priority ?? self::PRIORITY_NORMAL] ?? 'bg-blue-500';
     }
 
-    // Check if notification should send email
     public function shouldSendEmail()
     {
         return $this->channel === self::CHANNEL_EMAIL ||
             $this->channel === self::CHANNEL_BOTH;
     }
 
-    // Scope for unread notifications
     public function scopeUnread($query)
     {
         return $query->where('is_read', false);
     }
 
-    // Scope for specific user
     public function scopeForUser($query, $userId)
     {
         return $query->where('id_uti', $userId);
     }
 
-    // Scope for priority
     public function scopePriority($query, $priority)
     {
         return $query->where('priority', $priority);
     }
 
-    // Scope for date range
     public function scopeDateRange($query, $startDate, $endDate)
     {
         return $query->whereBetween('created_at', [$startDate, $endDate]);
