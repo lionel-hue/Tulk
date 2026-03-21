@@ -34,6 +34,7 @@ const Profile = () => {
 
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
   const [posts, setPosts] = useState([])
   const [activeTab, setActiveTab] = useState('posts')
   const [isEditing, setIsEditing] = useState(false)
@@ -46,15 +47,20 @@ const Profile = () => {
 
   // Load profile data
   useEffect(() => {
+    console.log('Profile component mounted, userId:', userId)
+    console.log('Current user:', currentUser)
     loadProfile()
   }, [userId])
 
-  const [error, setError] = useState(null) // Add this state
-
   const loadProfile = async () => {
     try {
+      console.log('Loading profile for userId:', userId || 'current user')
       setLoading(true)
+      setError(null)
+
       const response = await api.get(`/profile/${userId || ''}`)
+      console.log('Profile API response:', response.data)
+
       if (response.data.success) {
         setProfile(response.data.profile)
         setEditData({
@@ -65,13 +71,30 @@ const Profile = () => {
           website: response.data.profile.website || '',
           sexe: response.data.profile.sexe || ''
         })
+      } else {
+        setError('Impossible de charger le profil')
+        setModal({
+          show: true,
+          type: 'error',
+          title: 'Erreur',
+          message: response.data.message || 'Impossible de charger le profil'
+        })
       }
     } catch (error) {
+      console.error('Profile load error:', error)
+      console.error('Error response:', error.response)
+      console.error('Error status:', error.response?.status)
+      console.error('Error data:', error.response?.data)
+
+      const errorMessage =
+        error.response?.data?.message || error.message || 'Erreur de connexion'
+      setError(errorMessage)
+
       setModal({
         show: true,
         type: 'error',
         title: 'Erreur',
-        message: 'Impossible de charger le profil'
+        message: errorMessage
       })
     } finally {
       setLoading(false)
@@ -87,7 +110,10 @@ const Profile = () => {
 
   const loadPosts = async () => {
     try {
+      console.log('Loading posts for user:', profile.id)
       const response = await api.get(`/profile/${profile.id}/posts`)
+      console.log('Posts API response:', response.data)
+
       if (response.data.success) {
         setPosts(response.data.posts)
       }
@@ -140,6 +166,7 @@ const Profile = () => {
         })
       }
     } catch (error) {
+      console.error('Image upload error:', error)
       setModal({
         show: true,
         type: 'error',
@@ -175,6 +202,7 @@ const Profile = () => {
         })
       }
     } catch (error) {
+      console.error('Banner upload error:', error)
       setModal({
         show: true,
         type: 'error',
@@ -190,6 +218,7 @@ const Profile = () => {
   const handleSaveProfile = async () => {
     try {
       const response = await api.put('/profile', editData)
+
       if (response.data.success) {
         setProfile(prev => ({ ...prev, ...response.data.user }))
         setIsEditing(false)
@@ -201,6 +230,7 @@ const Profile = () => {
         })
       }
     } catch (error) {
+      console.error('Profile update error:', error)
       setModal({
         show: true,
         type: 'error',
@@ -216,6 +246,7 @@ const Profile = () => {
       const response = await api.post('/friends/request', {
         user_id: profile.id
       })
+
       if (response.data.success) {
         setProfile(prev => ({ ...prev, has_pending_request: true }))
         setModal({
@@ -226,6 +257,7 @@ const Profile = () => {
         })
       }
     } catch (error) {
+      console.error('Send request error:', error)
       setModal({
         show: true,
         type: 'error',
@@ -240,6 +272,7 @@ const Profile = () => {
       const response = await api.post('/friends/accept', {
         user_id: profile.id
       })
+
       if (response.data.success) {
         setProfile(prev => ({
           ...prev,
@@ -254,7 +287,13 @@ const Profile = () => {
         })
       }
     } catch (error) {
-      setModal({ show: true, type: 'error', title: 'Erreur', message: 'Échec' })
+      console.error('Accept request error:', error)
+      setModal({
+        show: true,
+        type: 'error',
+        title: 'Erreur',
+        message: 'Échec'
+      })
     }
   }
 
@@ -266,6 +305,7 @@ const Profile = () => {
       const response = await api.post('/friends/remove', {
         user_id: profile.id
       })
+
       if (response.data.success) {
         setProfile(prev => ({ ...prev, is_friend: false }))
         setModal({
@@ -276,7 +316,13 @@ const Profile = () => {
         })
       }
     } catch (error) {
-      setModal({ show: true, type: 'error', title: 'Erreur', message: 'Échec' })
+      console.error('Remove friend error:', error)
+      setModal({
+        show: true,
+        type: 'error',
+        title: 'Erreur',
+        message: 'Échec'
+      })
     }
   }
 
@@ -292,6 +338,7 @@ const Profile = () => {
     return `${user?.prenom?.[0] || ''}${user?.nom?.[0] || ''}`.toUpperCase()
   }
 
+  // Loading state
   if (loading) {
     return (
       <div className='min-h-screen bg-black flex items-center justify-center'>
@@ -300,6 +347,24 @@ const Profile = () => {
     )
   }
 
+  // Error state
+  if (error) {
+    return (
+      <div className='min-h-screen bg-black flex items-center justify-center'>
+        <div className='text-white text-lg text-center'>
+          <p className='mb-4'>{error}</p>
+          <button
+            onClick={loadProfile}
+            className='px-4 py-2 bg-white text-black rounded-lg hover:bg-gray-200'
+          >
+            Réessayer
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  // No profile state
   if (!profile) {
     return (
       <div className='min-h-screen bg-black flex items-center justify-center'>
