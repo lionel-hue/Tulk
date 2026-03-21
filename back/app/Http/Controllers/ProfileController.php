@@ -1,323 +1,232 @@
 <?php
-// back/app/Http/Controllers/PostController.php
+// back/app/Http/Controllers/ProfileController.php
 namespace App\Http\Controllers;
 
 use App\Models\Article;
-use App\Models\Liker;
-use App\Models\Commentaire;
+use App\Models\ProfileLike;
+use App\Models\Follow;
 use App\Models\Amitie;
 use App\Models\Utilisateur;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use App\Services\NotificationService;
-use Illuminate\Support\Str;
 
-class PostController extends Controller
+class ProfileController extends Controller
 {
-    protected $notificationService;
-
-    public function __construct(NotificationService $notificationService)
-    {
-        $this->notificationService = $notificationService;
-    }
-
-    // Create a new post
-    public function createPost(Request $request)
+    public function getProfile($userId = null)
     {
         try {
-            $request->validate([
-                'description' => 'required|string|max:1000',
-                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
-            ]);
-
             $user = Auth::user();
-            $imagePath = null;
+            $targetUserId = $userId ?? $user->id;
+            $targetUser = Utilisateur::findOrFail($targetUserId);
 
-            if ($request->hasFile('image')) {
-                try {
-                    $image = $request->file('image');
-                    $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
-                    $path = $image->store('images', 'public');
-                    $imagePath = $path;
+            // Get friendship status
+            $friendship = Amitie::where(function ($query) use ($user, $targetUserId) {
+                $query->where('id_1', $user->id)
+                    ->where('id_2', $targetUserId);
+            })->orWhere(function ($query) use ($user, $targetUserId) {
+                $query->where('id_1', $targetUserId)
+                    ->where('id_2', $user->id);
+            })->first();
 
-                    if (!Storage::disk('public')->exists($imagePath)) {
-                        throw new \Exception('Image was not saved to disk');
-                    }
-                } catch (\Exception $e) {
-                    Log::error('❌ Image upload failed: ' . $e->getMessage());
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Erreur lors du téléchargement de l\'image: ' . $e->getMessage()
-                    ], 500);
-                }
+            // Get follow status
+            $isFollowing = Follow::where('follower_id', $user->id)
+                ->where('following_id', $targetUserId)
+                ->exists();
+            $isFollower = Follow::where('follower_id', $targetUserId)
+                ->where('following_id', $user->id)
+                ->exists();
+
+            // Get profile like status
+            $hasLikedProfile = ProfileLike::where('id_uti', $user->id)
+                ->where('id_uti_profile', $targetUserId)
+                ->exists();
+
+            // Get recent friends - FIXED: removed ->get()
+            $recentFriends = $targetUser->amis()
+                ->take(12)
+                ->map(function ($friend) {
+                    return [
+                        'id' => $friend->id,
+                        'nom' => $friend->nom,
+                        'prenom' => $friend->prenom,
+                        'image' => $friend->image,
+                    ];
+                });
+
+            // Get mutual friends count
+            $mutualFriendsCount = 0;
+            if ($targetUserId !== $user->id) {
+                $userFriendIds = $user->amis()->pluck('id')->toArray();
+                $targetFriendIds = $targetUser->amis()->pluck('id')->toArray();
+                $mutualFriendsCount = count(array_intersect($userFriendIds, $targetFriendIds));
             }
-
-            $post = Article::create([
-                'description' => $request->description,
-                'image' => $imagePath,
-                'id_uti' => $user->id,
-                'date' => now(),
-            ]);
-
-            $post->load('utilisateur');
-
-            // Check if this is user's first post and send celebration notification
-            $postCount = Article::where('id_uti', $user->id)->count();
-            if ($postCount === 1) {
-                $this->notificationService->sendFirstPostNotification($user, $post, false);
-            }
-
-            // Check for mentions in post description and notify mentioned users
-            $this->handlePostMentions($post, $user);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Post créé avec succès',
-                'post' => [
-                    'id' => $post->id,
-                    'description' => $post->description,
-                    'image' => $post->image ? Storage::url($post->image) : null,
-                    'date' => $post->date,
-                    'user' => [
-                        'id' => $post->utilisateur->id,
-                        'nom' => $post->utilisateur->nom,
-                        'prenom' => $post->utilisateur->prenom,
-                        'image' => $post->utilisateur->image ? Storage::url($post->utilisateur->image) : null,
+                'profile' => [
+                    'id' => $targetUser->id,
+                    'nom' => $targetUser->nom,
+                    'prenom' => $targetUser->prenom,
+                    'email' => $targetUser->email,
+                    'image' => $targetUser->image ? Storage::url($targetUser->image) : null,
+                    'banner' => $targetUser->banner ? Storage::url($targetUser->banner) : null,
+                    'bio' => $targetUser->bio,
+                    'location' => $targetUser->location,
+                    'website' => $targetUser->website,
+                    'sexe' => $targetUser->sexe,
+                    'role' => $targetUser->role,
+                    'created_at' => $targetUser->created_at,
+                    'is_owner' => $targetUserId === $user->id,
+                    'is_friend' => $friendship && $friendship->statut === 'ami',
+                    'has_pending_request' => $friendship && $friendship->statut === 'en attente' && $friendship->id_2 === $user->id,
+                    'is_following' => $isFollowing,
+                    'is_follower' => $isFollower,
+                    'has_liked_profile' => $hasLikedProfile,
+                    'mutual_friends_count' => $mutualFriendsCount,
+                    'stats' => [
+                        'posts' => $targetUser->articles()->count(),
+                        'friends' => $targetUser->amis()->count(),
+                        'followers' => $targetUser->followers()->count(),
+                        'following' => $targetUser->following()->count(),
+                        'likes_received' => $targetUser->profileLikesReceived()->count(),
+                        'comments_received' => $targetUser->articles()
+                            ->join('Commentaire', 'Article.id', '=', 'Commentaire.id_arti')
+                            ->count()
                     ],
-                    'likes_count' => 0,
-                    'comments_count' => 0,
-                    'is_liked' => false,
-                    'is_owner' => true,
+                    'recent_friends' => $recentFriends
                 ]
             ]);
         } catch (\Exception $e) {
-            Log::error('❌ Error creating post: ' . $e->getMessage());
+            Log::error('Error loading profile: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Erreur lors de la création du post: ' . $e->getMessage()
+                'message' => 'Erreur lors du chargement du profil'
             ], 500);
         }
     }
 
-    // Like/unlike a post
-    public function toggleLike($postId)
+    public function updateProfile(Request $request)
     {
         try {
             $user = Auth::user();
-            $post = Article::findOrFail($postId);
-            $postOwner = Utilisateur::find($post->id_uti);
 
-            // Check if user already liked the post
-            $existingLike = Liker::where('id_uti', $user->id)
-                ->where('id_arti', $postId)
-                ->first();
-
-            if ($existingLike) {
-                // Unlike the post
-                $existingLike->delete();
-                $liked = false;
-            } else {
-                // Like the post
-                Liker::create([
-                    'id_uti' => $user->id,
-                    'id_arti' => $postId,
-                ]);
-                $liked = true;
-
-                // Send notification to post owner
-                if ($postOwner && $postOwner->id !== $user->id) {
-                    $this->notificationService->sendLikeNotification(
-                        $postOwner,
-                        $user,
-                        $post,
-                        false // Don't send email for every like
-                    );
-                }
-            }
-
-            // Get updated like count
-            $likesCount = $post->likes()->count();
-
-            return response()->json([
-                'success' => true,
-                'liked' => $liked,
-                'likes_count' => $likesCount
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Error toggling like: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'message' => 'Erreur lors du like: ' . $e->getMessage()
-            ], 500);
-        }
-    }
-
-    // Add a comment to a post
-    public function addComment(Request $request, $postId)
-    {
-        try {
             $request->validate([
-                'texte' => 'required|string|max:500',
-                'parent_comment_id' => 'nullable|integer|exists:Commentaire,id'
+                'nom' => 'nullable|string|max:255',
+                'prenom' => 'nullable|string|max:255',
+                'bio' => 'nullable|string|max:500',
+                'location' => 'nullable|string|max:255',
+                'website' => 'nullable|url|max:255',
             ]);
 
-            $user = Auth::user();
-            $post = Article::findOrFail($postId);
-            $postOwner = Utilisateur::find($post->id_uti);
+            $updateData = [];
+            if ($request->has('nom')) $updateData['nom'] = $request->nom;
+            if ($request->has('prenom')) $updateData['prenom'] = $request->prenom;
+            if ($request->has('bio')) $updateData['bio'] = $request->bio;
+            if ($request->has('location')) $updateData['location'] = $request->location;
+            if ($request->has('website')) $updateData['website'] = $request->website;
 
-            $comment = Commentaire::create([
-                'texte' => $request->texte,
-                'date' => now(),
-                'id_arti' => $postId,
-                'id_uti' => $user->id,
-            ]);
-
-            $comment->load('utilisateur');
-
-            // Get updated comments count
-            $commentsCount = $post->commentaires()->count();
-
-            // Send notification to post owner
-            if ($postOwner && $postOwner->id !== $user->id) {
-                $this->notificationService->sendCommentNotification(
-                    $postOwner,
-                    $user,
-                    $post,
-                    $comment,
-                    true // Send email for comments
-                );
-            }
-
-            // If this is a reply to another comment, notify the original commenter
-            if ($request->parent_comment_id) {
-                $parentComment = Commentaire::find($request->parent_comment_id);
-                if ($parentComment && $parentComment->id_uti !== $user->id) {
-                    $originalCommenter = Utilisateur::find($parentComment->id_uti);
-                    if ($originalCommenter) {
-                        $this->notificationService->sendCommentReplyNotification(
-                            $originalCommenter,
-                            $user,
-                            $post,
-                            $comment,
-                            $parentComment,
-                            true
-                        );
-                    }
-                }
-            }
-
-            // Check for mentions in comment and notify mentioned users
-            $this->handleCommentMentions($comment, $post, $user);
+            $user->update($updateData);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Commentaire ajouté avec succès',
-                'comment' => [
-                    'id' => $comment->id,
-                    'texte' => $comment->texte,
-                    'date' => $comment->date,
-                    'user' => [
-                        'id' => $comment->utilisateur->id,
-                        'nom' => $comment->utilisateur->nom,
-                        'prenom' => $comment->utilisateur->prenom,
-                        'image' => $comment->utilisateur->image ? Storage::url($comment->utilisateur->image) : null,
-                    ]
-                ],
-                'comments_count' => $commentsCount
+                'message' => 'Profil mis à jour',
+                'user' => [
+                    'id' => $user->id,
+                    'nom' => $user->nom,
+                    'prenom' => $user->prenom,
+                    'bio' => $user->bio,
+                    'location' => $user->location,
+                    'website' => $user->website,
+                ]
             ]);
         } catch (\Exception $e) {
-            Log::error('Error adding comment: ' . $e->getMessage());
+            Log::error('Profile update error: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Erreur lors de l\'ajout du commentaire: ' . $e->getMessage()
+                'message' => 'Échec de la mise à jour'
             ], 500);
         }
     }
 
-    // Handle mentions in post
-    private function handlePostMentions(Article $post, Utilisateur $author)
-    {
-        $description = $post->description;
-
-        // Find all @mentions in the post
-        if (preg_match_all('/@(\w+)/', $description, $matches)) {
-            $usernames = $matches[1];
-
-            foreach ($usernames as $username) {
-                // Try to find user by email or name (simplified - adjust based on your username system)
-                $mentionedUser = Utilisateur::where('email', 'LIKE', $username . '%')
-                    ->orWhere('prenom', 'LIKE', $username . '%')
-                    ->first();
-
-                if ($mentionedUser && $mentionedUser->id !== $author->id) {
-                    $this->notificationService->sendMentionInPostNotification(
-                        $mentionedUser,
-                        $author,
-                        $post,
-                        $description
-                    );
-                }
-            }
-        }
-    }
-
-    // Handle mentions in comment
-    private function handleCommentMentions(Commentaire $comment, Article $post, Utilisateur $author)
-    {
-        $texte = $comment->texte;
-
-        // Find all @mentions in the comment
-        if (preg_match_all('/@(\w+)/', $texte, $matches)) {
-            $usernames = $matches[1];
-
-            foreach ($usernames as $username) {
-                $mentionedUser = Utilisateur::where('email', 'LIKE', $username . '%')
-                    ->orWhere('prenom', 'LIKE', $username . '%')
-                    ->first();
-
-                if ($mentionedUser && $mentionedUser->id !== $author->id) {
-                    $this->notificationService->sendMentionInCommentNotification(
-                        $mentionedUser,
-                        $author,
-                        $post,
-                        $comment,
-                        $texte
-                    );
-                }
-            }
-        }
-    }
-
-    // Get posts for feed
-    public function getFeedPosts()
+    public function uploadImage(Request $request)
     {
         try {
             $user = Auth::user();
-            $friendIds = $this->getFriendIds($user->id);
-            $userIds = array_merge([$user->id], $friendIds);
 
-            $posts = Article::with(['utilisateur', 'likes', 'commentaires'])
-                ->whereIn('id_uti', $userIds)
+            $request->validate([
+                'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:5120',
+            ]);
+
+            if ($user->image && Storage::disk('public')->exists($user->image)) {
+                Storage::disk('public')->delete($user->image);
+            }
+
+            $imagePath = $request->file('image')->store('images', 'public');
+            $user->update(['image' => $imagePath]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Photo mise à jour',
+                'image_url' => Storage::url($imagePath)
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Image upload error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Échec du téléchargement'
+            ], 500);
+        }
+    }
+
+    public function uploadBanner(Request $request)
+    {
+        try {
+            $user = Auth::user();
+
+            $request->validate([
+                'banner' => 'required|image|mimes:jpeg,png,jpg,gif|max:5120',
+            ]);
+
+            if ($user->banner && Storage::disk('public')->exists($user->banner)) {
+                Storage::disk('public')->delete($user->banner);
+            }
+
+            $bannerPath = $request->file('banner')->store('banners', 'public');
+            $user->update(['banner' => $bannerPath]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Bannière mise à jour',
+                'banner_url' => Storage::url($bannerPath)
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Banner upload error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Échec du téléchargement'
+            ], 500);
+        }
+    }
+
+    public function getUserPosts($userId)
+    {
+        try {
+            $targetUser = Utilisateur::findOrFail($userId);
+
+            $posts = $targetUser->articles()
+                ->with(['utilisateur', 'likes', 'commentaires'])
                 ->orderBy('date', 'desc')
                 ->get()
-                ->map(function ($post) use ($user) {
+                ->map(function ($post) {
                     return [
                         'id' => $post->id,
                         'description' => $post->description,
                         'image' => $post->image ? Storage::url($post->image) : null,
                         'date' => $post->date,
-                        'user' => [
-                            'id' => $post->utilisateur->id,
-                            'nom' => $post->utilisateur->nom,
-                            'prenom' => $post->utilisateur->prenom,
-                            'image' => $post->utilisateur->image ? Storage::url($post->utilisateur->image) : null,
-                        ],
                         'likes_count' => $post->likes()->count(),
                         'comments_count' => $post->commentaires()->count(),
-                        'is_liked' => $post->likes()->where('id_uti', $user->id)->exists(),
-                        'is_owner' => $post->id_uti == $user->id,
                     ];
                 });
 
@@ -326,105 +235,12 @@ class PostController extends Controller
                 'posts' => $posts
             ]);
         } catch (\Exception $e) {
-            Log::error('Error loading posts: ' . $e->getMessage());
+            Log::error('Error loading user posts: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Erreur lors de la récupération des posts: ' . $e->getMessage()
+                'message' => 'Erreur lors du chargement des posts'
             ], 500);
-        }
-    }
-
-    // Get comments for a post
-    public function getComments($postId)
-    {
-        try {
-            $post = Article::findOrFail($postId);
-            $comments = $post->commentaires()
-                ->with('utilisateur')
-                ->orderBy('date', 'asc')
-                ->get()
-                ->map(function ($comment) {
-                    return [
-                        'id' => $comment->id,
-                        'texte' => $comment->texte,
-                        'date' => $comment->date,
-                        'user' => [
-                            'id' => $comment->utilisateur->id,
-                            'nom' => $comment->utilisateur->nom,
-                            'prenom' => $comment->utilisateur->prenom,
-                            'image' => $comment->utilisateur->image ? Storage::url($comment->utilisateur->image) : null,
-                        ]
-                    ];
-                });
-
-            return response()->json([
-                'success' => true,
-                'comments' => $comments
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Error getting comments: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'message' => 'Erreur lors de la récupération des commentaires: ' . $e->getMessage()
-            ], 500);
-        }
-    }
-
-    // Delete a post
-    public function deletePost($postId)
-    {
-        try {
-            $user = Auth::user();
-            $post = Article::findOrFail($postId);
-
-            if ($post->id_uti !== $user->id) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Vous n\'avez pas la permission de supprimer ce post'
-                ], 403);
-            }
-
-            if ($post->image && Storage::disk('public')->exists($post->image)) {
-                Storage::disk('public')->delete($post->image);
-            }
-
-            $post->likes()->delete();
-            $post->commentaires()->delete();
-            $post->delete();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Post supprimé avec succès'
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Error deleting post: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'message' => 'Erreur lors de la suppression du post: ' . $e->getMessage()
-            ], 500);
-        }
-    }
-
-    // Helper function to get friend IDs
-    private function getFriendIds($userId)
-    {
-        try {
-            $friendships = Amitie::where(function ($query) use ($userId) {
-                $query->where('id_1', $userId)
-                    ->orWhere('id_2', $userId);
-            })->where('statut', 'ami')->get();
-
-            $friendIds = [];
-            foreach ($friendships as $friendship) {
-                if ($friendship->id_1 == $userId) {
-                    $friendIds[] = $friendship->id_2;
-                } else {
-                    $friendIds[] = $friendship->id_1;
-                }
-            }
-            return $friendIds;
-        } catch (\Exception $e) {
-            return [];
         }
     }
 }
+    

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Amitie;
 use App\Models\Utilisateur;
+use App\Models\Follow;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -18,7 +19,6 @@ class AmitieController extends Controller
         $this->notificationService = $notificationService;
     }
 
-    // Send friend request
     public function sendRequest(Request $request)
     {
         $request->validate([
@@ -29,7 +29,6 @@ class AmitieController extends Controller
         $targetUserId = $request->input('user_id');
         $targetUser = Utilisateur::find($targetUserId);
 
-        // Check if users are already friends
         $existingFriendship = Amitie::where(function ($query) use ($user, $targetUserId) {
             $query->where('id_1', $user->id)
                 ->where('id_2', $targetUserId);
@@ -45,19 +44,17 @@ class AmitieController extends Controller
             ], 400);
         }
 
-        // Create friend request
         $amitie = Amitie::create([
             'id_1' => $user->id,
             'id_2' => $targetUserId,
             'statut' => 'en attente'
         ]);
 
-        // Send notification to the target user
         if ($targetUser) {
             $this->notificationService->sendFriendRequestNotification(
                 $targetUser,
                 $user,
-                true // Send email
+                true
             );
         }
 
@@ -68,7 +65,6 @@ class AmitieController extends Controller
         ]);
     }
 
-    // Accept friend request
     public function acceptRequest(Request $request)
     {
         $request->validate([
@@ -79,7 +75,6 @@ class AmitieController extends Controller
         $requesterId = $request->input('user_id');
         $requester = Utilisateur::find($requesterId);
 
-        // Find the pending request
         $friendship = Amitie::where('id_1', $requesterId)
             ->where('id_2', $user->id)
             ->where('statut', 'en attente')
@@ -92,15 +87,13 @@ class AmitieController extends Controller
             ], 404);
         }
 
-        // Update status to 'ami'
         $friendship->update(['statut' => 'ami']);
 
-        // Send notification to the requester that their request was accepted
         if ($requester) {
             $this->notificationService->sendFriendAcceptedNotification(
                 $requester,
                 $user,
-                true // Send email
+                true
             );
         }
 
@@ -111,7 +104,6 @@ class AmitieController extends Controller
         ]);
     }
 
-    // Reject or remove friend
     public function removeFriend(Request $request)
     {
         $request->validate([
@@ -122,7 +114,6 @@ class AmitieController extends Controller
         $friendId = $request->input('user_id');
         $friend = Utilisateur::find($friendId);
 
-        // Find the friendship
         $friendship = Amitie::where(function ($query) use ($user, $friendId) {
             $query->where('id_1', $user->id)
                 ->where('id_2', $friendId);
@@ -138,16 +129,14 @@ class AmitieController extends Controller
             ], 404);
         }
 
-        // Send notification before deleting (optional)
         if ($friend && $friendship->statut === 'ami') {
             $this->notificationService->sendFriendRemovedNotification(
                 $friend,
                 $user,
-                false // Don't send email for this
+                false
             );
         }
 
-        // Delete the friendship
         $friendship->delete();
 
         return response()->json([
@@ -156,7 +145,6 @@ class AmitieController extends Controller
         ]);
     }
 
-    // Get user's friends
     public function getFriends()
     {
         $user = Auth::user();
@@ -173,6 +161,7 @@ class AmitieController extends Controller
             $friendId = ($friendship->id_1 == $user->id) ? $friendship->id_2 : $friendship->id_1;
             $friend = Utilisateur::select('id', 'nom', 'prenom', 'email', 'image', 'role')
                 ->find($friendId);
+
             if ($friend) {
                 $friends[] = [
                     'id' => $friend->id,
@@ -193,7 +182,6 @@ class AmitieController extends Controller
         ]);
     }
 
-    // Get friend suggestions
     public function getSuggestions()
     {
         $user = Auth::user();
@@ -227,7 +215,6 @@ class AmitieController extends Controller
                     !in_array($potentialFriendId, $currentFriends) &&
                     !isset($suggestions[$potentialFriendId])
                 ) {
-
                     $mutualFriends = $this->countMutualFriends($user->id, $potentialFriendId);
                     $userData = Utilisateur::select('id', 'nom', 'prenom', 'email', 'image', 'role')
                         ->find($potentialFriendId);
@@ -257,7 +244,6 @@ class AmitieController extends Controller
         ]);
     }
 
-    // Get pending friend requests
     public function getPendingRequests()
     {
         $user = Auth::user();
@@ -284,7 +270,6 @@ class AmitieController extends Controller
         ]);
     }
 
-    // Search users
     public function search(Request $request)
     {
         $request->validate([
@@ -300,7 +285,7 @@ class AmitieController extends Controller
                     ->orWhere('prenom', 'LIKE', "%{$query}%")
                     ->orWhere('email', 'LIKE', "%{$query}%");
             })
-            ->select('id', 'nom', 'prenom', 'email', 'image', 'role')
+            ->select('id', 'nom', 'prenom', 'email', 'image', 'role', 'bio', 'location')
             ->limit(20)
             ->get()
             ->map(function ($userData) use ($user) {
@@ -312,6 +297,10 @@ class AmitieController extends Controller
                         ->where('id_2', $user->id);
                 })->first();
 
+                $isFollowing = Follow::where('follower_id', $user->id)
+                    ->where('following_id', $userData->id)
+                    ->exists();
+
                 return [
                     'id' => $userData->id,
                     'nom' => $userData->nom,
@@ -319,9 +308,14 @@ class AmitieController extends Controller
                     'email' => $userData->email,
                     'image' => $userData->image,
                     'role' => $userData->role,
+                    'bio' => substr($userData->bio ?? '', 0, 100),
+                    'location' => $userData->location,
                     'friendship_status' => $friendship ? $friendship->statut : null,
                     'is_friend' => $friendship && $friendship->statut == 'ami',
                     'has_pending_request' => $friendship && $friendship->statut == 'en attente',
+                    'is_following' => $isFollowing,
+                    'followers_count' => $userData->followers()->count(),
+                    'posts_count' => $userData->articles()->count(),
                     'mutual_friends' => $this->countMutualFriends($user->id, $userData->id)
                 ];
             });
@@ -332,7 +326,6 @@ class AmitieController extends Controller
         ]);
     }
 
-    // Helper method to count mutual friends
     private function countMutualFriends($user1Id, $user2Id)
     {
         $user1Friends = Amitie::where(function ($query) use ($user1Id) {
