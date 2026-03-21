@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion - Tulk</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <!-- Added logo at top center -->
+            <div class="app-logo">
+                <div class="logo-circle">T</div>
+            </div>
+
+            <div class="auth-header">
+                <h1>Connexion</h1>
+                <p>Bienvenue sur Tulk</p>
+            </div>
+
+            <form id="loginForm" class="auth-form">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required placeholder="Entrez votre email">
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Mot de passe</label>
+                    <input type="password" id="password" name="password" required placeholder="Entrez votre mot de passe">
+                </div>
+
+                <!-- Removed role selection - roles are assigned by admins/mods only -->
+
+                <div class="form-actions">
+                    <a href="forgot-password.html" class="forgot-link">Mot de passe oublié ?</a>
+                </div>
+
+                <button type="submit" class="btn-primary">Se connecter</button>
+
+                <div class="auth-footer">
+                    <p>Pas encore de compte ? <a href="signup.html">S'inscrire</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="login.js"></script>
+</body>
+</html>

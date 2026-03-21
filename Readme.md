@@ -1,0 +1,91 @@
+# Tulk! : un espace communautaire 👥
+
+---
+
+- ### voir, liker, commenter sur les articles 📰 
+- ### rechercher et discuter avec les amis 💬
+- ### voir votre profile etc 👤
+
+---
+
+## **Les fonctionalites** qui marche pour l'instant
+
+- ### voir les articles ✅
+- ### voir les profiles ✅
+- ### liker et commenter sur les articles ✅
+- ### se connecter et inscription ✅
+
+---
+
+## Les membres du groupe
+
+- SISSO Lionel Timileyin
+- Tossougbo Mariel
+- ODJO Immaculee
+
+---
+
+## Les exigences du projet 💡
+
+```
+- php version >= 8.3.22
+- xampp version 8.2.12-0 
+```
+
+## L'architecture du projet 📂
+```
+ /
+ |___api/
+     |___accueil/
+     |___chat/
+     |___inscription/
+     |___profile/
+     |___seconnecter/
+     |
+     assets/
+     |___css/
+     |___images/
+     |   |___db_model/
+     |   |___sys_img/
+     |    
+     |___js/
+     |   |___controllers/
+     |
+     views/
+     |___backoffice/
+     |___clients/
+     |
+     .env.example
+     |
+     Instaconn.sql
+     |
+     Dockerfile
+     |
+     index.html
+```
+
+## Guide d'usage 📋
+
+```
+#cloner le repro
+git clone https://github.com/lionel-hue/Instaconn.git
+
+#renomer the ficihier .env.example en .env
+.env.example => .env (linux : cp .env.example .env)
+
+#saisir les informations du fichier .env pour la conn a la BDD
+DB_HOST=Nom du host
+DB_USER=Nom d'utilisateur
+DB_PASS=Mot de passe
+DB_NAME=Nom de la BDD
+DB_PORT=Port du host 
+
+#demarrer l'application xampp 
+#demarrer apache et mysql
+#depuis phpmyadmin importer le fichier Instaconn.sql dans la bdd appele Instaconn(une sugesstion du nom de la bdd)
+
+#demarrer php depuis le cli et allez sur le lien precise
+php -S DB_HOST:HOST_PORT (acceder par example, localhost:1024 depuis le navigateur)
+```
+
+### Ou bien cliquer [ici](https://instaconn.onrender.com/) pour y acceder.

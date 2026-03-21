@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accueil - Tulk</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="home-page">
+    <!-- Header -->
+    <header class="home-header">
+        <div class="header-content">
+            <!-- Mobile Menu Toggle -->
+            <button class="menu-toggle" id="menuToggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+
+            <!-- Logo -->
+            <div class="header-logo">
+                <div class="logo-circle small">T</div>
+            </div>
+
+            <!-- Desktop Navigation -->
+            <nav class="desktop-nav">
+                <button class="nav-btn active" data-section="feed">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="14" width="7" height="7"></rect>
+                        <rect x="3" y="14" width="7" height="7"></rect>
+                    </svg>
+                    <span>Fil</span>
+                </button>
+                <button class="nav-btn" data-section="friends">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                    <span>Amis</span>
+                </button>
+                <button class="nav-btn" data-section="messages">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                    <span>Messages</span>
+                    <span class="notification-badge" id="messageBadge" style="display: none;">0</span>
+                </button>
+                <button class="nav-btn" data-section="notifications">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                    </svg>
+                    <span>Notifications</span>
+                    <span class="notification-badge">3</span>
+                </button>
+                <button class="nav-btn" data-section="profile">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                    <span>Profil</span>
+                </button>
+                <!-- Dashboard for admins/mods desktop only -->
+                <button class="nav-btn dashboard-only" data-section="dashboard" style="display: none;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="3" y1="9" x2="21" y2="9"></line>
+                        <line x1="9" y1="21" x2="9" y2="9"></line>
+                    </svg>
+                    <span>Tableau de bord</span>
+                </button>
+            </nav>
+
+            <!-- Search Bar -->
+            <div class="header-search">
+                <input type="text" id="searchInput" placeholder="Rechercher des posts...">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="m21 21-4.35-4.35"></path>
+                </svg>
+            </div>
+
+            <!-- User Profile -->
+            <div class="header-profile" id="headerProfile">
+                <img src="/placeholder.svg?height=40&width=40" alt="Profil" class="profile-pic" id="userProfilePic">
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Side Menu -->
+    <div class="side-menu" id="sideMenu">
+        <div class="side-menu-header">
+            <div class="logo-circle small">T</div>
+            <h2>Tulk</h2>
+            <button class="close-menu" id="closeMenu">&times;</button>
+        </div>
+        <nav class="mobile-nav">
+            <button class="nav-btn active" data-section="feed">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="14" width="7" height="7"></rect>
+                    <rect x="3" y="14" width="7" height="7"></rect>
+                </svg>
+                <span>Fil</span>
+            </button>
+            <button class="nav-btn" data-section="friends">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+                <span>Amis</span>
+            </button>
+            <button class="nav-btn" data-section="messages">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                </svg>
+                <span>Messages</span>
+                <span class="notification-badge" id="mobileMessageBadge" style="display: none;">0</span>
+            </button>
+            <button class="nav-btn" data-section="notifications">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                </svg>
+                <span>Notifications</span>
+                <span class="notification-badge">3</span>
+            </button>
+            <button class="nav-btn" data-section="profile">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                <span>Profil</span>
+            </button>
+            <!-- Dashboard (mobile only shown for admin/mod) -->
+            <button class="nav-btn dashboard-mobile-only" data-section="dashboard" style="display: none;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="3" y1="9" x2="21" y2="9"></line>
+                    <line x1="9" y1="21" x2="9" y2="9"></line>
+                </svg>
+                <span>Tableau de bord</span>
+            </button>
+            <button class="nav-btn" id="logoutBtn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                    <polyline points="16 17 21 12 16 7"></polyline>
+                    <line x1="21" y1="12" x2="9" y2="12"></line>
+                </svg>
+                <span>Déconnexion</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <main class="home-main">
+        <!-- Feed Section -->
+        <div id="feedSection" class="section-content active">
+            <!-- Add Post Section -->
+            <div class="add-post-card">
+                <div class="add-post-header">
+                    <img src="/placeholder.svg?height=40&width=40" alt="Profil" class="profile-pic-small" id="feedProfilePic">
+                    <button class="add-post-trigger" id="addPostTrigger">Quoi de neuf ?</button>
+                </div>
+            </div>
+
+            <!-- Posts Feed -->
+            <div id="postsFeed" class="posts-feed">
+                <!-- Posts will be dynamically loaded here -->
+            </div>
+        </div>
+
+        <!-- Profile Section -->
+        <div id="profileSection" class="section-content">
+            <div class="profile-container">
+                <div class="profile-header-card">
+                    <div class="profile-banner"></div>
+                    <div class="profile-info">
+                        <div class="profile-avatar-wrapper">
+                            <img src="/placeholder.svg?height=120&width=120" alt="Photo de profil" class="profile-avatar" id="profileAvatar">
+                            <button class="edit-avatar-btn" id="editAvatarBtn">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="profile-details">
+                            <h1 class="profile-name" id="profileName">Jean Dupont</h1>
+                            <p class="profile-email" id="profileEmail">jean.dupont@exemple.fr</p>
+                            <div class="profile-role-badge" id="profileRoleBadge">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"></path>
+                                </svg>
+                                <span id="profileRole">Administrateur</span>
+                            </div>
+                        </div>
+                        <button class="btn-secondary" id="editProfileBtn">Modifier le profil</button>
+                    </div>
+                </div>
+
+                <!-- Admin Stats (only for admin) -->
+                <div class="admin-stats-card" id="adminStatsCard" style="display: none;">
+                    <h3>Statistiques d'administration</h3>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-label">Utilisateurs totaux</div>
+                            <div class="stat-value" id="totalUsers">0</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Posts totaux</div>
+                            <div class="stat-value" id="totalPosts">0</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Messages totaux</div>
+                            <div class="stat-value" id="totalMessages">0</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Amitiés totales</div>
+                            <div class="stat-value" id="totalFriendships">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mod Stats (only for mod) -->
+                <div class="mod-stats-card" id="modStatsCard" style="display: none;">
+                    <h3>Statistiques de modération</h3>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-label">Posts signalés</div>
+                            <div class="stat-value">12</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Commentaires modérés</div>
+                            <div class="stat-value">28</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User Stats -->
+                <div class="user-stats-card">
+                    <h3>Mes statistiques</h3>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-label">Mes posts</div>
+                            <div class="stat-value" id="myPosts">0</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Mes amis</div>
+                            <div class="stat-value" id="myFriends">0</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Likes reçus</div>
+                            <div class="stat-value" id="myLikes">0</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Commentaires</div>
+                            <div class="stat-value" id="myComments">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- My Posts -->
+                <div class="profile-posts-section">
+                    <h3>Mes publications</h3>
+                    <div id="profilePosts" class="posts-feed">
+                        <!-- User posts will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Friends Section -->
+        <div id="friendsSection" class="section-content">
+            <div class="friends-container">
+                <div class="section-header">
+                    <h2>Amis</h2>
+                    <button class="btn-primary" id="findFriendsBtn">Trouver des amis</button>
+                </div>
+
+                <!-- Friend Requests -->
+                <div class="friends-card">
+                    <h3>Demandes d'amitié</h3>
+                    <div id="friendRequests" class="friend-requests-list">
+                        <!-- Friend requests will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Friends List -->
+                <div class="friends-card">
+                    <h3>Mes amis</h3>
+                    <div id="friendsList" class="friends-list">
+                        <!-- Friends will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Messages Section -->
+        <div id="messagesSection" class="section-content">
+            <div class="messages-container">
+                <div class="messages-sidebar">
+                    <div class="messages-header">
+                        <h3>Messages</h3>
+                    </div>
+                    <div id="conversationsList" class="conversations-list">
+                        <!-- Conversations will be loaded here -->
+                    </div>
+                </div>
+                <div class="messages-main">
+                    <div class="messages-placeholder" id="messagesPlaceholder">
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                        </svg>
+                        <p>Sélectionnez une conversation pour commencer</p>
+                    </div>
+                    <div class="chat-container" id="chatContainer" style="display: none;">
+                        <div class="chat-header" id="chatHeader">
+                            <img src="/placeholder.svg?height=40&width=40" alt="Photo" class="profile-pic-small">
+                            <div class="chat-user-info">
+                                <div class="chat-user-name" id="chatUserName">Nom d'utilisateur</div>
+                            </div>
+                        </div>
+                        <div class="chat-messages" id="chatMessages">
+                            <!-- Messages will be loaded here -->
+                        </div>
+                        <div class="chat-input-container">
+                            <button class="chat-attach-btn" id="chatAttachBtn">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
+                                </svg>
+                            </button>
+                            <input type="text" id="chatInput" placeholder="Tapez un message...">
+                            <button class="send-btn" id="sendMessageBtn">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notifications Section -->
+        <div id="notificationsSection" class="section-content">
+            <div class="notifications-container">
+                <div class="section-header">
+                    <h2>Notifications</h2>
+                    <button class="btn-text" id="markAllReadBtn">Tout marquer comme lu</button>
+                </div>
+                <div id="notificationsList" class="notifications-list">
+                    <!-- Notifications will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Section (for admin/mod only) -->
+        <div id="dashboardSection" class="section-content">
+            <div class="dashboard-container">
+                <div class="section-header">
+                    <h2>Tableau de bord</h2>
+                    <select id="dashboardTimeRange" class="dashboard-select">
+                        <option value="7">7 derniers jours</option>
+                        <option value="30" selected>30 derniers jours</option>
+                        <option value="90">90 derniers jours</option>
+                    </select>
+                </div>
+
+                <!-- Stats Overview -->
+                <div class="dashboard-stats">
+                    <div class="dashboard-card">
+                        <div class="dashboard-card-header">
+                            <h3>Utilisateurs</h3>
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                            </svg>
+                        </div>
+                        <div class="dashboard-card-value" id="dashTotalUsers">247</div>
+                        <div class="dashboard-card-change positive">+12% ce mois</div>
+                    </div>
+
+                    <div class="dashboard-card">
+                        <div class="dashboard-card-header">
+                            <h3>Posts</h3>
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                            </svg>
+                        </div>
+                        <div class="dashboard-card-value" id="dashTotalPosts">1,532</div>
+                        <div class="dashboard-card-change positive">+8% ce mois</div>
+                    </div>
+
+                    <div class="dashboard-card" id="dashboardEngagementCard">
+                        <div class="dashboard-card-header">
+                            <h3>Engagement</h3>
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+                            </svg>
+                        </div>
+                        <div class="dashboard-card-value">8,421</div>
+                        <div class="dashboard-card-change positive">+15% ce mois</div>
+                    </div>
+
+                    <div class="dashboard-card" id="dashboardActiveUsersCard">
+                        <div class="dashboard-card-header">
+                            <h3>Actifs</h3>
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 6 12 12 16 14"></polyline>
+                            </svg>
+                        </div>
+                        <div class="dashboard-card-value">189</div>
+                        <div class="dashboard-card-change positive">+23% ce mois</div>
+                    </div>
+                </div>
+
+                <!-- Admin-only: User Management -->
+                <div class="dashboard-section" id="userManagementSection" style="display: none;">
+                    <h3>Gestion des utilisateurs</h3>
+                    <div class="management-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Utilisateur</th>
+                                    <th>Email</th>
+                                    <th>Rôle</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody">
+                                <!-- Users will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Mod-only: Reported Content -->
+                <div class="dashboard-section" id="reportedContentSection" style="display: none;">
+                    <h3>Contenu signalé</h3>
+                    <div id="reportedContentList" class="reported-list">
+                        <!-- Reported content will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Added custom modals replacing alert, prompt, and confirm -->
+
+    <!-- Alert Modal -->
+    <div class="modal" id="alertModal">
+        <div class="modal-content modal-sm">
+            <div class="modal-header">
+                <h2 id="alertTitle">Alerte</h2>
+                <button class="close-modal" data-modal="alertModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="alertMessage">Message d'alerte</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-primary" id="alertOk">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirm Modal -->
+    <div class="modal" id="confirmModal">
+        <div class="modal-content modal-sm">
+            <div class="modal-header">
+                <h2 id="confirmTitle">Confirmation</h2>
+                <button class="close-modal" data-modal="confirmModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="confirmMessage">Message de confirmation</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="confirmCancel">Annuler</button>
+                <button class="btn-primary" id="confirmOk">Confirmer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Post Modal -->
+    <div class="modal" id="addPostModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Créer un post</h2>
+                <button class="close-modal" data-modal="addPostModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="addPostForm">
+                    <div class="form-group">
+                        <label for="postDescription">Description</label>
+                        <textarea id="postDescription" rows="5" placeholder="Quoi de neuf ?"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="postImage" class="file-label">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                <polyline points="21 15 16 10 5 21"></polyline>
+                            </svg>
+                            <span>Ajouter une image</span>
+                        </label>
+                        <input type="file" id="postImage" accept="image/*" style="display: none;">
+                    </div>
+                    <div id="postImagePreview" class="post-image-preview"></div>
+                    <button type="submit" class="btn-primary">Publier</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div class="modal" id="editProfileModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Modifier le profil</h2>
+                <button class="close-modal" data-modal="editProfileModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="editProfileForm">
+                    <div class="form-group">
+                        <label for="editNom">Nom</label>
+                        <input type="text" id="editNom" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editPrenom">Prénom</label>
+                        <input type="text" id="editPrenom">
+                    </div>
+                    <div class="form-group">
+                        <label for="editEmail">Email</label>
+                        <input type="email" id="editEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editSexe">Sexe</label>
+                        <select id="editSexe">
+                            <option value="">Non spécifié</option>
+                            <option value="M">Masculin</option>
+                            <option value="F">Féminin</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn-primary">Enregistrer</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Find Friends Modal -->
+    <div class="modal" id="findFriendsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Trouver des amis</h2>
+                <button class="close-modal" data-modal="findFriendsModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <input type="text" id="searchFriendsInput" placeholder="Rechercher par nom ou email...">
+                </div>
+                <div id="searchFriendsList" class="search-friends-list">
+                    <!-- Search results will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Comments Modal -->
+    <div class="modal" id="commentsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Commentaires</h2>
+                <button class="close-modal" data-modal="commentsModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="commentsList" class="comments-list">
+                    <!-- Comments will be loaded here -->
+                </div>
+                <form id="addCommentForm" class="add-comment-form">
+                    <input type="text" id="commentText" placeholder="Ajouter un commentaire..." required>
+                    <button type="submit" class="btn-primary">Envoyer</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Change Role Modal (Admin only) -->
+    <div class="modal" id="changeRoleModal">
+        <div class="modal-content modal-sm">
+            <div class="modal-header">
+                <h2>Changer le rôle</h2>
+                <button class="close-modal" data-modal="changeRoleModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="changeRoleForm">
+                    <div class="form-group">
+                        <label for="newRole">Nouveau rôle</label>
+                        <select id="newRole" required>
+                            <option value="user">Utilisateur</option>
+                            <option value="mod">Modérateur</option>
+                            <option value="admin">Administrateur</option>
+                        </select>
+                    </div>
+                    <input type="hidden" id="changeRoleUserId">
+                    <div class="modal-footer">
+                        <button type="button" class="btn-secondary" onclick="closeModal('changeRoleModal')">Annuler</button>
+                        <button type="submit" class="btn-primary">Confirmer</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="home.js"></script>
+</body>
+</html>
