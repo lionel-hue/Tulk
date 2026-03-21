@@ -11,10 +11,18 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use App\Services\NotificationService;
 use Illuminate\Support\Str;
 
 class PostController extends Controller
 {
+     protected $notificationService;
+
+     public function __construct(NotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
+
     // Create a new post - SIMPLE AND WORKING VERSION
     public function createPost(Request $request)
     {
