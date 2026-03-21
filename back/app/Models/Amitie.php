@@ -10,7 +10,7 @@ class Amitie extends Model
     use HasFactory;
 
     protected $table = 'Amitie';
-    public $timestamps = false;
+    public $timestamps = true;
     public $incrementing = false; // Since we have composite keys
 
     protected $fillable = [
