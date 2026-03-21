@@ -683,4 +683,74 @@ class NotificationService
                 ->toArray()
         ];
     }
+
+    // Add these new notification types to the Notification model constants first
+    // TYPE_PROFILE_LIKE = 'profile_like'
+    // TYPE_FOLLOW = 'follow'
+    // SUBTYPE_PROFILE_LIKED = 'profile_liked'
+    // SUBTYPE_STARTED_FOLLOWING = 'started_following'
+
+    /**
+     * Notify when someone likes a profile
+     */
+    public function sendProfileLikeNotification(
+        Utilisateur $profileOwner,
+        Utilisateur $liker,
+        bool $sendEmail = false
+    ) {
+        if ($profileOwner->id === $liker->id) {
+            return null;
+        }
+
+        return $this->send(
+            recipient: $profileOwner,
+            type: Notification::TYPE_PROFILE_LIKE,
+            subtype: Notification::SUBTYPE_PROFILE_LIKED,
+            title: 'Nouveau like sur votre profil! ❤️',
+            message: "{$liker->prenom} {$liker->nom} a aimé votre profil.",
+            sender: $liker,
+            relatedId: $liker->id,
+            relatedType: Utilisateur::class,
+            data: [
+                'liker_id' => $liker->id,
+                'liker_name' => "{$liker->prenom} {$liker->nom}",
+                'liker_image' => $liker->image
+            ],
+            sendEmail: $sendEmail,
+            priority: Notification::PRIORITY_NORMAL,
+            channel: Notification::CHANNEL_IN_APP
+        );
+    }
+
+    /**
+     * Notify when someone follows a user
+     */
+    public function sendFollowNotification(
+        Utilisateur $followedUser,
+        Utilisateur $follower,
+        bool $sendEmail = false
+    ) {
+        if ($followedUser->id === $follower->id) {
+            return null;
+        }
+
+        return $this->send(
+            recipient: $followedUser,
+            type: Notification::TYPE_FOLLOW,
+            subtype: Notification::SUBTYPE_STARTED_FOLLOWING,
+            title: 'Nouveau follower! 👥',
+            message: "{$follower->prenom} {$follower->nom} vous suit maintenant.",
+            sender: $follower,
+            relatedId: $follower->id,
+            relatedType: Utilisateur::class,
+            data: [
+                'follower_id' => $follower->id,
+                'follower_name' => "{$follower->prenom} {$follower->nom}",
+                'follower_image' => $follower->image
+            ],
+            sendEmail: $sendEmail,
+            priority: Notification::PRIORITY_NORMAL,
+            channel: Notification::CHANNEL_IN_APP
+        );
+    }
 }
