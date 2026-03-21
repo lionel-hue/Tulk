@@ -1,6 +1,5 @@
 <?php
 // back/app/Models/Notification.php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -17,6 +16,7 @@ class Notification extends Model
         'id_uti',
         'id_uti_from',
         'type',
+        'subtype',
         'title',
         'message',
         'related_id',
@@ -24,15 +24,55 @@ class Notification extends Model
         'data',
         'is_read',
         'email_sent',
-        'read_at'
+        'read_at',
+        'priority',
+        'channel'
     ];
 
     protected $casts = [
         'data' => 'array',
         'is_read' => 'boolean',
         'email_sent' => 'boolean',
-        'read_at' => 'datetime'
+        'read_at' => 'datetime',
     ];
+
+    // Notification Types
+    const TYPE_POST = 'post';
+    const TYPE_LIKE = 'like';
+    const TYPE_COMMENT = 'comment';
+    const TYPE_FRIEND = 'friend';
+    const TYPE_MENTION = 'mention';
+    const TYPE_SYSTEM = 'system';
+    const TYPE_WELCOME = 'welcome';
+    const TYPE_SECURITY = 'security';
+
+    // Notification Subtypes
+    const SUBTYPE_POST_CREATED = 'post_created';
+    const SUBTYPE_POST_UPDATED = 'post_updated';
+    const SUBTYPE_POST_DELETED = 'post_deleted';
+    const SUBTYPE_LIKE_RECEIVED = 'like_received';
+    const SUBTYPE_COMMENT_RECEIVED = 'comment_received';
+    const SUBTYPE_COMMENT_REPLY = 'comment_reply';
+    const SUBTYPE_FRIEND_REQUEST = 'friend_request';
+    const SUBTYPE_FRIEND_ACCEPTED = 'friend_accepted';
+    const SUBTYPE_FRIEND_REMOVED = 'friend_removed';
+    const SUBTYPE_MENTION_POST = 'mention_post';
+    const SUBTYPE_MENTION_COMMENT = 'mention_comment';
+    const SUBTYPE_WELCOME = 'welcome';
+    const SUBTYPE_LOGIN_ALERT = 'login_alert';
+    const SUBTYPE_PASSWORD_CHANGED = 'password_changed';
+    const SUBTYPE_SYSTEM_ANNOUNCEMENT = 'system_announcement';
+
+    // Priority Levels
+    const PRIORITY_LOW = 'low';
+    const PRIORITY_NORMAL = 'normal';
+    const PRIORITY_HIGH = 'high';
+    const PRIORITY_CRITICAL = 'critical';
+
+    // Channels
+    const CHANNEL_IN_APP = 'in_app';
+    const CHANNEL_EMAIL = 'email';
+    const CHANNEL_BOTH = 'both';
 
     // Relationship with recipient user
     public function utilisateur()
@@ -61,18 +101,20 @@ class Notification extends Model
         ]);
     }
 
-    // Get notification icon based on type
+    // Get notification icon based on type and subtype
     public function getIconAttribute()
     {
         $icons = [
-            'like' => '❤️',
-            'comment' => '💬',
-            'friend_request' => '👥',
-            'friend_accepted' => '✅',
-            'mention' => '📢',
-            'welcome' => '🎉',
-            'system' => '⚙️',
+            self::TYPE_LIKE => '❤️',
+            self::TYPE_COMMENT => '💬',
+            self::TYPE_FRIEND => '👥',
+            self::TYPE_MENTION => '📢',
+            self::TYPE_WELCOME => '🎉',
+            self::TYPE_SYSTEM => '⚙️',
+            self::TYPE_POST => '📝',
+            self::TYPE_SECURITY => '🔒',
         ];
+
         return $icons[$this->type] ?? '🔔';
     }
 
@@ -80,14 +122,60 @@ class Notification extends Model
     public function getColorAttribute()
     {
         $colors = [
-            'like' => 'text-red-500 bg-red-500/10',
-            'comment' => 'text-blue-500 bg-blue-500/10',
-            'friend_request' => 'text-purple-500 bg-purple-500/10',
-            'friend_accepted' => 'text-green-500 bg-green-500/10',
-            'mention' => 'text-yellow-500 bg-yellow-500/10',
-            'welcome' => 'text-pink-500 bg-pink-500/10',
-            'system' => 'text-gray-500 bg-gray-500/10',
+            self::TYPE_LIKE => 'text-red-500 bg-red-500/10 border-red-500/20',
+            self::TYPE_COMMENT => 'text-blue-500 bg-blue-500/10 border-blue-500/20',
+            self::TYPE_FRIEND => 'text-purple-500 bg-purple-500/10 border-purple-500/20',
+            self::TYPE_MENTION => 'text-yellow-500 bg-yellow-500/10 border-yellow-500/20',
+            self::TYPE_WELCOME => 'text-pink-500 bg-pink-500/10 border-pink-500/20',
+            self::TYPE_SYSTEM => 'text-gray-500 bg-gray-500/10 border-gray-500/20',
+            self::TYPE_POST => 'text-green-500 bg-green-500/10 border-green-500/20',
+            self::TYPE_SECURITY => 'text-orange-500 bg-orange-500/10 border-orange-500/20',
         ];
-        return $colors[$this->type] ?? 'text-gray-500 bg-gray-500/10';
+
+        return $colors[$this->type] ?? 'text-gray-500 bg-gray-500/10 border-gray-500/20';
+    }
+
+    // Get notification badge color
+    public function getBadgeColorAttribute()
+    {
+        $colors = [
+            self::PRIORITY_LOW => 'bg-gray-500',
+            self::PRIORITY_NORMAL => 'bg-blue-500',
+            self::PRIORITY_HIGH => 'bg-orange-500',
+            self::PRIORITY_CRITICAL => 'bg-red-500',
+        ];
+
+        return $colors[$this->priority ?? self::PRIORITY_NORMAL] ?? 'bg-blue-500';
+    }
+
+    // Check if notification should send email
+    public function shouldSendEmail()
+    {
+        return $this->channel === self::CHANNEL_EMAIL ||
+            $this->channel === self::CHANNEL_BOTH;
+    }
+
+    // Scope for unread notifications
+    public function scopeUnread($query)
+    {
+        return $query->where('is_read', false);
+    }
+
+    // Scope for specific user
+    public function scopeForUser($query, $userId)
+    {
+        return $query->where('id_uti', $userId);
+    }
+
+    // Scope for priority
+    public function scopePriority($query, $priority)
+    {
+        return $query->where('priority', $priority);
+    }
+
+    // Scope for date range
+    public function scopeDateRange($query, $startDate, $endDate)
+    {
+        return $query->whereBetween('created_at', [$startDate, $endDate]);
     }
 }
