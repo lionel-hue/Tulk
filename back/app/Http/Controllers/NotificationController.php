@@ -1,6 +1,5 @@
 <?php
 // back/app/Http/Controllers/NotificationController.php
-
 namespace App\Http\Controllers;
 
 use App\Models\Notification;
@@ -25,11 +24,15 @@ class NotificationController extends Controller
         $user = Auth::user();
         $limit = $request->get('limit', 20);
         $unreadOnly = $request->get('unread_only', false);
+        $type = $request->get('type', null);
+        $priority = $request->get('priority', null);
 
         $notifications = $this->notificationService->getUserNotifications(
             $user->id,
             $limit,
-            $unreadOnly
+            $unreadOnly,
+            $type,
+            $priority
         );
 
         $unreadCount = $this->notificationService->getUnreadCount($user->id);
@@ -40,14 +43,18 @@ class NotificationController extends Controller
                 return [
                     'id' => $notification->id,
                     'type' => $notification->type,
+                    'subtype' => $notification->subtype,
                     'title' => $notification->title,
                     'message' => $notification->message,
                     'is_read' => $notification->is_read,
                     'email_sent' => $notification->email_sent,
+                    'priority' => $notification->priority,
+                    'channel' => $notification->channel,
                     'created_at' => $notification->created_at->diffForHumans(),
                     'created_at_full' => $notification->created_at->toDateTimeString(),
                     'icon' => $notification->icon,
                     'color' => $notification->color,
+                    'badge_color' => $notification->badge_color,
                     'sender' => $notification->utilisateurFrom ? [
                         'id' => $notification->utilisateurFrom->id,
                         'nom' => $notification->utilisateurFrom->nom,
@@ -70,7 +77,6 @@ class NotificationController extends Controller
     {
         $user = Auth::user();
         $count = $this->notificationService->getUnreadCount($user->id);
-
         return response()->json([
             'success' => true,
             'count' => $count,
@@ -83,18 +89,14 @@ class NotificationController extends Controller
     public function markAsRead($id)
     {
         $user = Auth::user();
-        $notification = Notification::where('id', $id)
-            ->where('id_uti', $user->id)
-            ->first();
+        $success = $this->notificationService->markAsRead($user->id, $id);
 
-        if (!$notification) {
+        if (!$success) {
             return response()->json([
                 'success' => false,
                 'message' => 'Notification non trouvée'
             ], 404);
         }
-
-        $notification->markAsRead();
 
         return response()->json([
             'success' => true,
@@ -109,7 +111,6 @@ class NotificationController extends Controller
     {
         $user = Auth::user();
         $count = $this->notificationService->markAllAsRead($user->id);
-
         return response()->json([
             'success' => true,
             'message' => "{$count} notifications marquées comme lues",
@@ -123,18 +124,14 @@ class NotificationController extends Controller
     public function destroy($id)
     {
         $user = Auth::user();
-        $notification = Notification::where('id', $id)
-            ->where('id_uti', $user->id)
-            ->first();
+        $success = $this->notificationService->deleteNotification($user->id, $id);
 
-        if (!$notification) {
+        if (!$success) {
             return response()->json([
                 'success' => false,
                 'message' => 'Notification non trouvée'
             ], 404);
         }
-
-        $notification->delete();
 
         return response()->json([
             'success' => true,
@@ -150,6 +147,9 @@ class NotificationController extends Controller
         $user = Auth::user();
         $count = Notification::where('id_uti', $user->id)->delete();
 
+        // Clear cache
+        \Illuminate\Support\Facades\Cache::forget('notification_count_' . $user->id);
+
         return response()->json([
             'success' => true,
             'message' => "{$count} notifications supprimées",
@@ -158,18 +158,17 @@ class NotificationController extends Controller
     }
 
     /**
-     * Delete old notifications
+     * Get notification statistics
      */
-    public function deleteOld(Request $request)
+    public function stats()
     {
         $user = Auth::user();
-        $days = $request->get('days', 30);
-        $count = $this->notificationService->deleteOldNotifications($user->id, $days);
+        $days = request()->get('days', 30);
+        $stats = $this->notificationService->getNotificationStats($user->id, $days);
 
         return response()->json([
             'success' => true,
-            'message' => "{$count} anciennes notifications supprimées",
-            'count' => $count,
+            'stats' => $stats,
         ]);
     }
 }

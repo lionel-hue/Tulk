@@ -336,12 +336,12 @@
                                     a commenté votre publication
                                 @break
 
-                                @case('friend_request')
-                                    souhaite devenir votre ami
-                                @break
-
-                                @case('friend_accepted')
-                                    a accepté votre demande d'ami
+                                @case('friend')
+                                    @if ($notification->subtype === 'friend_request')
+                                        souhaite devenir votre ami
+                                    @elseif($notification->subtype === 'friend_accepted')
+                                        a accepté votre demande d'ami
+                                    @endif
                                 @break
 
                                 @case('mention')
@@ -365,12 +365,21 @@
                             <span class="detail-value">"{{ $notification->data['comment_preview'] }}..."</span>
                         </div>
                     @endif
+
                     @if (isset($notification->data['context']))
                         <div class="detail-row">
                             <span class="detail-label">Contexte</span>
                             <span class="detail-value">{{ $notification->data['context'] }}</span>
                         </div>
                     @endif
+
+                    @if (isset($notification->data['post_description']))
+                        <div class="detail-row">
+                            <span class="detail-label">Publication</span>
+                            <span class="detail-value">"{{ $notification->data['post_description'] }}..."</span>
+                        </div>
+                    @endif
+
                     <div class="detail-row">
                         <span class="detail-label">Date</span>
                         <span class="detail-value">{{ $notification->created_at->format('d/m/Y à H:i') }}</span>
