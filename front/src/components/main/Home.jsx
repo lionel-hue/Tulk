@@ -4,6 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Header from '../Header';
 import SideMenuNav from '../SideMenuNav';
+import Notifications from './Notifications';
 import Amitie from './Amitie';
 import {
     Heart,
@@ -824,21 +825,13 @@ const Home = () => {
         </div>
     );
 
-    const renderNotificationsSection = () => (
-        <div className="section-content">
-            <div className="notifications-container">
-                <div className="section-header">
-                    <h2>Notifications</h2>
-                    <button className="btn-text">Tout marquer comme lu</button>
-                </div>
-                <div className="notifications-list">
-                    <div className="text-center py-8 text-gray-400">
-                        Aucune notification
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
+   const renderNotificationsSection = () => (
+  <Notifications 
+    searchQuery={searchQuery}
+    onSearchFocus={handleSearchFocus}
+    onSearchBlur={handleSearchBlur}
+  />
+);
 
     const renderDashboardSection = () => (
         <div className="section-content">
