@@ -886,7 +886,7 @@ const Profile = () => {
       </div>
       <Modal modal={modal} setModal={setModal} />
     </div>
-  )`
+  )
 }
 
 export default Profile
