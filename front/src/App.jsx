@@ -10,11 +10,13 @@ import Login from './components/auth/Login'
 import Signup from './components/auth/Signup'
 import Home from './components/main/Home'
 import Profile from './components/main/Profile'
+import SearchResults from './components/main/SearchResults'
 import './style/app.css'
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth()
+
   if (loading) {
     return (
       <div className='min-h-screen bg-black flex items-center justify-center'>
@@ -22,12 +24,14 @@ const ProtectedRoute = ({ children }) => {
       </div>
     )
   }
+
   return user ? children : <Navigate to='/login' />
 }
 
 // Public Route Component (redirect to home if already logged in)
 const PublicRoute = ({ children }) => {
   const { user, loading } = useAuth()
+
   if (loading) {
     return (
       <div className='min-h-screen bg-black flex items-center justify-center'>
@@ -35,6 +39,7 @@ const PublicRoute = ({ children }) => {
       </div>
     )
   }
+
   return !user ? children : <Navigate to='/home' />
 }
 
@@ -58,6 +63,17 @@ function AppRoutes () {
             </PublicRoute>
           }
         />
+
+        {/* Search Route - MUST come before /home/* to avoid conflicts */}
+        <Route
+          path='/search'
+          element={
+            <ProtectedRoute>
+              <SearchResults />
+            </ProtectedRoute>
+          }
+        />
+
         {/* Profile route - MUST come before /home/* to avoid conflicts */}
         <Route
           path='/profile/:userId?'
@@ -67,6 +83,7 @@ function AppRoutes () {
             </ProtectedRoute>
           }
         />
+
         {/* Home route with nested sections */}
         <Route
           path='/home/*'
@@ -76,7 +93,8 @@ function AppRoutes () {
             </ProtectedRoute>
           }
         />
-        {/* Individual section routes - REMOVED duplicate /profile route */}
+
+        {/* Individual section routes */}
         <Route
           path='/feed'
           element={
@@ -117,6 +135,7 @@ function AppRoutes () {
             </ProtectedRoute>
           }
         />
+
         <Route path='/' element={<Navigate to='/home' />} />
       </Routes>
     </div>
