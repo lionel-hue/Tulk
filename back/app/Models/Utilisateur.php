@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Laravel\Sanctum\HasApiTokens;
 
-
 class Utilisateur extends Model
 {
     use HasFactory, HasApiTokens;
@@ -21,7 +20,12 @@ class Utilisateur extends Model
         'image',
         'sexe',
         'mdp',
-        'email'
+        'email',
+        'bio',
+        'location',
+        'website',
+        'banner',
+        'created_at'
     ];
 
     // User's posts
@@ -47,7 +51,6 @@ class Utilisateur extends Model
     {
         $amis1 = $this->amities1()->where('statut', 'ami')->with('utilisateur2')->get()->pluck('utilisateur2');
         $amis2 = $this->amities2()->where('statut', 'ami')->with('utilisateur1')->get()->pluck('utilisateur1');
-        
         return $amis1->merge($amis2);
     }
 }

@@ -15,7 +15,6 @@ import './style/app.css'
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth()
-
   if (loading) {
     return (
       <div className='min-h-screen bg-black flex items-center justify-center'>
@@ -23,14 +22,12 @@ const ProtectedRoute = ({ children }) => {
       </div>
     )
   }
-
   return user ? children : <Navigate to='/login' />
 }
 
 // Public Route Component (redirect to home if already logged in)
 const PublicRoute = ({ children }) => {
   const { user, loading } = useAuth()
-
   if (loading) {
     return (
       <div className='min-h-screen bg-black flex items-center justify-center'>
@@ -38,7 +35,6 @@ const PublicRoute = ({ children }) => {
       </div>
     )
   }
-
   return !user ? children : <Navigate to='/home' />
 }
 
@@ -62,7 +58,7 @@ function AppRoutes () {
             </PublicRoute>
           }
         />
-
+        {/* Profile route - MUST come before /home/* to avoid conflicts */}
         <Route
           path='/profile/:userId?'
           element={
@@ -71,7 +67,6 @@ function AppRoutes () {
             </ProtectedRoute>
           }
         />
-
         {/* Home route with nested sections */}
         <Route
           path='/home/*'
@@ -81,17 +76,9 @@ function AppRoutes () {
             </ProtectedRoute>
           }
         />
-        {/* Individual section routes */}
+        {/* Individual section routes - REMOVED duplicate /profile route */}
         <Route
           path='/feed'
-          element={
-            <ProtectedRoute>
-              <Home />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path='/profile'
           element={
             <ProtectedRoute>
               <Home />
