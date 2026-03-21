@@ -1,10 +1,10 @@
 // front/src/components/Notifications.jsx
 
 import React, { useState, useEffect } from 'react'
-import { useAuth } from '../contexts/AuthContext'
-import api from '../utils/api'
-import Modal, { useModal } from './Modal'
-import { getImageUrl } from '../utils/imageUrls'
+import { useAuth } from '../../contexts/AuthContext'
+import api from '../../utils/api'
+import Modal, { useModal } from '.././Modal'
+import { getImageUrl } from '../../utils/imageUrls'
 import {
   Bell,
   Check,
