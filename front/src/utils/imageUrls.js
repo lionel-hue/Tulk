@@ -1,22 +1,27 @@
 export const getImageUrl = (imagePath) => {
-    if (!imagePath) return null;
+    if (!imagePath) {
+        console.warn('getImageUrl: No image path provided');
+        return null;
+    }
     
-    // If it's already a full URL, return as is
     if (imagePath.startsWith('http')) {
+        console.log('getImageUrl: Full URL returned:', imagePath);
         return imagePath;
     }
     
-    // If path already starts with /storage/, don't add it again
     if (imagePath.startsWith('/storage/')) {
         const baseUrl = import.meta.env.VITE_API_URL
             ? import.meta.env.VITE_API_URL.replace('/api', '')
             : 'http://localhost:8000';
-        return `${baseUrl}${imagePath}`;
+        const finalUrl = `${baseUrl}${imagePath}`;
+        console.log('getImageUrl: Storage path returned:', finalUrl);
+        return finalUrl;
     }
     
-    // For database paths (like 'images/filename.jpg'), prepend /storage/
     const baseUrl = import.meta.env.VITE_API_URL
         ? import.meta.env.VITE_API_URL.replace('/api', '')
         : 'http://localhost:8000';
-    return `${baseUrl}/storage/${imagePath}`;
+    const finalUrl = `${baseUrl}/storage/${imagePath}`;
+    console.log('getImageUrl: Final URL:', finalUrl);
+    return finalUrl;
 };
