@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\AmitieController;
 use App\Http\Middleware\ThrottleLogin;
+use App\Controller\App\Http\Controllers\ProfileController;
 
 Route::post('/login', [AuthController::class, 'login'])->middleware(ThrottleLogin::class);
 Route::post('register', [AuthController::class, 'register']);
@@ -37,4 +38,14 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/accept', [AmitieController::class, 'acceptRequest']);
         Route::post('/remove', [AmitieController::class, 'removeFriend']);
     });
+
+    // Profile routes
+    Route::get('/profile/{userId?}', [ProfileController::class, 'getProfile']);
+    Route::put('/profile', [ProfileController::class, 'updateProfile']);
+    Route::post('/profile/image', [ProfileController::class, 'uploadImage']);
+    Route::post('/profile/banner', [ProfileController::class, 'uploadBanner']);
+    Route::get('/profile/{userId}/posts', [ProfileController::class, 'getUserPosts']);
+
+
+    
 });
