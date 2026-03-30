@@ -68,4 +68,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/profile/{userId}/follow', [FollowController::class, 'unfollow']);
     Route::get('/profile/{userId}/followers', [FollowController::class, 'getFollowers']);
     Route::get('/profile/{userId}/following', [FollowController::class, 'getFollowing']);
+
+    // Message routes
+    Route::prefix('messages')->group(function () {
+        Route::get('/conversations', [App\Http\Controllers\MessageController::class, 'getConversations']);
+        Route::get('/{userId}', [App\Http\Controllers\MessageController::class, 'getMessages']);
+        Route::post('/', [App\Http\Controllers\MessageController::class, 'sendMessage']);
+    });
 });

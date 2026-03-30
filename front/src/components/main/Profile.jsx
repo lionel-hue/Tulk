@@ -919,19 +919,11 @@ const Profile = () => {
                           key={friend.id}
                           className='bg-[#1f1f1f] rounded-xl p-4 text-center hover:bg-[#262626] transition-all cursor-pointer'
                         >
-                          <div className='w-16 h-16 mx-auto rounded-full overflow-hidden mb-3'>
-                            {friend.image ? (
-                              <img
-                                src={getImageUrl(friend.image)}
-                                alt={`${friend.prenom} ${friend.nom}`}
-                                className='w-full h-full object-cover'
-                              />
-                            ) : (
-                              <div className='w-full h-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold'>
-                                {getInitials(friend)}
-                              </div>
-                            )}
-                          </div>
+                          <Avatar 
+                            user={friend} 
+                            size='w-16 h-16' 
+                            className='mx-auto mb-3' 
+                          />
                           <p className='text-white font-medium text-sm truncate'>
                             {friend.prenom} {friend.nom}
                           </p>

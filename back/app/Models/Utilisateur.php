@@ -107,4 +107,16 @@ class Utilisateur extends Model
     {
         return $this->following()->where('following_id', $userId)->exists();
     }
+
+    // Messages sent by this user
+    public function messagesSent()
+    {
+        return $this->hasMany(Message::class, 'id_uti_1');
+    }
+
+    // Messages received by this user
+    public function messagesReceived()
+    {
+        return $this->hasMany(Message::class, 'id_uti_2');
+    }
 }
