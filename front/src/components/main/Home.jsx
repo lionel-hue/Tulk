@@ -24,6 +24,24 @@ import Modal, { useModal } from '../Modal'
 import Avatar from '../common/Avatar'
 import { getImageUrl } from '../../utils/imageUrls'
 
+const PostImage = ({ src }) => {
+  const [hasError, setHasError] = useState(false)
+  const imageUrl = getImageUrl(src)
+
+  if (!imageUrl || hasError) return null
+
+  return (
+    <div className='post-image-container'>
+      <img
+        src={imageUrl}
+        alt='Post'
+        className='post-image'
+        onError={() => setHasError(true)}
+      />
+    </div>
+  )
+}
+
 const Home = () => {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
@@ -492,19 +510,7 @@ const Home = () => {
         <p>{post.description}</p>
       </div>
 
-      {post.image && (
-        <div className='post-image-container'>
-          <img
-            src={getImageUrl(post.image)}
-            alt='Post'
-            className='post-image'
-            onError={e => {
-              console.error('Image failed to load:', e.target.src)
-              e.target.style.display = 'none'
-            }}
-          />
-        </div>
-      )}
+      <PostImage src={post.image} />
 
       <div className='post-actions'>
         <button

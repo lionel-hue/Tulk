@@ -1,27 +1,19 @@
 export const getImageUrl = (imagePath) => {
-    if (!imagePath) {
-        console.warn('getImageUrl: No image path provided');
+    if (!imagePath || imagePath === '' || imagePath.endsWith('/')) {
+        console.warn('getImageUrl: Invalid or incomplete image path:', imagePath);
         return null;
     }
     
     if (imagePath.startsWith('http')) {
-        console.log('getImageUrl: Full URL returned:', imagePath);
         return imagePath;
-    }
-    
-    if (imagePath.startsWith('/storage/')) {
-        const baseUrl = import.meta.env.VITE_API_URL
-            ? import.meta.env.VITE_API_URL.replace('/api', '')
-            : 'http://localhost:8000';
-        const finalUrl = `${baseUrl}${imagePath}`;
-        console.log('getImageUrl: Storage path returned:', finalUrl);
-        return finalUrl;
     }
     
     const baseUrl = import.meta.env.VITE_API_URL
         ? import.meta.env.VITE_API_URL.replace('/api', '')
         : 'http://localhost:8000';
-    const finalUrl = `${baseUrl}/storage/${imagePath}`;
-    console.log('getImageUrl: Final URL:', finalUrl);
+        
+    const cleanPath = imagePath.startsWith('/') ? imagePath : `/storage/${imagePath}`;
+    const finalUrl = `${baseUrl}${cleanPath}`;
+    
     return finalUrl;
 };

@@ -89,7 +89,9 @@ class FollowController extends Controller
                 ], 404);
             }
 
-            $follow->delete();
+            Follow::where('follower_id', $user->id)
+                ->where('following_id', $userId)
+                ->delete();
 
             return response()->json([
                 'success' => true,

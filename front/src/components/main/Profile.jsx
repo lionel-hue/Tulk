@@ -41,6 +41,7 @@ const Profile = () => {
   const [editData, setEditData] = useState({})
   const [uploadingImage, setUploadingImage] = useState(false)
   const [uploadingBanner, setUploadingBanner] = useState(false)
+  const [bannerError, setBannerError] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [likingProfile, setLikingProfile] = useState(false)
   const [following, setFollowing] = useState(false)
@@ -483,13 +484,23 @@ const Profile = () => {
           {/* Banner Section */}
           <div className='relative h-64 md:h-80 lg:h-96 overflow-hidden'>
             <div
-              className='w-full h-full bg-cover bg-center'
+              className='w-full h-full bg-cover bg-center transition-all duration-500'
               style={{
-                backgroundImage: profile.banner
-                  ? `url(${getImageUrl(profile.banner)})`
-                  : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+                backgroundImage:
+                  profile.banner && !bannerError
+                    ? `url(${getImageUrl(profile.banner)})`
+                    : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
               }}
             >
+              {profile.banner && (
+                <img
+                  src={getImageUrl(profile.banner)}
+                  alt=''
+                  className='hidden'
+                  onError={() => setBannerError(true)}
+                  onLoad={() => setBannerError(false)}
+                />
+              )}
               <div className='absolute inset-0 bg-black/30'></div>
             </div>
             {isOwner && (

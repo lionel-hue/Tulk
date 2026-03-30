@@ -7,6 +7,8 @@ use App\Http\Controllers\PostController;
 use App\Http\Controllers\AmitieController;
 use App\Http\Middleware\ThrottleLogin;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\FollowController;
+use App\Http\Controllers\ProfileLikeController;
 
 Route::post('/login', [AuthController::class, 'login'])->middleware(ThrottleLogin::class);
 Route::post('register', [AuthController::class, 'register']);

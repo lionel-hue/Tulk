@@ -137,7 +137,10 @@ class AmitieController extends Controller
             );
         }
 
-        $friendship->delete();
+        // Use query builder for deletion to handle composite keys correctly
+        Amitie::where('id_1', $friendship->id_1)
+            ->where('id_2', $friendship->id_2)
+            ->delete();
 
         return response()->json([
             'success' => true,

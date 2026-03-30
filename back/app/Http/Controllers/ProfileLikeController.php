@@ -38,7 +38,9 @@ class ProfileLikeController extends Controller
             
             if ($existingLike) {
                 // Unlike
-                $existingLike->delete();
+                ProfileLike::where('id_uti', $user->id)
+                    ->where('id_uti_profile', $userId)
+                    ->delete();
                 $liked = false;
             } else {
                 // Like
