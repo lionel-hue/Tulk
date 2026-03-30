@@ -6,6 +6,7 @@ import Header from '../Header'
 import SideMenuNav from '../SideMenuNav'
 import Notifications from './Notifications'
 import Amitie from './Amitie'
+import Messages from './Messages'
 import {
   Heart,
   Share,
@@ -791,28 +792,7 @@ const Home = () => {
     />
   )
 
-  const renderMessagesSection = () => (
-    <div className='section-content'>
-      <div className='messages-container'>
-        <div className='messages-sidebar'>
-          <div className='messages-header'>
-            <h3>Messages</h3>
-          </div>
-          <div className='conversations-list'>
-            <div className='text-center py-8 text-gray-400'>
-              Aucune conversation
-            </div>
-          </div>
-        </div>
-        <div className='messages-main'>
-          <div className='messages-placeholder'>
-            <MessageCircle size={48} className='mx-auto text-gray-400 mb-4' />
-            <p>Sélectionnez une conversation pour commencer</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
+  const renderMessagesSection = () => <Messages />
 
   const renderNotificationsSection = () => (
     <Notifications
