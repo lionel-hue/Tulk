@@ -24,9 +24,10 @@ import {
 } from 'lucide-react'
 import Header from '../Header'
 import SideMenuNav from '../SideMenuNav'
+import Avatar from '../common/Avatar'
 
 const Profile = () => {
-  const { user: currentUser } = useAuth()
+  const { user: currentUser, updateUser } = useAuth()
   const { userId } = useParams()
   const navigate = useNavigate()
   const location = useLocation()
@@ -146,6 +147,7 @@ const Profile = () => {
       })
       if (response.data.success) {
         setProfile(prev => ({ ...prev, image: response.data.image_url }))
+        updateUser({ image: response.data.image_url })
         setModal({
           show: true,
           type: 'success',
@@ -207,6 +209,7 @@ const Profile = () => {
       const response = await api.put('/profile', submitData)
       if (response.data.success) {
         setProfile(prev => ({ ...prev, ...response.data.user }))
+        updateUser(response.data.user)
         setIsEditing(false)
         setModal({
           show: true,
@@ -519,26 +522,7 @@ const Profile = () => {
                 {/* Avatar */}
                 <div className='relative group'>
                   <div className='w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-4 border-[#141414] shadow-2xl relative'>
-                    {profile.image ? (
-                      <>
-                        <img
-                          src={getImageUrl(profile.image)}
-                          alt={`${profile.prenom} ${profile.nom}`}
-                          className='w-full h-full object-cover'
-                          onError={e => {
-                            e.target.style.display = 'none'
-                            e.target.nextElementSibling.style.display = 'flex'
-                          }}
-                        />
-                        <div className='hidden w-full h-full rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white text-3xl md:text-4xl font-bold'>
-                          {getInitials(profile)}
-                        </div>
-                      </>
-                    ) : (
-                      <div className='w-full h-full rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white text-3xl md:text-4xl font-bold'>
-                        {getInitials(profile)}
-                      </div>
-                    )}
+                    <Avatar user={profile} size='w-full h-full' />
                   </div>
                   {isOwner && (
                     <button

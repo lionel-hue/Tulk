@@ -1,4 +1,3 @@
-// components/Header.jsx
 import React, { useState, useEffect, useRef } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
@@ -15,7 +14,7 @@ import {
   X
 } from 'lucide-react'
 import Modal, { useModal } from './Modal'
-import { getImageUrl } from '../utils/imageUrls'
+import Avatar from './common/Avatar'
 
 const Header = ({
   sidebarOpen,
@@ -28,7 +27,6 @@ const Header = ({
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false)
   const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery || '')
   const navigate = useNavigate()
-  const location = useLocation()
   const profileDropdownRef = useRef(null)
   const searchInputRef = useRef(null)
   const { modal, setModal, confirm } = useModal()
@@ -38,68 +36,11 @@ const Header = ({
     setLocalSearchQuery(searchQuery || '')
   }, [searchQuery])
 
-  // Get the user's profile image URL with fallback on error
-  const getUserAvatar = (size = 'w-full h-full') => {
-    const initials = `${user?.prenom?.[0] || ''}${
-      user?.nom?.[0] || ''
-    }`.toUpperCase()
-
-    if (user?.image) {
-      const imageUrl = getImageUrl(user.image)
-      return (
-        <>
-          <img
-            src={imageUrl}
-            alt='Profile'
-            className={`${size} rounded-full object-cover`}
-            onError={e => {
-              e.target.style.display = 'none'
-              e.target.nextElementSibling?.style.setProperty(
-                'display',
-                'flex',
-                'important'
-              )
-            }}
-          />
-          <div
-            className={`${size} rounded-full bg-gradient-to-br from-white to-gray-400 flex items-center justify-center text-black text-sm font-bold hidden`}
-            style={{ display: 'none' }}
-          >
-            {initials || '?'}
-          </div>
-        </>
-      )
-    }
-    return (
-      <div
-        className={`${size} rounded-full bg-gradient-to-br from-white to-gray-400 flex items-center justify-center text-black text-sm font-bold`}
-      >
-        {initials || '?'}
-      </div>
-    )
-  }
-
-  const getSearchPlaceholder = () => {
-    if (activeSection === 'messages') {
-      return 'Rechercher des messages...'
-    } else if (activeSection === 'friends') {
-      return 'Rechercher des amis...'
-    } else {
-      return 'Rechercher des posts...'
-    }
-  }
-
   const handleSearchChange = e => {
     const value = e.target.value
     setLocalSearchQuery(value)
     if (onSearchChange) {
       onSearchChange(value)
-    }
-  }
-
-  const handleSearchFocus = () => {
-    if (activeSection === 'friends' && onSearchChange) {
-      onSearchChange(localSearchQuery)
     }
   }
 
@@ -246,10 +187,9 @@ const Header = ({
               <input
                 ref={searchInputRef}
                 type='text'
-                placeholder={getSearchPlaceholder()}
+                placeholder='Rechercher sur Tulk...'
                 value={localSearchQuery}
                 onChange={handleSearchChange}
-                onFocus={handleSearchFocus}
                 onBlur={handleSearchBlur}
               />
             </form>
@@ -271,9 +211,7 @@ const Header = ({
               className='profile-pic cursor-pointer'
               onClick={toggleProfileDropdown}
             >
-              <div className='w-8 h-8 rounded-full overflow-hidden relative'>
-                {getUserAvatar()}
-              </div>
+              <Avatar user={user} size='w-8 h-8' />
             </div>
 
             {/* Profile Dropdown Menu */}
@@ -281,9 +219,7 @@ const Header = ({
               <div className='profile-dropdown-menu'>
                 <div className='profile-dropdown-header'>
                   <div className='user-avatar'>
-                    <div className='w-12 h-12 rounded-full overflow-hidden relative'>
-                      {getUserAvatar('w-full h-full')}
-                    </div>
+                    <Avatar user={user} size='w-12 h-12' />
                   </div>
                   <div className='user-info'>
                     <div className='user-name'>

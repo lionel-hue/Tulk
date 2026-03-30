@@ -1,8 +1,7 @@
-// resources/js/components/main/Amitie.jsx
 import React, { useState, useEffect, useRef } from 'react'
+import { Link } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
-import { getImageUrl } from '../../utils/imageUrls'
-import api from '../../utils/api' // Corrected import
+import api from '../../utils/api'
 import Modal, { useModal } from '../Modal'
 import {
   UserPlus,
@@ -16,6 +15,7 @@ import {
   Check,
   Clock
 } from 'lucide-react'
+import Avatar from '../common/Avatar'
 
 const Amitie = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
   const { user } = useAuth()
@@ -37,7 +37,6 @@ const Amitie = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
 
   // Load friends, suggestions, and pending requests on mount
   useEffect(() => {
-    console.log('Amitie component mounted, isSearching:', isSearching)
     if (!isSearching) {
       loadFriends()
       loadSuggestions()
@@ -63,22 +62,14 @@ const Amitie = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
   }, [searchQuery])
 
   const loadFriends = async () => {
-    console.log('Loading friends...')
     setLoading(prev => ({ ...prev, friends: true }))
     try {
       const response = await api.get('/friends')
-      console.log('Friends API response:', response.data)
       if (response.data.success) {
         setFriends(response.data.friends)
-      } else {
-        console.error('Friends API returned success: false')
       }
     } catch (error) {
       console.error('Error loading friends:', error)
-      console.error('Error response:', error.response)
-      console.error('Error status:', error.response?.status)
-      console.error('Error data:', error.response?.data)
-
       setModal({
         show: true,
         type: 'error',
@@ -91,19 +82,14 @@ const Amitie = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
   }
 
   const loadSuggestions = async () => {
-    console.log('Loading suggestions...')
     setLoading(prev => ({ ...prev, suggestions: true }))
     try {
       const response = await api.get('/friends/suggestions')
-      console.log('Suggestions API response:', response.data)
       if (response.data.success) {
         setSuggestions(response.data.suggestions)
       }
     } catch (error) {
       console.error('Error loading suggestions:', error)
-      console.error('Error response:', error.response)
-      console.error('Error status:', error.response?.status)
-      console.error('Error data:', error.response?.data)
       setModal({
         show: true,
         type: 'error',
@@ -116,19 +102,14 @@ const Amitie = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
   }
 
   const loadPendingRequests = async () => {
-    console.log('Loading pending requests...')
     setLoading(prev => ({ ...prev, pending: true }))
     try {
       const response = await api.get('/friends/pending')
-      console.log('Pending requests API response:', response.data)
       if (response.data.success) {
         setPendingRequests(response.data.pending_requests)
       }
     } catch (error) {
       console.error('Error loading pending requests:', error)
-      console.error('Error response:', error.response)
-      console.error('Error status:', error.response?.status)
-      console.error('Error data:', error.response?.data)
       setModal({
         show: true,
         type: 'error',
@@ -141,21 +122,16 @@ const Amitie = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
   }
 
   const handleSearch = async query => {
-    console.log('Searching for:', query)
     setLoading(prev => ({ ...prev, search: true }))
     try {
       const response = await api.get(
         `/friends/search?query=${encodeURIComponent(query)}`
       )
-      console.log('Search API response:', response.data)
       if (response.data.success) {
         setSearchResults(response.data.users)
       }
     } catch (error) {
       console.error('Error searching friends:', error)
-      console.error('Error response:', error.response)
-      console.error('Error status:', error.response?.status)
-      console.error('Error data:', error.response?.data)
       setModal({
         show: true,
         type: 'error',
@@ -178,7 +154,6 @@ const Amitie = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
           message: "Demande d'amitié envoyée avec succès."
         })
 
-        // Update search results
         if (isSearching) {
           handleSearch(searchQuery)
         }
@@ -208,7 +183,6 @@ const Amitie = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
           message: "Demande d'amitié acceptée."
         })
 
-        // Reload data
         loadFriends()
         loadPendingRequests()
         if (isSearching) {
@@ -243,7 +217,6 @@ const Amitie = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
             message: 'Ami supprimé avec succès.'
           })
 
-          // Update state
           setFriends(friends.filter(friend => friend.id !== userId))
           loadSuggestions()
           if (isSearching) {
@@ -279,7 +252,6 @@ const Amitie = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
             message: "Demande d'amitié annulée."
           })
 
-          // Update state
           if (isSearching) {
             handleSearch(searchQuery)
           }
@@ -296,37 +268,6 @@ const Amitie = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
     }
   }
 
-  // Replace the getUserAvatar function with:
-  const getUserAvatar = user => {
-    const initials = `${user?.prenom?.[0] || ''}${
-      user?.nom?.[0] || ''
-    }`.toUpperCase()
-
-    if (user?.image) {
-      return (
-        <>
-          <img
-            src={getImageUrl(user.image)}
-            alt={`${user.prenom} ${user.nom}`}
-            className='w-full h-full rounded-full object-cover'
-            onError={e => {
-              e.target.style.display = 'none'
-              e.target.nextElementSibling.style.display = 'flex'
-            }}
-          />
-          <div className='hidden w-full h-full rounded-full bg-gradient-to-br from-white to-gray-400 flex items-center justify-center text-black text-sm font-bold'>
-            {initials || '?'}
-          </div>
-        </>
-      )
-    }
-    return (
-      <div className='w-full h-full rounded-full bg-gradient-to-br from-white to-gray-400 flex items-center justify-center text-black text-sm font-bold'>
-        {initials || '?'}
-      </div>
-    )
-  }
-
   const renderUserCard = (user, type = 'friend') => {
     return (
       <div
@@ -334,23 +275,25 @@ const Amitie = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
         className='bg-[#141414] border border-[#262626] rounded-lg p-4'
       >
         <div className='flex items-start justify-between'>
-          <div className='flex items-center gap-3'>
-            <div className='w-12 h-12 rounded-full overflow-hidden flex-shrink-0 relative'>
-              {getUserAvatar(user)}
-            </div>
-            <div>
-              <h4 className='text-white font-medium'>
-                {user.prenom} {user.nom}
-              </h4>
-              <p className='text-gray-400 text-sm'>{user.email}</p>
-              {type === 'suggestion' && user.mutual_friends > 0 && (
-                <p className='text-gray-500 text-xs mt-1'>
-                  {user.mutual_friends} ami{user.mutual_friends > 1 ? 's' : ''}{' '}
-                  mutuel{user.mutual_friends > 1 ? 's' : ''}
-                </p>
-              )}
-              {type === 'search' && user.mutual_friends > 0 && (
-                <p className='text-gray-500 text-xs mt-1'>
+          <div className='flex items-center gap-3 min-w-0 flex-1'>
+            <Link
+              to={`/profile/${user.id}`}
+              className='w-12 h-12 rounded-full overflow-hidden flex-shrink-0 relative hover:opacity-80 transition-opacity'
+            >
+              <Avatar user={user} size='w-12 h-12' />
+            </Link>
+            <div className='min-w-0 flex-1'>
+              <Link
+                to={`/profile/${user.id}`}
+                className='hover:text-purple-400 transition-colors block'
+              >
+                <h4 className='text-white font-medium truncate'>
+                  {user.prenom} {user.nom}
+                </h4>
+              </Link>
+              <p className='text-gray-400 text-sm truncate'>{user.email}</p>
+              {user.mutual_friends > 0 && (
+                <p className='text-gray-500 text-xs mt-1 truncate'>
                   {user.mutual_friends} ami{user.mutual_friends > 1 ? 's' : ''}{' '}
                   mutuel{user.mutual_friends > 1 ? 's' : ''}
                 </p>
@@ -361,12 +304,13 @@ const Amitie = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
           <div className='flex gap-2'>
             {type === 'friend' && (
               <>
-                <button
+                <Link
                   className='p-2 text-gray-400 hover:text-white transition-colors rounded-lg hover:bg-[#262626]'
                   title='Envoyer un message'
+                  to={`/messages?userId=${user.id}`}
                 >
                   <MessageCircle size={18} />
-                </button>
+                </Link>
                 <button
                   className='p-2 text-gray-400 hover:text-red-500 transition-colors rounded-lg hover:bg-[#262626]'
                   onClick={() =>
@@ -440,17 +384,13 @@ const Amitie = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
   return (
     <div className='section-content active'>
       <div className='friends-container'>
-        {/* Header */}
         <div className='section-header'>
           <h2>Amis</h2>
           <div className='flex items-center gap-2'>
             {!isSearching && (
               <button
                 className='btn-primary flex items-center gap-2'
-                onClick={() => {
-                  if (onSearchFocus) onSearchFocus()
-                  // Focus on search input in parent
-                }}
+                onClick={onSearchFocus}
               >
                 <Search size={18} />
                 Rechercher des amis
@@ -459,7 +399,6 @@ const Amitie = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
           </div>
         </div>
 
-        {/* Search Results */}
         {isSearching && (
           <div className='mb-6'>
             <div className='flex items-center justify-between mb-4'>
@@ -493,10 +432,8 @@ const Amitie = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
           </div>
         )}
 
-        {/* Main Content - Only show when not searching */}
         {!isSearching && (
           <>
-            {/* Tabs */}
             <div className='flex border-b border-[#262626] mb-6'>
               <button
                 className={`px-4 py-2 font-medium ${
@@ -530,7 +467,6 @@ const Amitie = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
               </button>
             </div>
 
-            {/* Friends Tab */}
             {activeTab === 'friends' && (
               <div>
                 {loading.friends ? (
@@ -561,7 +497,6 @@ const Amitie = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
               </div>
             )}
 
-            {/* Suggestions Tab */}
             {activeTab === 'suggestions' && (
               <div>
                 {loading.suggestions ? (
@@ -590,7 +525,6 @@ const Amitie = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
               </div>
             )}
 
-            {/* Pending Requests Tab */}
             {activeTab === 'pending' && (
               <div>
                 {loading.pending ? (

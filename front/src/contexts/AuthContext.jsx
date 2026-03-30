@@ -37,10 +37,17 @@
             setUser(null);
         };
 
+        const updateUser = (userData) => {
+            const newUser = { ...user, ...userData };
+            localStorage.setItem('user', JSON.stringify(newUser));
+            setUser(newUser);
+        };
+
         const value = {
             user,
             login,
             logout,
+            updateUser,
             loading
         };
 

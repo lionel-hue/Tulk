@@ -13,6 +13,7 @@ import {
   LogOut
 } from 'lucide-react'
 import { getImageUrl } from '../utils/imageUrls'
+import Avatar from './common/Avatar'
 
 const SideMenuNav = ({ isOpen, onClose }) => {
   const { user, logout } = useAuth()
@@ -119,29 +120,7 @@ const SideMenuNav = ({ isOpen, onClose }) => {
         <div className='px-4 py-3 border-b border-[#262626]'>
           <div className='flex items-center gap-3'>
             <div className='w-10 h-10 rounded-full overflow-hidden relative'>
-              {user?.image ? (
-                <img
-                  src={getImageUrl(user.image)}
-                  alt='Profile'
-                  className='w-full h-full object-cover'
-                  onError={e => {
-                    console.error(
-                      'Image failed to load in side menu:',
-                      e.target.src
-                    )
-                    e.target.style.display = 'none'
-                    e.target.nextElementSibling.style.display = 'flex'
-                  }}
-                />
-              ) : null}
-              <div
-                className={`w-full h-full rounded-full bg-gradient-to-br from-white to-gray-400 flex items-center justify-center text-black font-bold text-sm ${
-                  user?.image ? 'hidden' : 'flex'
-                }`}
-              >
-                {user?.prenom?.[0]}
-                {user?.nom?.[0]}
-              </div>
+              <Avatar user={user} size='w-full h-full' />
             </div>
             <div className='flex-1 min-w-0'>
               <p className='text-white font-medium text-sm truncate'>

@@ -1,10 +1,8 @@
-// front/src/components/main/SearchResults.jsx
 import React, { useState, useEffect } from 'react'
-import { useSearchParams, useNavigate } from 'react-router-dom'
+import { useSearchParams, useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 import api from '../../utils/api'
 import Modal, { useModal } from '../Modal'
-import { getImageUrl } from '../../utils/imageUrls'
 import {
   UserPlus,
   UserCheck,
@@ -16,6 +14,7 @@ import {
   X,
   Loader2
 } from 'lucide-react'
+import Avatar from '../common/Avatar'
 
 const SearchResults = () => {
   const [searchParams] = useSearchParams()
@@ -167,37 +166,6 @@ const SearchResults = () => {
     }
   }
 
-  // Replace getUserAvatar with:
-  const getUserAvatar = userData => {
-    const initials = `${userData?.prenom?.[0] || ''}${
-      userData?.nom?.[0] || ''
-    }`.toUpperCase()
-
-    if (userData?.image) {
-      return (
-        <>
-          <img
-            src={getImageUrl(userData.image)}
-            alt={`${userData.prenom} ${userData.nom}`}
-            className='w-full h-full rounded-full object-cover'
-            onError={e => {
-              e.target.style.display = 'none'
-              e.target.nextElementSibling.style.display = 'flex'
-            }}
-          />
-          <div className='hidden w-full h-full rounded-full bg-gradient-to-br from-white to-gray-400 flex items-center justify-center text-black text-sm font-bold'>
-            {initials || '?'}
-          </div>
-        </>
-      )
-    }
-    return (
-      <div className='w-full h-full rounded-full bg-gradient-to-br from-white to-gray-400 flex items-center justify-center text-black text-sm font-bold'>
-        {initials || '?'}
-      </div>
-    )
-  }
-
   return (
     <div className='section-content active'>
       <div className='max-w-4xl mx-auto'>
@@ -239,13 +207,21 @@ const SearchResults = () => {
                 className='bg-[#141414] border border-[#262626] rounded-xl p-4'
               >
                 <div className='flex items-start gap-4 mb-4'>
-                  <div className='w-16 h-16 rounded-full overflow-hidden flex-shrink-0 relative'>
-                    {getUserAvatar(userData)}
-                  </div>
+                  <Link
+                    to={`/profile/${userData.id}`}
+                    className='w-16 h-16 rounded-full overflow-hidden flex-shrink-0 relative hover:opacity-80 transition-opacity'
+                  >
+                    <Avatar user={userData} size='w-full h-full' />
+                  </Link>
                   <div className='flex-1 min-w-0'>
-                    <h3 className='text-white font-semibold text-lg'>
-                      {userData.prenom} {userData.nom}
-                    </h3>
+                    <Link
+                      to={`/profile/${userData.id}`}
+                      className='hover:text-purple-400 transition-colors'
+                    >
+                      <h3 className='text-white font-semibold text-lg truncate'>
+                        {userData.prenom} {userData.nom}
+                      </h3>
+                    </Link>
                     <p className='text-gray-400 text-sm truncate'>
                       {userData.email}
                     </p>

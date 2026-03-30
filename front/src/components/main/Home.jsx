@@ -21,6 +21,7 @@ import {
 } from 'lucide-react'
 import { api } from '../../utils/api'
 import Modal, { useModal } from '../Modal'
+import Avatar from '../common/Avatar'
 import { getImageUrl } from '../../utils/imageUrls'
 
 const Home = () => {
@@ -49,36 +50,7 @@ const Home = () => {
   const [loadingComments, setLoadingComments] = useState({})
 
   // Get user avatar component
-  const getUserAvatar = (userData, size = 'w-10 h-10') => {
-    const initials = `${userData?.prenom?.[0] || ''}${
-      userData?.nom?.[0] || ''
-    }`.toUpperCase()
-
-    return (
-      <div className={`${size} rounded-full overflow-hidden relative`}>
-        {userData?.image ? (
-          <>
-            <img
-              src={getImageUrl(userData.image)}
-              alt='Profile'
-              className='w-full h-full object-cover'
-              onError={e => {
-                e.target.style.display = 'none'
-                e.target.nextElementSibling.style.display = 'flex'
-              }}
-            />
-            <div className='hidden w-full h-full rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold text-sm'>
-              {initials || '?'}
-            </div>
-          </>
-        ) : (
-          <div className='w-full h-full rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-bold text-sm'>
-            {initials || '?'}
-          </div>
-        )}
-      </div>
-    )
-  }
+  // Removed legacy getUserAvatar
 
   // Determine active section from URL
   useEffect(() => {
@@ -493,7 +465,7 @@ const Home = () => {
     <div key={post.id} className='post-card'>
       <div className='post-header'>
         <div className='post-user-info'>
-          {getUserAvatar(post.user)}
+          <Avatar user={post.user} size='w-10 h-10' />
           <div className='post-user-details'>
             <div className='post-user-name'>
               {post.user.prenom} {post.user.nom}
@@ -571,7 +543,7 @@ const Home = () => {
               postComments[post.id].map(comment => (
                 <div key={comment.id} className='comment-item'>
                   <div className='comment-user-avatar'>
-                    {getUserAvatar(comment.user, 'w-8 h-8')}
+                    <Avatar user={comment.user} size='w-8 h-8' />
                   </div>
                   <div className='comment-content'>
                     <div className='comment-header'>
@@ -595,7 +567,7 @@ const Home = () => {
 
           {/* Add Comment Form */}
           <div className='add-comment-form'>
-            {getUserAvatar(user, 'w-8 h-8')}
+            <Avatar user={user} size='w-8 h-8' />
             <div className='comment-input-container'>
               <input
                 type='text'
@@ -634,7 +606,7 @@ const Home = () => {
       {/* Add Post Section */}
       <div className='add-post-card'>
         <div className='add-post-header'>
-          {getUserAvatar(user)}
+          <Avatar user={user} size='w-10 h-10' />
           <div className='flex-1'>
             <textarea
               value={newPostDescription}
@@ -729,18 +701,7 @@ const Home = () => {
           <div className='profile-info'>
             <div className='profile-avatar-wrapper'>
               <div className='profile-avatar'>
-                {user?.image ? (
-                  <img
-                    src={getImageUrl(user.image)}
-                    alt='Profile'
-                    className='w-full h-full rounded-full object-cover'
-                  />
-                ) : (
-                  <span>
-                    {user.prenom?.[0]}
-                    {user.nom?.[0]}
-                  </span>
-                )}
+                <Avatar user={user} size='w-full h-full' />
               </div>
               <button className='edit-avatar-btn'>
                 <Camera size={16} />

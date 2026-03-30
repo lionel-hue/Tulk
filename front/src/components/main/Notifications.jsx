@@ -4,6 +4,7 @@ import { useAuth } from '../../contexts/AuthContext'
 import api from '../../utils/api'
 import Modal, { useModal } from '.././Modal'
 import { getImageUrl } from '../../utils/imageUrls'
+import Avatar from '../common/Avatar'
 import {
   Bell,
   Check,
@@ -170,35 +171,7 @@ const Notifications = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
     return colors[type] || 'bg-gray-500/10 border-gray-500/20'
   }
 
-  const getUserAvatar = userData => {
-    const initials = `${userData?.prenom?.[0] || ''}${
-      userData?.nom?.[0] || ''
-    }`.toUpperCase()
-
-    if (userData?.image) {
-      return (
-        <>
-          <img
-            src={getImageUrl(userData.image)}
-            alt={userData.prenom}
-            className='w-full h-full rounded-full object-cover'
-            onError={e => {
-              e.target.style.display = 'none'
-              e.target.nextElementSibling.style.display = 'flex'
-            }}
-          />
-          <div className='hidden w-full h-full rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-sm'>
-            {initials || '?'}
-          </div>
-        </>
-      )
-    }
-    return (
-      <div className='w-full h-full rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-sm'>
-        {initials || '?'}
-      </div>
-    )
-  }
+  // Avatar logic replaced by Avatar component
 
   return (
     <div className='section-content active'>
@@ -349,7 +322,7 @@ const Notifications = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
                     {notification.sender && (
                       <div className='flex items-center gap-3 mt-3 pt-3 border-t border-[#262626]'>
                         <div className='w-8 h-8 rounded-full overflow-hidden flex-shrink-0 relative'>
-                          {getUserAvatar(notification.sender)}
+                          <Avatar user={notification.sender} size='w-8 h-8' />
                         </div>
                         <span className='text-sm text-gray-300'>
                           {notification.sender.prenom} {notification.sender.nom}
