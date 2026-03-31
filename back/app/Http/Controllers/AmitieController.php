@@ -29,6 +29,13 @@ class AmitieController extends Controller
         $targetUserId = $request->input('user_id');
         $targetUser = Utilisateur::find($targetUserId);
 
+        if ($user->id === (int)$targetUserId) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Vous ne pouvez pas vous ajouter vous-même en ami'
+            ], 400);
+        }
+
         $existingFriendship = Amitie::where(function ($query) use ($user, $targetUserId) {
             $query->where('id_1', $user->id)
                 ->where('id_2', $targetUserId);

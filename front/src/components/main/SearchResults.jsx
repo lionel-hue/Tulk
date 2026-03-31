@@ -256,62 +256,70 @@ const SearchResults = () => {
                 </div>
 
                 <div className='flex gap-2 flex-wrap'>
-                  <button
-                    onClick={() => handleLikeProfile(userData.id)}
-                    className={`flex-1 px-3 py-2 rounded-lg font-medium text-sm flex items-center justify-center gap-2 transition-all ${
-                      userData.has_liked_profile
-                        ? 'bg-red-500/20 text-red-400 border border-red-500/30'
-                        : 'bg-[#262626] text-gray-400 hover:text-white'
-                    }`}
-                  >
-                    <Heart
-                      size={16}
-                      fill={
-                        userData.has_liked_profile ? 'currentColor' : 'none'
-                      }
-                    />
-                    {userData.has_liked_profile ? 'Liké' : 'Liker'}
-                  </button>
-
-                  <button
-                    onClick={() =>
-                      userData.is_following
-                        ? handleUnfollow(userData.id)
-                        : handleFollow(userData.id)
-                    }
-                    className={`flex-1 px-3 py-2 rounded-lg font-medium text-sm flex items-center justify-center gap-2 transition-all ${
-                      userData.is_following
-                        ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
-                        : 'bg-[#262626] text-gray-400 hover:text-white'
-                    }`}
-                  >
-                    <UserCheck size={16} />
-                    {userData.is_following ? 'Abonné' : "S'abonner"}
-                  </button>
-
-                  {userData.is_friend ? (
-                    <button
-                      onClick={() =>
-                        navigate(`/messages?userId=${userData.id}`)
-                      }
-                      className='px-3 py-2 bg-[#262626] text-gray-400 hover:text-white rounded-lg font-medium text-sm flex items-center justify-center gap-2 transition-all'
-                    >
-                      <MessageCircle size={16} />
-                      Message
-                    </button>
-                  ) : userData.has_pending_request ? (
-                    <div className='px-3 py-2 bg-yellow-500/20 text-yellow-400 rounded-lg font-medium text-sm flex items-center gap-2'>
-                      <Loader2 size={16} className='animate-spin' />
-                      En attente
+                  {userData.id === user.id ? (
+                    <div className='w-full text-center py-2 bg-purple-500/10 text-purple-400 rounded-lg text-sm font-medium border border-purple-500/20'>
+                      C'est vous
                     </div>
                   ) : (
-                    <button
-                      onClick={() => handleSendFriendRequest(userData.id)}
-                      className='px-3 py-2 bg-white text-black rounded-lg font-medium text-sm flex items-center justify-center gap-2 hover:bg-gray-200 transition-all'
-                    >
-                      <UserPlus size={16} />
-                      Ami
-                    </button>
+                    <>
+                      <button
+                        onClick={() => handleLikeProfile(userData.id)}
+                        className={`flex-1 px-3 py-2 rounded-lg font-medium text-sm flex items-center justify-center gap-2 transition-all ${
+                          userData.has_liked_profile
+                            ? 'bg-red-500/20 text-red-400 border border-red-500/30'
+                            : 'bg-[#262626] text-gray-400 hover:text-white'
+                        }`}
+                      >
+                        <Heart
+                          size={16}
+                          fill={
+                            userData.has_liked_profile ? 'currentColor' : 'none'
+                          }
+                        />
+                        {userData.has_liked_profile ? 'Liké' : 'Liker'}
+                      </button>
+
+                      <button
+                        onClick={() =>
+                          userData.is_following
+                            ? handleUnfollow(userData.id)
+                            : handleFollow(userData.id)
+                        }
+                        className={`flex-1 px-3 py-2 rounded-lg font-medium text-sm flex items-center justify-center gap-2 transition-all ${
+                          userData.is_following
+                            ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
+                            : 'bg-[#262626] text-gray-400 hover:text-white'
+                        }`}
+                      >
+                        <UserCheck size={16} />
+                        {userData.is_following ? 'Abonné' : "S'abonner"}
+                      </button>
+
+                      {userData.is_friend ? (
+                        <button
+                          onClick={() =>
+                            navigate(`/messages?userId=${userData.id}`)
+                          }
+                          className='px-3 py-2 bg-[#262626] text-gray-400 hover:text-white rounded-lg font-medium text-sm flex items-center justify-center gap-2 transition-all'
+                        >
+                          <MessageCircle size={16} />
+                          Message
+                        </button>
+                      ) : userData.has_pending_request ? (
+                        <div className='px-3 py-2 bg-yellow-500/20 text-yellow-400 rounded-lg font-medium text-sm flex items-center gap-2'>
+                          <Loader2 size={16} className='animate-spin' />
+                          En attente
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => handleSendFriendRequest(userData.id)}
+                          className='px-3 py-2 bg-white text-black rounded-lg font-medium text-sm flex items-center justify-center gap-2 hover:bg-gray-200 transition-all'
+                        >
+                          <UserPlus size={16} />
+                          Ami
+                        </button>
+                      )}
+                    </>
                   )}
                 </div>
               </div>
