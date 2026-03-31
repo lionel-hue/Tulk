@@ -28,6 +28,7 @@ const Header = ({
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false)
   const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery || '')
   const navigate = useNavigate()
+  const location = useLocation()
   const profileDropdownRef = useRef(null)
   const searchInputRef = useRef(null)
   const { modal, setModal, confirm } = useModal()
@@ -61,9 +62,14 @@ const Header = ({
       onSearchChange('')
     }
     
-    // If on search page, go back to previous section
+    // If on search page, go back to previous section (home by default)
     if (location.pathname === '/search') {
-      navigate(-1)
+      // If we have history, go back, otherwise go to home
+      if (window.history.length > 2) {
+        navigate(-1)
+      } else {
+        navigate('/home')
+      }
     } else if (searchInputRef.current) {
       searchInputRef.current.focus()
     }
@@ -202,13 +208,15 @@ const Header = ({
             {localSearchQuery ? (
               <button
                 onClick={clearSearch}
-                className='absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-white/5 hover:bg-white/10 rounded-full text-gray-400 hover:text-white transition-all hover:scale-110 active:scale-95'
+                className='absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-white/5 hover:bg-white/10 rounded-xl text-gray-400 hover:text-white transition-all hover:scale-110 active:scale-95 group/x'
                 type='button'
               >
-                <X size={14} />
+                <X size={14} className='group-hover:rotate-90 transition-transform duration-300' />
               </button>
             ) : (
-              <Search size={18} className='absolute right-3' />
+              <div className='absolute right-3 top-1/2 -translate-y-1/2 text-gray-500'>
+                <Search size={18} />
+              </div>
             )}
           </div>
 

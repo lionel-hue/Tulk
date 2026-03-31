@@ -264,6 +264,7 @@ class AmitieController extends Controller
         $user = Auth::user();
 
         $pendingRequests = Amitie::where('id_2', $user->id)
+            ->where('id_1', '!=', $user->id) // Exclude self-requests
             ->where('statut', 'en attente')
             ->with('utilisateur1:id,nom,prenom,email,image,role')
             ->get()

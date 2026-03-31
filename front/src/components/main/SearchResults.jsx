@@ -12,7 +12,8 @@ import {
   Users,
   FileText,
   X,
-  Loader2
+  Loader2,
+  Clock
 } from 'lucide-react'
 import Avatar from '../common/Avatar'
 
@@ -140,129 +141,143 @@ const SearchResults = () => {
   }
 
   return (
-    <div className='section-content active animate-in fade-in slide-in-from-bottom-4 duration-500'>
-      <div className='max-w-6xl mx-auto px-4 py-8'>
-        <div className='flex items-center justify-between mb-8 pb-6 border-b border-white/5'>
-          <div className='flex items-center gap-6'>
-            <button
-              onClick={handleBack}
-              className='p-3 bg-white/5 border border-white/10 rounded-2xl text-gray-400 hover:text-white hover:bg-white/10 transition-all group shadow-xl'
-              title='Retour'
-            >
-              <X size={22} className='group-hover:-translate-x-1 transition-transform duration-300' />
-            </button>
-            <div>
-              <h2 className='text-3xl font-black text-white tracking-tight leading-none'>
-                Résultats pour <span className='text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400'>"{query}"</span>
-              </h2>
-              <p className='text-gray-500 text-sm mt-2 font-medium'>
-                {results.length} utilisateur{results.length > 1 ? 's' : ''} trouvé{results.length > 1 ? 's' : ''} sur Tulk
-              </p>
-            </div>
+    <div className='search-results-page min-h-screen bg-[#060606] text-white selection:bg-purple-500/30'>
+      <div className='max-w-7xl mx-auto px-4 py-12 md:px-8'>
+        {/* Header Section with Glass Effect */}
+        <div className='relative mb-12 animate-in fade-in slide-in-from-top-8 duration-1000'>
+          <div className='bg-[#0f0f0f]/60 backdrop-blur-3xl border border-white/5 rounded-[3rem] p-8 md:p-12 shadow-2xl relative overflow-hidden group'>
+             {/* Decorative Background Gradients */}
+             <div className='absolute -top-24 -right-24 w-64 h-64 bg-purple-600/10 rounded-full blur-[100px] group-hover:bg-purple-600/20 transition-all duration-1000'></div>
+             <div className='absolute -bottom-24 -left-24 w-64 h-64 bg-pink-600/10 rounded-full blur-[100px] group-hover:bg-pink-600/20 transition-all duration-1000'></div>
+
+             <div className='relative flex flex-col md:flex-row items-center justify-between gap-8'>
+                <div className='flex items-center gap-8'>
+                  <button
+                    onClick={handleBack}
+                    className='w-16 h-16 bg-white/5 border border-white/10 rounded-[1.5rem] flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 hover:scale-110 active:scale-95 transition-all shadow-xl group/back'
+                    title='Retour'
+                  >
+                    <X size={28} className='group-hover:rotate-90 transition-transform duration-500' />
+                  </button>
+                  <div>
+                    <h2 className='text-4xl md:text-6xl font-black text-white tracking-tighter leading-none'>
+                      Résultats pour <span className='text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400 animate-gradient-x'>"{query}"</span>
+                    </h2>
+                    <p className='text-gray-500 text-sm mt-4 font-black uppercase tracking-[0.3em]'>
+                      {results.length} membre{results.length > 1 ? 's' : ''} trouvé{results.length > 1 ? 's' : ''} sur le réseau
+                    </p>
+                  </div>
+                </div>
+             </div>
           </div>
         </div>
 
+        {/* Content Area */}
         {loading ? (
-          <div className='flex flex-col items-center justify-center py-24'>
+          <div className='flex flex-col items-center justify-center py-32 animate-in fade-in duration-500'>
             <div className='relative'>
-              <div className='w-16 h-16 border-4 border-purple-500/20 border-t-purple-500 rounded-full animate-spin'></div>
-              <div className='absolute inset-0 flex items-center justify-center'>
-                <Loader2 size={24} className='text-purple-400 animate-pulse' />
+              <div className='w-24 h-24 border-4 border-purple-500/10 border-t-purple-500 rounded-full animate-spin'></div>
+              <div className='absolute inset-0 flex items-center justify-center opacity-50'>
+                <Loader2 size={32} className='text-purple-400 animate-pulse' />
               </div>
             </div>
-            <p className='text-gray-400 mt-6 font-medium animate-pulse text-lg'>Recherche en cours...</p>
+            <p className='text-gray-500 mt-8 font-black uppercase tracking-[0.4em] animate-pulse'>Symphonie de recherche...</p>
           </div>
         ) : results.length === 0 ? (
-          <div className='text-center py-20 bg-[#0f0f0f] border border-[#262626] rounded-3xl shadow-2xl'>
-            <div className='w-24 h-24 bg-purple-500/10 rounded-full flex items-center justify-center mx-auto mb-6'>
-              <Users size={48} className='text-purple-400/50' />
+          <div className='max-w-2xl mx-auto text-center py-24 bg-white/5 border border-dashed border-white/10 rounded-[4rem] shadow-2xl animate-in zoom-in-95 duration-700'>
+            <div className='w-32 h-32 bg-white/5 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 shadow-inner'>
+              <Users size={56} className='text-gray-700' />
             </div>
-            <h3 className='text-2xl font-bold text-white mb-3'>Aucun résultat</h3>
-            <p className='text-gray-500 max-w-sm mx-auto'>
-              Nous n'avons trouvé aucun utilisateur correspondant à "{query}". Essayez un autre nom ou email.
+            <h3 className='text-3xl font-black text-white mb-4 tracking-tight'>Silence dans le vide...</h3>
+            <p className='text-gray-500 max-w-sm mx-auto font-medium leading-relaxed italic'>
+              Aucun membre ne semble correspondre à votre requête. Essayez un autre mot-clé pour explorer Tulk.
             </p>
             <button 
               onClick={handleBack}
-              className='mt-8 px-6 py-3 bg-white text-black rounded-xl font-bold hover:scale-105 active:scale-95 transition-all'
+              className='mt-10 px-10 py-4 bg-white text-black rounded-[1.5rem] font-black text-sm tracking-widest hover:scale-110 active:scale-95 transition-all shadow-[0_10px_30px_rgba(255,255,255,0.1)]'
             >
-              Fermer la recherche
+              RÉESSAYER
             </button>
           </div>
         ) : (
-          <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+          <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8'>
             {results.map((userData, index) => (
               <div
                 key={userData.id}
-                className='bg-[#141414] border border-[#262626] rounded-3xl p-6 hover:border-purple-500/30 transition-all hover:shadow-2xl hover:shadow-purple-500/5 group animate-in slide-in-from-bottom-8 duration-500'
-                style={{ animationDelay: `${index * 50}ms` }}
+                className='group relative bg-[#0f0f0f] border border-white/5 rounded-[3rem] p-8 hover:border-purple-500/30 transition-all duration-700 hover:shadow-2xl hover:shadow-purple-500/10 hover:-translate-y-2 animate-in slide-in-from-bottom-12 duration-1000 fill-mode-both overflow-hidden'
+                style={{ animationDelay: `${index * 100}ms` }}
               >
-                <div className='flex items-start gap-5 mb-6'>
+                {/* Decorative Slide-in Background */}
+                <div className='absolute inset-0 bg-gradient-to-br from-purple-600/5 via-transparent to-pink-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000'></div>
+
+                <div className='relative flex items-center gap-6 mb-8'>
                   <Link
                     to={`/profile/${userData.id}`}
-                    className='w-20 h-20 rounded-2xl overflow-hidden flex-shrink-0 relative group-hover:scale-105 transition-transform duration-300 ring-2 ring-transparent group-hover:ring-purple-500/30'
+                    className='w-24 h-24 rounded-[2rem] overflow-hidden flex-shrink-0 relative group-hover:rotate-6 group-hover:scale-110 transition-transform duration-700 border-2 border-white/10 shadow-2xl'
                   >
-                    <Avatar user={userData} size='w-full h-full' />
+                    <Avatar user={userData} size='w-full h-full' className='object-cover' />
                   </Link>
                   <div className='flex-1 min-w-0'>
                     <Link
                       to={`/profile/${userData.id}`}
                       className='block'
                     >
-                      <h3 className='text-white font-bold text-xl truncate group-hover:text-purple-400 transition-colors'>
+                      <h3 className='text-white font-black text-2xl tracking-tighter truncate group-hover:text-purple-400 transition-colors duration-500'>
                         {userData.prenom} {userData.nom}
                       </h3>
                     </Link>
-                    <p className='text-gray-500 text-sm truncate mb-3'>
+                    <p className='text-gray-500 text-xs font-bold uppercase tracking-widest truncate mt-1 opacity-60'>
                       @{userData.email?.split('@')[0]}
                     </p>
-                    <div className='flex flex-wrap gap-2'>
+                    <div className='flex flex-wrap gap-2 mt-3'>
                         {userData.role === 'admin' && (
-                           <span className='px-2 py-0.5 bg-red-500/10 text-red-400 text-[10px] font-bold uppercase tracking-wider rounded-md border border-red-500/20'>Admin</span>
+                           <span className='px-3 py-1 bg-red-500/10 text-red-500 text-[8px] font-black uppercase tracking-widest rounded-full border border-red-500/20'>Admin</span>
                         )}
                         {userData.mutual_friends > 0 && (
-                           <span className='px-2 py-0.5 bg-purple-500/10 text-purple-400 text-[10px] font-bold uppercase tracking-wider rounded-md border border-purple-500/20'>{userData.mutual_friends} ami(s) commun(s)</span>
+                           <span className='px-3 py-1 bg-purple-500/10 text-purple-400 text-[8px] font-black uppercase tracking-widest rounded-full border border-purple-500/20'>{userData.mutual_friends} Mutuels</span>
                         )}
                     </div>
                   </div>
                 </div>
 
                 {userData.bio && (
-                  <p className='text-gray-400 text-sm mb-6 line-clamp-2 italic'>
+                  <p className='text-gray-400 text-sm mb-8 line-clamp-2 italic font-medium leading-relaxed opacity-80 group-hover:opacity-100 transition-opacity'>
                     "{userData.bio}"
                   </p>
                 )}
 
-                <div className='grid grid-cols-2 gap-3 mb-6'>
-                  <div className='bg-[#0d0d0d] p-3 rounded-2xl border border-[#1a1a1a] flex flex-col items-center justify-center transition-colors group-hover:border-purple-500/10'>
-                    <span className='text-white font-bold text-lg'>{userData.posts_count || 0}</span>
-                    <span className='text-gray-500 text-[10px] uppercase font-semibold'>Posts</span>
+                {/* Stats Preview Card */}
+                <div className='grid grid-cols-2 gap-4 mb-8 bg-white/5 p-4 rounded-[2rem] border border-white/5 group-hover:border-white/10 transition-all'>
+                  <div className='text-center p-2'>
+                    <div className='text-2xl font-black text-white group-hover:scale-110 transition-transform duration-500'>{userData.posts_count || 0}</div>
+                    <div className='text-[8px] font-black uppercase tracking-[0.2em] text-gray-500'>Posts</div>
                   </div>
-                  <div className='bg-[#0d0d0d] p-3 rounded-2xl border border-[#1a1a1a] flex flex-col items-center justify-center transition-colors group-hover:border-purple-500/10'>
-                    <span className='text-white font-bold text-lg'>{userData.followers_count || 0}</span>
-                    <span className='text-gray-500 text-[10px] uppercase font-semibold'>Followers</span>
+                  <div className='text-center p-2 border-l border-white/5'>
+                    <div className='text-2xl font-black text-white group-hover:scale-110 transition-transform duration-500'>{userData.followers_count || 0}</div>
+                    <div className='text-[8px] font-black uppercase tracking-[0.2em] text-gray-500'>Followers</div>
                   </div>
                 </div>
 
-                <div className='flex gap-2'>
+                <div className='flex gap-3 relative z-10'>
                   {userData.id === user.id ? (
                     <Link
                       to='/profile'
-                      className='w-full py-3 bg-purple-500/10 text-purple-400 rounded-2xl text-center font-bold border border-purple-500/20 hover:bg-purple-500/20 transition-all'
+                      className='w-full py-4 bg-white/5 text-white rounded-[1.5rem] text-center font-black text-xs tracking-widest border border-white/10 hover:bg-white/10 transition-all'
                     >
-                      C'est vous
+                      MON PROFIL
                     </Link>
                   ) : (
                     <>
                       <button
                         onClick={() => handleLikeProfile(userData.id)}
-                        className={`flex-1 flex flex-col items-center justify-center py-3 rounded-2xl transition-all border ${
+                        className={`p-4 rounded-2xl transition-all hover:scale-110 active:scale-90 border ${
                           userData.has_liked_profile
-                            ? 'bg-red-500/10 border-red-500/20 text-red-500 shadow-lg shadow-red-500/10'
-                            : 'bg-[#1a1a1a] border-transparent text-gray-500 hover:text-red-400 hover:bg-red-500/5'
+                            ? 'bg-red-500 text-white border-red-400 shadow-xl shadow-red-500/30'
+                            : 'bg-white/5 border-white/5 text-gray-500 hover:text-red-500 hover:bg-white/10'
                         }`}
                       >
                         <Heart
-                          size={18}
+                          size={20}
                           fill={userData.has_liked_profile ? 'currentColor' : 'none'}
                         />
                       </button>
@@ -273,30 +288,30 @@ const SearchResults = () => {
                             ? handleUnfollow(userData.id)
                             : handleFollow(userData.id)
                         }
-                        className={`flex-[2] py-3 rounded-2xl font-bold text-sm transition-all border ${
+                        className={`flex-1 py-4 rounded-2xl font-black text-[10px] tracking-[0.15em] transition-all border ${
                           userData.is_following
-                            ? 'bg-purple-500/10 border-purple-500/20 text-purple-400'
-                            : 'bg-white text-black hover:bg-gray-200'
+                            ? 'bg-white/10 border-white/20 text-white'
+                            : 'bg-white text-black hover:bg-gray-200 shadow-2xl'
                         }`}
                       >
-                        {userData.is_following ? 'Abonné' : "S'abonner"}
+                        {userData.is_following ? 'ABONNÉ' : "S'ABONNER"}
                       </button>
 
                       {userData.is_friend ? (
                         <button
                           onClick={() => navigate(`/messages?userId=${userData.id}`)}
-                          className='p-3 bg-[#1a1a1a] text-gray-400 hover:text-white rounded-2xl transition-all'
+                          className='p-4 bg-white/5 text-gray-500 hover:text-purple-400 rounded-2xl border border-white/5 hover:border-purple-500/20 transition-all'
                         >
                           <MessageCircle size={20} />
                         </button>
                       ) : userData.has_pending_request ? (
-                        <div className='p-3 bg-yellow-500/10 text-yellow-500 rounded-2xl border border-yellow-500/20 animate-pulse'>
-                          <Loader2 size={18} className='animate-spin' />
+                        <div className='p-4 bg-yellow-500/20 text-yellow-500 rounded-2xl border border-yellow-500/30'>
+                          <Clock size={20} className='animate-pulse' />
                         </div>
                       ) : (
                         <button
                           onClick={() => handleSendFriendRequest(userData.id)}
-                          className='p-3 bg-[#1a1a1a] text-gray-400 hover:text-purple-400 rounded-2xl hover:bg-purple-500/5 hover:border-purple-500/20 border border-transparent transition-all'
+                          className='p-4 bg-purple-600 text-white rounded-2xl shadow-xl shadow-purple-600/20 hover:scale-110 active:scale-95 transition-all'
                         >
                           <UserPlus size={20} />
                         </button>
@@ -309,6 +324,7 @@ const SearchResults = () => {
           </div>
         )}
       </div>
+      <Modal modal={modal} setModal={setModal} />
     </div>
   )
 }
