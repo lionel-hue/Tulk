@@ -18,7 +18,7 @@ import {
 import Avatar from '../common/Avatar'
 
 const Amitie = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
-  const { user } = useAuth()
+  const { user: authUser } = useAuth()
   const { modal, setModal, confirm } = useModal()
 
   const [friends, setFriends] = useState([])
@@ -301,70 +301,35 @@ const Amitie = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
             </div>
           </div>
 
-          <div className='flex gap-2'>
-            {type === 'friend' && (
+          <div className='flex gap-2 items-center'>
+            {user.id === authUser.id ? (
+              <span className='text-xs font-medium bg-purple-500/10 text-purple-400 px-2 py-1 rounded border border-purple-500/20'>
+                Vous
+              </span>
+            ) : (
               <>
-                <Link
-                  className='p-2 text-gray-400 hover:text-white transition-colors rounded-lg hover:bg-[#262626]'
-                  title='Envoyer un message'
-                  to={`/messages?userId=${user.id}`}
-                >
-                  <MessageCircle size={18} />
-                </Link>
-                <button
-                  className='p-2 text-gray-400 hover:text-red-500 transition-colors rounded-lg hover:bg-[#262626]'
-                  onClick={() =>
-                    handleRemoveFriend(user.id, `${user.prenom} ${user.nom}`)
-                  }
-                  title="Supprimer l'ami"
-                >
-                  <UserX size={18} />
-                </button>
-              </>
-            )}
+                {type === 'friend' && (
+                  <>
+                    <Link
+                      className='p-2 text-gray-400 hover:text-white transition-colors rounded-lg hover:bg-[#262626]'
+                      title='Envoyer un message'
+                      to={`/messages?userId=${user.id}`}
+                    >
+                      <MessageCircle size={18} />
+                    </Link>
+                    <button
+                      className='p-2 text-gray-400 hover:text-red-500 transition-colors rounded-lg hover:bg-[#262626]'
+                      onClick={() =>
+                        handleRemoveFriend(user.id, `${user.prenom} ${user.nom}`)
+                      }
+                      title="Supprimer l'ami"
+                    >
+                      <UserX size={18} />
+                    </button>
+                  </>
+                )}
 
-            {type === 'suggestion' && (
-              <button
-                className='px-3 py-1 bg-white text-black text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-2'
-                onClick={() => handleSendRequest(user.id)}
-              >
-                <UserPlus size={16} />
-                Ajouter
-              </button>
-            )}
-
-            {type === 'pending' && (
-              <div className='flex gap-2'>
-                <button
-                  className='p-2 text-gray-400 hover:text-green-500 transition-colors rounded-lg hover:bg-[#262626]'
-                  onClick={() => handleAcceptRequest(user.id)}
-                  title='Accepter'
-                >
-                  <Check size={18} />
-                </button>
-                <button
-                  className='p-2 text-gray-400 hover:text-red-500 transition-colors rounded-lg hover:bg-[#262626]'
-                  onClick={() => handleCancelRequest(user.id)}
-                  title='Refuser'
-                >
-                  <X size={18} />
-                </button>
-              </div>
-            )}
-
-            {type === 'search' && (
-              <>
-                {user.is_friend ? (
-                  <div className='flex items-center gap-2 text-green-500 text-sm'>
-                    <UserCheck size={16} />
-                    <span>Ami</span>
-                  </div>
-                ) : user.has_pending_request ? (
-                  <div className='flex items-center gap-2 text-yellow-500 text-sm'>
-                    <Clock size={16} />
-                    <span>En attente</span>
-                  </div>
-                ) : (
+                {type === 'suggestion' && (
                   <button
                     className='px-3 py-1 bg-white text-black text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-2'
                     onClick={() => handleSendRequest(user.id)}
@@ -372,6 +337,49 @@ const Amitie = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
                     <UserPlus size={16} />
                     Ajouter
                   </button>
+                )}
+
+                {type === 'pending' && (
+                  <div className='flex gap-2'>
+                    <button
+                      className='p-2 text-gray-400 hover:text-green-500 transition-colors rounded-lg hover:bg-[#262626]'
+                      onClick={() => handleAcceptRequest(user.id)}
+                      title='Accepter'
+                    >
+                      <Check size={18} />
+                    </button>
+                    <button
+                      className='p-2 text-gray-400 hover:text-red-500 transition-colors rounded-lg hover:bg-[#262626]'
+                      onClick={() => handleCancelRequest(user.id)}
+                      title='Refuser'
+                    >
+                      <X size={18} />
+                    </button>
+                  </div>
+                )}
+
+                {type === 'search' && (
+                  <>
+                    {user.is_friend ? (
+                      <div className='flex items-center gap-2 text-green-500 text-sm'>
+                        <UserCheck size={16} />
+                        <span>Ami</span>
+                      </div>
+                    ) : user.has_pending_request ? (
+                      <div className='flex items-center gap-2 text-yellow-500 text-sm'>
+                        <Clock size={16} />
+                        <span>En attente</span>
+                      </div>
+                    ) : (
+                      <button
+                        className='px-3 py-1 bg-white text-black text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-2'
+                        onClick={() => handleSendRequest(user.id)}
+                      >
+                        <UserPlus size={16} />
+                        Ajouter
+                      </button>
+                    )}
+                  </>
                 )}
               </>
             )}
