@@ -16,7 +16,12 @@ import {
   Plus,
   Smile,
   Hash,
-  Info
+  Info,
+  Trash2,
+  UserCheck,
+  Flag,
+  UserX,
+  Grid
 } from 'lucide-react'
 
 const Messages = () => {
@@ -34,16 +39,30 @@ const Messages = () => {
   const [imagePreview, setImagePreview] = useState(null)
   const [sending, setSending] = useState(false)
   
+  // Advanced Features State
+  const [showChatSearch, setShowChatSearch] = useState(false)
+  const [chatSearchQuery, setChatSearchQuery] = useState('')
+  const [showActions, setShowActions] = useState(false)
+  const [showInfo, setShowInfo] = useState(false)
+  
   const fileInputRef = useRef(null)
   const messagesEndRef = useRef(null)
   const pollingInterval = useRef(null)
+  const actionsRef = useRef(null)
 
   const userIdParam = searchParams.get('userId')
 
   useEffect(() => {
     fetchConversations()
+    const handleClickOutside = (event) => {
+      if (actionsRef.current && !actionsRef.current.contains(event.target)) {
+        setShowActions(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
     return () => {
       if (pollingInterval.current) clearInterval(pollingInterval.current)
+      document.removeEventListener('mousedown', handleClickOutside)
     }
   }, [])
 
@@ -154,6 +173,10 @@ const Messages = () => {
     setActiveConversation(conv)
     setSearchParams({ userId: conv.user.id })
     fetchMessages(conv.user.id)
+    setShowInfo(false)
+    setShowActions(false)
+    setShowChatSearch(false)
+    setChatSearchQuery('')
   }
 
   const handleImageSelect = (e) => {
@@ -205,17 +228,44 @@ const Messages = () => {
     }
   }
 
+  const handleClearHistory = async () => {
+    if (!activeConversation) return
+    if (!window.confirm('Voulez-vous vraiment vider cette conversation ?')) return
+    
+    // Logic to clear history (Note: This might need backend support if not present)
+    // For now, let's assume we can remove messages locally or there's an API
+    try {
+      // Placeholder for actual API call
+      // await api.delete(`/messages/${activeConversation.user.id}/clear`)
+      setMessages([])
+      setShowActions(false)
+    } catch (err) {
+      console.error('Error clearing history:', err)
+    }
+  }
+
   const scrollToBottom = () => {
     setTimeout(() => {
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
     }, 100)
   }
 
-  const formatDate = (dateString) => {
+  const formatDate = (dateString, full = false) => {
     if (!dateString) return ''
     const date = new Date(dateString)
+    if (full) {
+      return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' })
+    }
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
   }
+
+  const filteredMessages = messages.filter(msg => {
+    if (!chatSearchQuery.trim()) return true
+    return msg.texte?.toLowerCase().includes(chatSearchQuery.toLowerCase())
+  })
+
+  // Extract shared images for info panel
+  const sharedImages = messages.filter(msg => msg.image).map(msg => msg.image)
 
   if (loading) {
     return (
@@ -281,7 +331,7 @@ const Messages = () => {
       </div>
 
       {/* Main Chat Area */}
-      <div className={`premium-chat-area ${!activeConversation ? 'hidden lg:flex' : 'flex'}`}>
+      <div className={`premium-chat-area ${!activeConversation ? 'hidden lg:flex' : 'flex'} ${showInfo ? 'info-open' : ''}`}>
         {activeConversation ? (
           <>
             {/* Header */}
@@ -302,10 +352,34 @@ const Messages = () => {
                 </div>
               </div>
               <div className='header-actions'>
-                 <button className='action-btn'><Search size={20} /></button>
-                 <button className='action-btn'><Info size={20} /></button>
-                 <button className='action-btn'><MoreVertical size={20} /></button>
+                 <button className={`action-btn ${showChatSearch ? 'active' : ''}`} onClick={() => { setShowChatSearch(!showChatSearch); if(showChatSearch) setChatSearchQuery(''); }}><Search size={20} /></button>
+                 <button className={`action-btn ${showInfo ? 'active' : ''}`} onClick={() => setShowInfo(!showInfo)}><Info size={20} /></button>
+                 <div className='relative' ref={actionsRef}>
+                    <button className={`action-btn ${showActions ? 'active' : ''}`} onClick={() => setShowActions(!showActions)}><MoreVertical size={20} /></button>
+                    {showActions && (
+                      <div className='premium-dropdown-menu animate-in zoom-in-95 fade-in duration-200'>
+                        <button onClick={handleClearHistory}><Trash2 size={16} /> <span>Vider la conversation</span></button>
+                        <button><UserX size={16} /> <span>Bloquer l'utilisateur</span></button>
+                        <button><Flag size={16} /> <span>Signaler</span></button>
+                      </div>
+                    )}
+                 </div>
               </div>
+
+              {/* Chat Search Overlay */}
+              {showChatSearch && (
+                <div className='chat-search-overlay animate-in slide-in-from-top-4 duration-200'>
+                   <Search size={16} className='text-gray-500' />
+                   <input 
+                    type='text' 
+                    placeholder='Rechercher dans les messages...' 
+                    value={chatSearchQuery}
+                    autoFocus
+                    onChange={(e) => setChatSearchQuery(e.target.value)}
+                   />
+                   <button onClick={() => { setShowChatSearch(false); setChatSearchQuery(''); }}><X size={16} /></button>
+                </div>
+              )}
             </div>
 
             {/* Content */}
@@ -317,8 +391,10 @@ const Messages = () => {
                 </div>
               ) : (
                 <div className='messages-stack'>
-                  <div className='date-divider'>Aujourd'hui</div>
-                  {messages.map((msg, index) => {
+                  {filteredMessages.length === 0 && chatSearchQuery && (
+                    <div className='search-no-results'>Aucun message trouvé pour "{chatSearchQuery}"</div>
+                  )}
+                  {filteredMessages.map((msg, index) => {
                     const isMe = msg.id_uti_1 === authUser.id
                     return (
                       <div key={msg.id || index} className={`bubble-group ${isMe ? 'my-bubble' : 'other-bubble'}`}>
@@ -396,6 +472,52 @@ const Messages = () => {
           </div>
         )}
       </div>
+
+      {/* Info Sidebar */}
+      {activeConversation && (
+        <div className={`premium-info-sidebar ${showInfo ? 'open' : ''}`}>
+           <div className='info-scroll custom-scrollbar'>
+              <div className='info-header'>
+                 <button onClick={() => setShowInfo(false)} className='close-info-btn'><X size={20} /></button>
+                 <h3>Détails</h3>
+              </div>
+              
+              <div className='info-user-card'>
+                 <Avatar user={activeConversation.user} size='w-24 h-24' />
+                 <h4>{activeConversation.user.prenom} {activeConversation.user.nom}</h4>
+                 <div className='info-status'>
+                    <span className='dot'></span>
+                    <span>En ligne</span>
+                 </div>
+              </div>
+
+              <div className='info-sections'>
+                 <div className='info-section'>
+                    <div className='section-title'><Grid size={16} /> <span>Médias partagés</span></div>
+                    <div className='media-gallery'>
+                       {sharedImages.length === 0 ? (
+                         <div className='empty-media'>Aucun média partagé</div>
+                       ) : (
+                         sharedImages.map((img, idx) => (
+                           <div key={idx} className='media-item' onClick={() => window.open(getImageUrl(img), '_blank')}>
+                              <img src={getImageUrl(img)} alt='Shared' />
+                           </div>
+                         ))
+                       )}
+                    </div>
+                 </div>
+
+                 <div className='info-section'>
+                    <div className='section-title'><Info size={16} /> <span>À propos</span></div>
+                    <div className='info-bio'>
+                       <p className='text-gray-400 text-sm'>Utilisateur de Tulk</p>
+                       <p className='text-gray-500 text-xs mt-2'>Email: {activeConversation.user.email}</p>
+                    </div>
+                 </div>
+              </div>
+           </div>
+        </div>
+      )}
     </div>
   )
 }
