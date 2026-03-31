@@ -21,7 +21,7 @@ const SideMenuNav = ({ isOpen, onClose }) => {
   const sidebarRef = useRef(null)
   const navigate = useNavigate()
   const location = useLocation()
-  const { messages, notifications, friends } = useNotificationCounts()
+  const { messages, notifications, friends, home } = useNotificationCounts()
 
   useEffect(() => {
     const handleClickOutside = event => {
@@ -55,7 +55,7 @@ const SideMenuNav = ({ isOpen, onClose }) => {
   }, [isOpen, onClose])
 
   const handleNavigation = section => {
-    navigate(`/${section}`)
+    navigate(section === 'feed' ? '/home' : `/${section}`)
     onClose()
   }
 
@@ -69,7 +69,7 @@ const SideMenuNav = ({ isOpen, onClose }) => {
       id: 'feed',
       icon: LayoutDashboard,
       label: "Fil d'actualité",
-      badge: null
+      badge: home
     },
     { id: 'friends', icon: Users, label: 'Amis', badge: friends },
     { id: 'messages', icon: MessageCircle, label: 'Messages', badge: messages },

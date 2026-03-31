@@ -20,7 +20,8 @@ import {
   UserPlus,
   UserCheck,
   UserX,
-  Clock
+  Clock,
+  Image
 } from 'lucide-react'
 import Header from '../Header'
 import SideMenuNav from '../SideMenuNav'
