@@ -91,72 +91,89 @@ const SideMenuNav = ({ isOpen, onClose }) => {
     <>
       {/* Overlay */}
       <div
-        className={`side-menu-overlay ${isOpen ? 'active' : ''}`}
+        className={`fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] transition-opacity duration-500 ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
         onClick={onClose}
       />
 
-      {/* Side Menu - NOW COVERS ENTIRE VIEWPORT FROM TOP */}
+      {/* Side Menu - Glass Panel */}
       <div
         ref={sidebarRef}
-        className={`side-menu ${isOpen ? 'active' : ''}`}
-        style={{ top: 0, height: '100%' }}
+        className={`fixed left-0 top-0 h-full w-80 bg-[#0f0f0f]/90 backdrop-blur-3xl border-r border-white/5 z-[70] transition-transform duration-700 ease-out flex flex-col ${isOpen ? 'translate-x-0 shadow-[20px_0_50px_rgba(0,0,0,0.5)]' : '-translate-x-full'}`}
       >
         {/* Side Menu Header with Logo */}
-        <div className='side-menu-header'>
-          <div className='flex items-center gap-3'>
-            {/* Logo in Side Menu */}
-            <div className='logo-circle'>T</div>
+        <div className='p-8 flex items-center justify-between'>
+          <div className='flex items-center gap-4 group/logo'>
+            <div className='w-12 h-12 bg-white text-black rounded-2xl flex items-center justify-center font-black text-2xl shadow-2xl group-hover/logo:rotate-12 group-hover/logo:scale-110 transition-all duration-500'>T</div>
             <div>
-              <h2 className='text-white font-bold text-lg'>Tulk</h2>
-              <p className='text-gray-400 text-xs'>
-                Connectez-vous avec le monde
-              </p>
+              <h2 className='text-white font-black text-xl tracking-tighter leading-none'>Tulk</h2>
+              <p className='text-gray-500 text-[10px] font-black uppercase tracking-[0.2em] mt-1'>Univers Connecté</p>
             </div>
           </div>
-          <button className='close-menu' onClick={onClose}>
-            <X size={24} />
+          <button 
+            className='w-10 h-10 flex items-center justify-center bg-white/5 border border-white/10 rounded-xl text-gray-400 hover:text-white hover:bg-white/10 transition-all group/x' 
+            onClick={onClose}
+          >
+            <X size={20} className='group-hover:rotate-90 transition-transform duration-300' />
           </button>
         </div>
 
-        {/* User Info Section */}
-        <div className='px-4 py-3 border-b border-[#262626]'>
-          <div className='flex items-center gap-3'>
-            <div className='w-10 h-10 rounded-full overflow-hidden relative'>
-              <Avatar user={user} size='w-full h-full' />
-            </div>
-            <div className='flex-1 min-w-0'>
-              <p className='text-white font-medium text-sm truncate'>
-                {user?.prenom} {user?.nom}
-              </p>
-              <p className='text-gray-400 text-xs truncate'>{user?.email}</p>
+        {/* User Identity Card */}
+        <div className='px-8 py-6 mb-4'>
+          <div className='bg-white/5 border border-white/5 rounded-[2rem] p-6 hover:border-white/20 transition-all group/user'>
+            <div className='flex items-center gap-4'>
+              <div className='relative'>
+                 <Avatar user={user} size='w-12 h-12' className='rounded-2xl border-2 border-white/10 group-hover/user:scale-110 transition-transform duration-500' />
+                 <div className='absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-[#0f0f0f] rounded-full'></div>
+              </div>
+              <div className='flex-1 min-w-0'>
+                <p className='text-white font-black text-sm tracking-tight truncate'>
+                  {user?.prenom} {user?.nom}
+                </p>
+                <p className='text-gray-500 text-[10px] font-black uppercase tracking-widest truncate opacity-60'>
+                   {user?.role === 'admin' ? 'Administrator' : 'Premium Member'}
+                </p>
+              </div>
             </div>
           </div>
         </div>
 
-        <nav className='mobile-nav'>
+        <nav className='flex-1 px-6 space-y-2 overflow-y-auto no-scrollbar'>
           {/* Navigation Items */}
-          {menuItems.map(item => (
-            <button
-              key={item.id}
-              className={`nav-btn ${
-                location.pathname.includes(item.id) ? 'active' : ''
-              }`}
-              onClick={() => handleNavigation(item.id)}
-            >
-              <item.icon size={20} />
-              <span>{item.label}</span>
-              {item.badge !== null && item.badge > 0 && (
-                <span className='notification-badge'>{item.badge}</span>
-              )}
-            </button>
-          ))}
+          {menuItems.map(item => {
+            const isActive = location.pathname.includes(item.id) || (item.id === 'feed' && location.pathname === '/home');
+            return (
+              <button
+                key={item.id}
+                className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.25em] transition-all duration-500 relative group ${
+                  isActive ? 'bg-white text-black shadow-2xl scale-105' : 'text-gray-500 hover:text-white hover:bg-white/5'
+                }`}
+                onClick={() => handleNavigation(item.id)}
+              >
+                <item.icon size={18} className={`${isActive ? 'opacity-100' : 'opacity-40 group-hover:opacity-100 group-hover:scale-125'} transition-all`} />
+                <span>{item.label}</span>
+                {item.badge !== null && item.badge > 0 && (
+                  <span className={`px-2 py-0.5 rounded-full text-[8px] font-black border ${
+                    isActive ? 'bg-black text-white border-white/20' : 'bg-red-500 text-white border-red-400 shadow-lg shadow-red-500/20'
+                  }`}>
+                    {item.badge}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </nav>
 
-          {/* Logout button */}
-          <button className='nav-btn logout-btn' onClick={handleLogout}>
-            <LogOut size={20} />
+        {/* Logout section */}
+        <div className='p-8 mt-auto border-t border-white/5'>
+          <button 
+            className='w-full flex items-center justify-center gap-4 py-4 bg-red-500/10 text-red-500 rounded-2xl font-black text-[10px] tracking-[0.3em] uppercase hover:bg-red-500 hover:text-white transition-all duration-500 group shadow-lg overflow-hidden relative' 
+            onClick={handleLogout}
+          >
+            <div className='absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000'></div>
+            <LogOut size={20} className='group-hover:-translate-x-1 transition-transform' />
             <span>Déconnexion</span>
           </button>
-        </nav>
+        </div>
       </div>
     </>
   )

@@ -21,7 +21,10 @@ import {
   UserCheck,
   UserX,
   Clock,
-  Image
+  Image,
+  User,
+  Bell,
+  Mail
 } from 'lucide-react'
 import Header from '../Header'
 import SideMenuNav from '../SideMenuNav'
@@ -813,7 +816,7 @@ const Profile = () => {
                           <div className='grid gap-4'>
                             {[
                               { label: 'Identité Publique', value: `${profile.prenom} ${profile.nom}`, icon: User },
-                              { label: 'Email vérifié', value: profile.email, icon: Bell },
+                              { label: 'Email vérifié', value: profile.email, icon: Mail },
                               { label: 'Localisation', value: profile.location || 'Dans le cloud', icon: MapPin }
                             ].map((item, i) => (
                               <div key={i} className='bg-white/5 border border-white/5 rounded-[2rem] p-6 hover:border-white/20 transition-all hover:bg-white/[0.07]'>

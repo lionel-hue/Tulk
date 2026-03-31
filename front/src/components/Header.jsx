@@ -167,107 +167,118 @@ const Header = ({
 
   return (
     <>
-      <header className='home-header'>
-        <div className='header-content'>
+      <header className='sticky top-0 z-40 bg-[#060606]/80 backdrop-blur-xl border-b border-white/5 transition-all duration-500'>
+        <div className='max-w-full mx-auto px-4 md:px-8 flex items-center justify-between h-20 gap-6'>
           {/* Side Menu Toggle */}
-          <button className='menu-toggle' onClick={onSidebarToggle}>
-            <Menu size={24} />
+          <button 
+            className='w-12 h-12 flex items-center justify-center bg-white/5 border border-white/10 rounded-2xl text-gray-400 hover:text-white hover:bg-white/10 transition-all hover:scale-110 active:scale-95 group shadow-xl' 
+            onClick={onSidebarToggle}
+          >
+            <Menu size={22} className='group-hover:rotate-12 transition-transform duration-300' />
           </button>
 
           {/* Desktop Navigation */}
-          <nav className='desktop-nav hidden lg:flex'>
+          <nav className='hidden lg:flex items-center gap-2'>
             {navItems.map(item => (
               <button
                 key={item.id}
-                className={`nav-btn ${
-                  activeSection === item.id ? 'active' : ''
+                className={`flex items-center gap-3 px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all duration-500 relative group ${
+                  activeSection === item.id 
+                    ? 'bg-white text-black shadow-2xl scale-105' 
+                    : 'text-gray-500 hover:text-white hover:bg-white/5'
                 }`}
                 onClick={() => handleNavigation(item.id)}
               >
-                <item.icon size={20} />
+                <item.icon size={16} className={`${activeSection === item.id ? 'opacity-100' : 'opacity-40 group-hover:opacity-100 group-hover:scale-125'} transition-all`} />
                 <span>{item.label}</span>
                 {item.badge !== null && item.badge > 0 && (
-                  <span className='notification-badge'>{item.badge}</span>
+                  <span className={`absolute -top-1 -right-1 px-2 py-0.5 rounded-full text-[8px] font-black border animate-pulse ${
+                    activeSection === item.id ? 'bg-black text-white border-white/20' : 'bg-red-500 text-white border-red-400 shadow-xl shadow-red-500/20'
+                  }`}>
+                    {item.badge}
+                  </span>
                 )}
               </button>
             ))}
           </nav>
 
           {/* Search Bar - with form submission */}
-          <div className='header-search'>
-            <form onSubmit={handleSearchSubmit} className='w-full'>
+          <div className='relative flex-1 max-w-2xl group/search'>
+            <form onSubmit={handleSearchSubmit} className='w-full relative'>
               <input
                 ref={searchInputRef}
                 type='text'
-                placeholder='Rechercher sur Tulk...'
+                placeholder='Exploration Tulk...'
+                className='w-full px-6 py-3.5 bg-white/5 border border-white/5 rounded-2xl text-white text-sm font-bold tracking-tight outline-none focus:ring-4 focus:ring-purple-500/20 focus:bg-white/10 focus:border-purple-500/30 transition-all placeholder:text-gray-600'
                 value={localSearchQuery}
                 onChange={handleSearchChange}
                 onBlur={handleSearchBlur}
               />
+              <div className='absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none opacity-40 group-focus-within/search:opacity-100 transition-opacity'>
+                <Search size={18} className='text-purple-400' />
+              </div>
             </form>
-            {localSearchQuery ? (
+            {localSearchQuery && (
               <button
                 onClick={clearSearch}
-                className='absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-white/5 hover:bg-white/10 rounded-xl text-gray-400 hover:text-white transition-all hover:scale-110 active:scale-95 group/x'
+                className='absolute right-12 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-white/5 hover:bg-white/10 rounded-xl text-gray-400 hover:text-white transition-all hover:scale-110 active:scale-95 group/x'
                 type='button'
               >
                 <X size={14} className='group-hover:rotate-90 transition-transform duration-300' />
               </button>
-            ) : (
-              <div className='absolute right-3 top-1/2 -translate-y-1/2 text-gray-500'>
-                <Search size={18} />
-              </div>
             )}
           </div>
 
           {/* User Profile */}
-          <div className='header-profile' ref={profileDropdownRef}>
-            <div className='profile-pic'>
-              <Avatar user={user} size='w-8 h-8' isLink={true} />
-            </div>
+          <div className='relative' ref={profileDropdownRef}>
+            <button 
+              onClick={toggleProfileDropdown}
+              className='p-1 bg-white/5 rounded-2xl border border-white/5 hover:border-white/20 transition-all hover:scale-105 active:scale-95'
+            >
+              <Avatar user={user} size='w-10 h-10' className='rounded-xl' />
+            </button>
 
             {/* Profile Dropdown Menu */}
             {isProfileDropdownOpen && (
-              <div className='profile-dropdown-menu'>
-                <div className='profile-dropdown-header'>
-                  <div className='user-avatar'>
-                    <Avatar user={user} size='w-12 h-12' isLink={true} />
+              <div className='absolute right-0 top-full mt-4 w-72 bg-[#0f0f0f]/90 backdrop-blur-2xl border border-white/10 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden animate-in fade-in zoom-in-95 duration-300 z-50'>
+                <div className='p-8'>
+                  <div className='flex items-center gap-4 mb-8'>
+                    <Avatar user={user} size='w-14 h-14' className='rounded-2xl border-2 border-white/10' />
+                    <div className='min-w-0'>
+                      <div className='text-white font-black text-lg tracking-tight truncate'>
+                        {user?.prenom} {user?.nom}
+                      </div>
+                      <div className='text-[10px] font-black uppercase tracking-widest text-purple-400 mt-1'>
+                        {user?.role === 'admin' ? 'Administrator' : 'Premium Member'}
+                      </div>
+                    </div>
                   </div>
-                  <div className='user-info'>
-                    <div className='user-name'>
-                      {user?.prenom} {user?.nom}
-                    </div>
-                    <div className='user-role'>
-                      {user?.role === 'admin'
-                        ? 'Administrateur'
-                        : user?.role === 'mod'
-                        ? 'Modérateur'
-                        : 'Utilisateur'}
-                    </div>
+                  
+                  <div className='space-y-2'>
+                    <button
+                      className='w-full flex items-center gap-4 p-4 rounded-2xl text-gray-400 hover:text-white hover:bg-white/5 transition-all group/item'
+                      onClick={() => handleProfileAction('profile')}
+                    >
+                      <User size={18} className='group-hover/item:scale-125 transition-transform' />
+                      <span className='font-bold text-sm'>Mon Profil</span>
+                    </button>
+                    <button
+                      className='w-full flex items-center gap-4 p-4 rounded-2xl text-gray-400 hover:text-white hover:bg-white/5 transition-all group/item'
+                      onClick={() => handleProfileAction('settings')}
+                    >
+                      <Settings size={18} className='group-hover/item:scale-125 transition-transform' />
+                      <span className='font-bold text-sm'>Paramètres</span>
+                    </button>
+                    <div className='h-px bg-white/5 my-4 mx-2'></div>
+                    <button
+                      className='w-full flex items-center gap-4 p-4 rounded-2xl text-red-500 hover:bg-red-500/10 transition-all group/item'
+                      onClick={() => handleProfileAction('logout')}
+                    >
+                      <LogOut size={18} className='group-hover/item:translate-x-1 transition-transform' />
+                      <span className='font-black text-xs tracking-widest uppercase'>Déconnexion</span>
+                    </button>
                   </div>
                 </div>
-                <div className='profile-dropdown-divider'></div>
-                <button
-                  className='profile-dropdown-item'
-                  onClick={() => handleProfileAction('profile')}
-                >
-                  <User size={18} />
-                  <span>Mon Profil</span>
-                </button>
-                <button
-                  className='profile-dropdown-item'
-                  onClick={() => handleProfileAction('settings')}
-                >
-                  <Settings size={18} />
-                  <span>Paramètres</span>
-                </button>
-                <button
-                  className='profile-dropdown-item logout-item'
-                  onClick={() => handleProfileAction('logout')}
-                >
-                  <LogOut size={18} />
-                  <span>Déconnexion</span>
-                </button>
               </div>
             )}
           </div>
