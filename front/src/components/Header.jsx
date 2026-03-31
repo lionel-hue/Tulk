@@ -207,11 +207,8 @@ const Header = ({
 
           {/* User Profile */}
           <div className='header-profile' ref={profileDropdownRef}>
-            <div
-              className='profile-pic cursor-pointer'
-              onClick={toggleProfileDropdown}
-            >
-              <Avatar user={user} size='w-8 h-8' />
+            <div className='profile-pic'>
+              <Avatar user={user} size='w-8 h-8' isLink={true} />
             </div>
 
             {/* Profile Dropdown Menu */}
@@ -219,7 +216,7 @@ const Header = ({
               <div className='profile-dropdown-menu'>
                 <div className='profile-dropdown-header'>
                   <div className='user-avatar'>
-                    <Avatar user={user} size='w-12 h-12' />
+                    <Avatar user={user} size='w-12 h-12' isLink={true} />
                   </div>
                   <div className='user-info'>
                     <div className='user-name'>

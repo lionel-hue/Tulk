@@ -1270,3 +1270,55 @@
 .profile-image-container img[style*='display: none'] + div {
   display: flex !important;
 }
+
+/* Modern Chat Image Styles */
+.message-bubble.has-image {
+  padding: 0.5rem;
+  max-width: 300px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.message-image-wrapper {
+    overflow: hidden;
+    border-radius: 0.75rem;
+}
+
+.message-image-wrapper img {
+  width: 100%;
+  height: auto;
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+.message-image-wrapper img:hover {
+    transform: scale(1.02);
+}
+
+.image-preview-container {
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  gap: 1rem;
+  animation: slide-up 0.3s ease-out;
+}
+
+@keyframes slide-up {
+  from { transform: translateY(10px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.image-preview-item {
+  position: relative;
+  width: 60px;
+  height: 60px;
+}
+
+.image-preview-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}

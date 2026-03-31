@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams, Link } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 import api from '../../utils/api'
 import Avatar from '../common/Avatar'
+import { getImageUrl } from '../../utils/imageUrls'
 import { 
   Send, 
   Search, 
@@ -10,7 +11,9 @@ import {
   Image as ImageIcon, 
   MessageCircle,
   Loader2,
-  ChevronLeft
+  ChevronLeft,
+  X,
+  FileImage
 } from 'lucide-react'
 
 const Messages = () => {
@@ -22,7 +25,11 @@ const Messages = () => {
   const [loading, setLoading] = useState(true)
   const [messagesLoading, setMessagesLoading] = useState(false)
   const [newMessage, setNewMessage] = useState('')
+  const [selectedImage, setSelectedImage] = useState(null)
+  const [imagePreview, setImagePreview] = useState(null)
   const [sending, setSending] = useState(false)
+  
+  const fileInputRef = useRef(null)
   const messagesEndRef = useRef(null)
   const pollingInterval = useRef(null)
 
@@ -36,16 +43,17 @@ const Messages = () => {
   }, [])
 
   useEffect(() => {
-    if (userIdParam && conversations.length > 0) {
+    if (userIdParam && (conversations.length > 0 || loading === false)) {
       const conv = conversations.find(c => c.user.id === parseInt(userIdParam))
       if (conv) {
-        handleSelectConversation(conv)
-      } else {
-        // If not in conversations list, we might need to fetch the user info
+        if (activeConversation?.user.id !== conv.user.id) {
+          handleSelectConversation(conv)
+        }
+      } else if (!activeConversation || activeConversation.user.id !== parseInt(userIdParam)) {
         fetchTargetUser(userIdParam)
       }
     }
-  }, [userIdParam, conversations.length])
+  }, [userIdParam, conversations.length, loading])
 
   const fetchConversations = async () => {
     try {
@@ -109,13 +117,12 @@ const Messages = () => {
     return () => {
       if (pollingInterval.current) clearInterval(pollingInterval.current)
     }
-  }, [activeConversation])
+  }, [activeConversation, messages.length])
 
   const refreshMessages = async (userId) => {
     try {
       const response = await api.get(`/messages/${userId}`)
       if (response.data.success) {
-        // Only update if count changed or last message is different
         if (response.data.messages.length !== messages.length) {
           setMessages(response.data.messages)
           scrollToBottom()
@@ -132,21 +139,49 @@ const Messages = () => {
     fetchMessages(conv.user.id)
   }
 
+  const handleImageSelect = (e) => {
+    const file = e.target.files[0]
+    if (file) {
+      setSelectedImage(file)
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setImagePreview(reader.result)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const clearImage = () => {
+    setSelectedImage(null)
+    setImagePreview(null)
+    if (fileInputRef.current) fileInputRef.current.value = ''
+  }
+
   const handleSendMessage = async (e) => {
     e.preventDefault()
-    if (!newMessage.trim() || !activeConversation || sending) return
+    if ((!newMessage.trim() && !selectedImage) || !activeConversation || sending) return
 
     setSending(true)
     try {
-      const response = await api.post('/messages', {
-        receiver_id: activeConversation.user.id,
-        texte: newMessage
+      const formData = new FormData()
+      formData.append('receiver_id', activeConversation.user.id)
+      formData.append('texte', newMessage)
+      if (selectedImage) {
+        formData.append('image', selectedImage)
+      }
+
+      const response = await api.post('/messages', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
       })
+
       if (response.data.success) {
         setMessages([...messages, response.data.message])
         setNewMessage('')
+        clearImage()
         scrollToBottom()
-        fetchConversations() // Update sidebar
+        fetchConversations()
       }
     } catch (error) {
       console.error('Error sending message:', error)
@@ -201,7 +236,7 @@ const Messages = () => {
                     {conv.user.prenom} {conv.user.nom}
                   </div>
                   <div className='conversation-last-msg'>
-                    {conv.last_message?.texte || 'Envoyez un message...'}
+                    {conv.last_message?.image ? '📷 Image' : (conv.last_message?.texte || 'Envoyez un message...')}
                   </div>
                 </div>
                 {conv.last_message && (
@@ -227,11 +262,11 @@ const Messages = () => {
                 >
                   <ChevronLeft size={24} />
                 </button>
-                <Avatar user={activeConversation.user} size='w-10 h-10' />
+                <Avatar user={activeConversation.user} size='w-10 h-10' isLink={true} />
                 <div>
-                  <h4 className='text-white font-semibold'>
+                  <Link to={`/profile/${activeConversation.user.id}`} className='text-white font-semibold hover:text-purple-400 transition-colors'>
                     {activeConversation.user.prenom} {activeConversation.user.nom}
-                  </h4>
+                  </Link>
                   <span className='text-xs text-green-500 flex items-center gap-1'>
                     <span className='w-1.5 h-1.5 rounded-full bg-green-500'></span> En ligne
                   </span>
@@ -254,9 +289,19 @@ const Messages = () => {
                     return (
                       <div 
                         key={msg.id || index}
-                        className={`message-bubble ${isSentByMe ? 'message-sent' : 'message-received'}`}
+                        className={`message-bubble ${isSentByMe ? 'message-sent' : 'message-received'} ${msg.image ? 'has-image' : ''}`}
                       >
-                        <p>{msg.texte}</p>
+                        {msg.image && (
+                          <div className='message-image-wrapper mb-2'>
+                            <img 
+                              src={getImageUrl(msg.image)} 
+                              alt='Chat attachment' 
+                              className='rounded-lg max-w-full cursor-pointer hover:opacity-90 transition-opacity'
+                              onClick={() => window.open(getImageUrl(msg.image), '_blank')}
+                            />
+                          </div>
+                        )}
+                        {msg.texte && <p>{msg.texte}</p>}
                         <span className='message-time'>
                           {formatDate(msg.date)}
                         </span>
@@ -269,8 +314,33 @@ const Messages = () => {
             </div>
 
             <div className='chat-input-area'>
+              {imagePreview && (
+                <div className='image-preview-container'>
+                  <div className='relative inline-block'>
+                    <img src={imagePreview} alt='Preview' className='h-20 w-20 object-cover rounded-lg border border-white/10' />
+                    <button 
+                      onClick={clearImage}
+                      className='absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-lg hover:bg-red-600'
+                    >
+                      <X size={12} />
+                    </button>
+                  </div>
+                </div>
+              )}
+              
               <form onSubmit={handleSendMessage} className='chat-input-wrapper'>
-                <button type='button' className='p-2 text-gray-400 hover:text-white transition-colors'>
+                <input 
+                  type='file' 
+                  ref={fileInputRef}
+                  onChange={handleImageSelect}
+                  accept='image/*'
+                  className='hidden'
+                />
+                <button 
+                  type='button' 
+                  onClick={() => fileInputRef.current?.click()}
+                  className={`p-2 transition-colors ${selectedImage ? 'text-purple-400' : 'text-gray-400 hover:text-white'}`}
+                >
                   <ImageIcon size={20} />
                 </button>
                 <input 
@@ -281,7 +351,7 @@ const Messages = () => {
                 />
                 <button 
                   type='submit' 
-                  disabled={!newMessage.trim() || sending}
+                  disabled={(!newMessage.trim() && !selectedImage) || sending}
                   className='chat-send-btn'
                 >
                   {sending ? <Loader2 size={18} className='animate-spin' /> : <Send size={18} />}

@@ -484,7 +484,7 @@ const Home = () => {
     <div key={post.id} className='post-card'>
       <div className='post-header'>
         <div className='post-user-info'>
-          <Avatar user={post.user} size='w-10 h-10' />
+          <Avatar user={post.user} size='w-10 h-10' isLink={true} />
           <div className='post-user-details'>
             <div className='post-user-name'>
               {post.user.prenom} {post.user.nom}
@@ -613,7 +613,7 @@ const Home = () => {
       {/* Add Post Section */}
       <div className='add-post-card'>
         <div className='add-post-header'>
-          <Avatar user={user} size='w-10 h-10' />
+          <Avatar user={user} size='w-10 h-10' isLink={true} />
           <div className='flex-1'>
             <textarea
               value={newPostDescription}
