@@ -229,7 +229,7 @@ const Messages = () => {
   }
 
   return (
-    <div className='premium-chat-layout animate-fade-in'>
+    <div className='premium-chat-layout animate-fade-in mobile-responsive-height'>
       {/* Search & List Sidebar */}
       <div className={`premium-sidebar ${activeConversation ? 'hidden lg:flex' : 'flex'}`}>
         <div className='premium-sidebar-header'>
