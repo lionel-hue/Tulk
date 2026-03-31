@@ -57,7 +57,8 @@ class MessageController extends Controller
 
             return response()->json([
                 'success' => true,
-                'conversations' => $conversations
+                'conversations' => $conversations,
+                'unread_total' => Message::where('id_uti_2', $user->id)->where('is_read', false)->count()
             ]);
         } catch (\Exception $e) {
             Log::error('Error fetching conversations: ' . $e->getMessage());
@@ -81,6 +82,12 @@ class MessageController extends Controller
             })->orWhere(function ($q) use ($user, $otherUserId) {
                 $q->where('id_uti_1', $otherUserId)->where('id_uti_2', $user->id);
             })->orderBy('date', 'asc')->get();
+
+            // Mark as read
+            Message::where('id_uti_1', $otherUserId)
+                ->where('id_uti_2', $user->id)
+                ->where('is_read', false)
+                ->update(['is_read' => true]);
 
             return response()->json([
                 'success' => true,
@@ -136,6 +143,28 @@ class MessageController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Erreur lors de l\'envoi du message'
+            ], 500);
+        }
+    }
+    /**
+     * Get unread messages count for the authenticated user.
+     */
+    public function unreadCount()
+    {
+        try {
+            $user = Auth::user();
+            $count = Message::where('id_uti_2', $user->id)
+                ->where('is_read', false)
+                ->count();
+
+            return response()->json([
+                'success' => true,
+                'count' => $count
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors du comptage des messages'
             ], 500);
         }
     }

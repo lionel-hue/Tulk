@@ -164,6 +164,11 @@ class AmitieController extends Controller
                 ->orWhere('id_2', $user->id);
         })
             ->where('statut', 'ami')
+            ->where(function ($query) use ($user) {
+                // Ensure we don't return friendship with oneself if it exists in DB
+                $query->where('id_1', '!=', $user->id)
+                    ->orWhere('id_2', '!=', $user->id);
+            })
             ->get();
 
         $friends = [];
@@ -362,5 +367,18 @@ class AmitieController extends Controller
 
         $mutualFriends = array_intersect($user1Friends, $user2Friends);
         return count($mutualFriends);
+    }
+
+    public function pendingCount()
+    {
+        $user = Auth::user();
+        $count = Amitie::where('id_2', $user->id)
+            ->where('statut', 'en attente')
+            ->count();
+
+        return response()->json([
+            'success' => true,
+            'count' => $count
+        ]);
     }
 }

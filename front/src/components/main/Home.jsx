@@ -29,14 +29,23 @@ const PostImage = ({ src }) => {
   const [hasError, setHasError] = useState(false)
   const imageUrl = getImageUrl(src)
 
-  if (!imageUrl || hasError) return null
+  if (!imageUrl || hasError) {
+    return (
+      <div className='w-full h-56 bg-gradient-to-br from-purple-500/10 via-blue-500/5 to-pink-500/10 rounded-2xl mb-4 flex flex-col items-center justify-center border border-white/5 group-hover:border-purple-500/30 transition-all duration-500 shadow-inner group'>
+        <div className='w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-500 border border-white/10'>
+          <Image size={24} className='text-purple-400/50' />
+        </div>
+        <span className='text-white/30 text-xs font-bold uppercase tracking-[0.2em] animate-pulse'>Contenu Tulk</span>
+      </div>
+    )
+  }
 
   return (
-    <div className='post-image-container'>
+    <div className='post-image-container group/img overflow-hidden rounded-2xl mb-4 border border-white/5'>
       <img
         src={imageUrl}
         alt='Post'
-        className='post-image'
+        className='post-image hover:scale-105 transition-transform duration-700'
         onError={() => setHasError(true)}
       />
     </div>
@@ -164,6 +173,8 @@ const Home = () => {
   useEffect(() => {
     if (activeSection === 'feed') {
       loadPosts()
+      // Mark feed as read when viewing it
+      api.post('/posts/mark-read').catch(err => console.error('Error marking feed as read:', err))
     }
   }, [activeSection])
 
@@ -480,8 +491,8 @@ const Home = () => {
   }
 
   // Render a single post
-  const renderPost = post => (
-    <div key={post.id} className='post-card'>
+  const renderPost = (post, index) => (
+    <div key={`post-${post.id}-${index}`} className='post-card group'>
       <div className='post-header'>
         <div className='post-user-info'>
           <Avatar user={post.user} size='w-10 h-10' isLink={true} />
@@ -693,7 +704,7 @@ const Home = () => {
             </div>
           </div>
         ) : (
-          <div className='space-y-4'>{posts.map(renderPost)}</div>
+          <div className='space-y-4'>{posts.map((post, index) => renderPost(post, index))}</div>
         )}
       </div>
     </div>
@@ -776,7 +787,7 @@ const Home = () => {
                 Aucune publication pour le moment
               </div>
             ) : (
-              posts.filter(post => post.is_owner).map(renderPost)
+              posts.filter(post => post.is_owner).map((post, index) => renderPost(post, index))
             )}
           </div>
         </div>

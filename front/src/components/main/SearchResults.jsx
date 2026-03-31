@@ -54,6 +54,14 @@ const SearchResults = () => {
     }
   }
 
+  const handleBack = () => {
+    if (window.history.length > 2) {
+      navigate(-1)
+    } else {
+      navigate('/home')
+    }
+  }
+
   const handleLikeProfile = async userId => {
     try {
       const response = await api.post(`/profile/${userId}/like`)
@@ -69,22 +77,9 @@ const SearchResults = () => {
               : u
           )
         )
-        setModal({
-          show: true,
-          type: 'success',
-          title: 'Succès',
-          message: response.data.liked
-            ? 'Profil liké avec succès!'
-            : 'Like retiré'
-        })
       }
     } catch (error) {
-      setModal({
-        show: true,
-        type: 'error',
-        title: 'Erreur',
-        message: error.response?.data?.message || 'Erreur lors du like'
-      })
+      console.error('Error liking profile:', error)
     }
   }
 
@@ -95,20 +90,9 @@ const SearchResults = () => {
         setResults(
           results.map(u => (u.id === userId ? { ...u, is_following: true } : u))
         )
-        setModal({
-          show: true,
-          type: 'success',
-          title: 'Succès',
-          message: 'Utilisateur suivi avec succès!'
-        })
       }
     } catch (error) {
-      setModal({
-        show: true,
-        type: 'error',
-        title: 'Erreur',
-        message: error.response?.data?.message || 'Erreur lors du follow'
-      })
+      console.error('Error following user:', error)
     }
   }
 
@@ -121,20 +105,9 @@ const SearchResults = () => {
             u.id === userId ? { ...u, is_following: false } : u
           )
         )
-        setModal({
-          show: true,
-          type: 'success',
-          title: 'Succès',
-          message: 'Utilisateur non suivi'
-        })
       }
     } catch (error) {
-      setModal({
-        show: true,
-        type: 'error',
-        title: 'Erreur',
-        message: error.response?.data?.message || 'Erreur lors du unfollow'
-      })
+      console.error('Error unfollowing user:', error)
     }
   }
 
@@ -167,116 +140,131 @@ const SearchResults = () => {
   }
 
   return (
-    <div className='section-content active'>
-      <div className='max-w-4xl mx-auto'>
-        <div className='section-header mb-6'>
-          <div className='flex items-center gap-3'>
-            <h2>Résultats pour "{query}"</h2>
-            <span className='text-gray-400'>
-              {results.length} utilisateur(s)
-            </span>
+    <div className='section-content active animate-in fade-in slide-in-from-bottom-4 duration-500'>
+      <div className='max-w-6xl mx-auto px-4 py-8'>
+        <div className='flex items-center justify-between mb-8 pb-6 border-b border-white/5'>
+          <div className='flex items-center gap-6'>
+            <button
+              onClick={handleBack}
+              className='p-3 bg-white/5 border border-white/10 rounded-2xl text-gray-400 hover:text-white hover:bg-white/10 transition-all group shadow-xl'
+              title='Retour'
+            >
+              <X size={22} className='group-hover:-translate-x-1 transition-transform duration-300' />
+            </button>
+            <div>
+              <h2 className='text-3xl font-black text-white tracking-tight leading-none'>
+                Résultats pour <span className='text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400'>"{query}"</span>
+              </h2>
+              <p className='text-gray-500 text-sm mt-2 font-medium'>
+                {results.length} utilisateur{results.length > 1 ? 's' : ''} trouvé{results.length > 1 ? 's' : ''} sur Tulk
+              </p>
+            </div>
           </div>
-          <button
-            onClick={() => navigate('/home')}
-            className='p-2 text-gray-400 hover:text-white transition-colors'
-          >
-            <X size={20} />
-          </button>
         </div>
 
         {loading ? (
-          <div className='text-center py-12'>
-            <Loader2 className='h-8 w-8 animate-spin mx-auto text-gray-400 mb-4' />
-            <p className='text-gray-400'>Recherche en cours...</p>
+          <div className='flex flex-col items-center justify-center py-24'>
+            <div className='relative'>
+              <div className='w-16 h-16 border-4 border-purple-500/20 border-t-purple-500 rounded-full animate-spin'></div>
+              <div className='absolute inset-0 flex items-center justify-center'>
+                <Loader2 size={24} className='text-purple-400 animate-pulse' />
+              </div>
+            </div>
+            <p className='text-gray-400 mt-6 font-medium animate-pulse text-lg'>Recherche en cours...</p>
           </div>
         ) : results.length === 0 ? (
-          <div className='text-center py-12 bg-[#141414] border border-[#262626] rounded-xl'>
-            <Users size={48} className='mx-auto text-gray-400 mb-4' />
-            <h3 className='text-lg font-semibold text-white mb-2'>
-              Aucun résultat
-            </h3>
-            <p className='text-gray-400'>
-              Aucun utilisateur trouvé pour cette recherche
+          <div className='text-center py-20 bg-[#0f0f0f] border border-[#262626] rounded-3xl shadow-2xl'>
+            <div className='w-24 h-24 bg-purple-500/10 rounded-full flex items-center justify-center mx-auto mb-6'>
+              <Users size={48} className='text-purple-400/50' />
+            </div>
+            <h3 className='text-2xl font-bold text-white mb-3'>Aucun résultat</h3>
+            <p className='text-gray-500 max-w-sm mx-auto'>
+              Nous n'avons trouvé aucun utilisateur correspondant à "{query}". Essayez un autre nom ou email.
             </p>
+            <button 
+              onClick={handleBack}
+              className='mt-8 px-6 py-3 bg-white text-black rounded-xl font-bold hover:scale-105 active:scale-95 transition-all'
+            >
+              Fermer la recherche
+            </button>
           </div>
         ) : (
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-            {results.map(userData => (
+          <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+            {results.map((userData, index) => (
               <div
                 key={userData.id}
-                className='bg-[#141414] border border-[#262626] rounded-xl p-4'
+                className='bg-[#141414] border border-[#262626] rounded-3xl p-6 hover:border-purple-500/30 transition-all hover:shadow-2xl hover:shadow-purple-500/5 group animate-in slide-in-from-bottom-8 duration-500'
+                style={{ animationDelay: `${index * 50}ms` }}
               >
-                <div className='flex items-start gap-4 mb-4'>
+                <div className='flex items-start gap-5 mb-6'>
                   <Link
                     to={`/profile/${userData.id}`}
-                    className='w-16 h-16 rounded-full overflow-hidden flex-shrink-0 relative hover:opacity-80 transition-opacity'
+                    className='w-20 h-20 rounded-2xl overflow-hidden flex-shrink-0 relative group-hover:scale-105 transition-transform duration-300 ring-2 ring-transparent group-hover:ring-purple-500/30'
                   >
                     <Avatar user={userData} size='w-full h-full' />
                   </Link>
                   <div className='flex-1 min-w-0'>
                     <Link
                       to={`/profile/${userData.id}`}
-                      className='hover:text-purple-400 transition-colors'
+                      className='block'
                     >
-                      <h3 className='text-white font-semibold text-lg truncate'>
+                      <h3 className='text-white font-bold text-xl truncate group-hover:text-purple-400 transition-colors'>
                         {userData.prenom} {userData.nom}
                       </h3>
                     </Link>
-                    <p className='text-gray-400 text-sm truncate'>
-                      {userData.email}
+                    <p className='text-gray-500 text-sm truncate mb-3'>
+                      @{userData.email?.split('@')[0]}
                     </p>
-                    {userData.bio && (
-                      <p className='text-gray-500 text-sm mt-1 line-clamp-2'>
-                        {userData.bio}
-                      </p>
-                    )}
-                    {userData.location && (
-                      <p className='text-gray-500 text-xs mt-1'>
-                        📍 {userData.location}
-                      </p>
-                    )}
-                  </div>
-                </div>
-
-                <div className='flex gap-4 mb-4 text-sm'>
-                  <div className='flex items-center gap-1 text-gray-400'>
-                    <FileText size={14} />
-                    <span>{userData.posts_count || 0} posts</span>
-                  </div>
-                  <div className='flex items-center gap-1 text-gray-400'>
-                    <Users size={14} />
-                    <span>{userData.followers_count || 0} followers</span>
-                  </div>
-                  {userData.mutual_friends > 0 && (
-                    <div className='flex items-center gap-1 text-purple-400'>
-                      <UserCheck size={14} />
-                      <span>{userData.mutual_friends} ami(s) mutuel(s)</span>
+                    <div className='flex flex-wrap gap-2'>
+                        {userData.role === 'admin' && (
+                           <span className='px-2 py-0.5 bg-red-500/10 text-red-400 text-[10px] font-bold uppercase tracking-wider rounded-md border border-red-500/20'>Admin</span>
+                        )}
+                        {userData.mutual_friends > 0 && (
+                           <span className='px-2 py-0.5 bg-purple-500/10 text-purple-400 text-[10px] font-bold uppercase tracking-wider rounded-md border border-purple-500/20'>{userData.mutual_friends} ami(s) commun(s)</span>
+                        )}
                     </div>
-                  )}
+                  </div>
                 </div>
 
-                <div className='flex gap-2 flex-wrap'>
+                {userData.bio && (
+                  <p className='text-gray-400 text-sm mb-6 line-clamp-2 italic'>
+                    "{userData.bio}"
+                  </p>
+                )}
+
+                <div className='grid grid-cols-2 gap-3 mb-6'>
+                  <div className='bg-[#0d0d0d] p-3 rounded-2xl border border-[#1a1a1a] flex flex-col items-center justify-center transition-colors group-hover:border-purple-500/10'>
+                    <span className='text-white font-bold text-lg'>{userData.posts_count || 0}</span>
+                    <span className='text-gray-500 text-[10px] uppercase font-semibold'>Posts</span>
+                  </div>
+                  <div className='bg-[#0d0d0d] p-3 rounded-2xl border border-[#1a1a1a] flex flex-col items-center justify-center transition-colors group-hover:border-purple-500/10'>
+                    <span className='text-white font-bold text-lg'>{userData.followers_count || 0}</span>
+                    <span className='text-gray-500 text-[10px] uppercase font-semibold'>Followers</span>
+                  </div>
+                </div>
+
+                <div className='flex gap-2'>
                   {userData.id === user.id ? (
-                    <div className='w-full text-center py-2 bg-purple-500/10 text-purple-400 rounded-lg text-sm font-medium border border-purple-500/20'>
+                    <Link
+                      to='/profile'
+                      className='w-full py-3 bg-purple-500/10 text-purple-400 rounded-2xl text-center font-bold border border-purple-500/20 hover:bg-purple-500/20 transition-all'
+                    >
                       C'est vous
-                    </div>
+                    </Link>
                   ) : (
                     <>
                       <button
                         onClick={() => handleLikeProfile(userData.id)}
-                        className={`flex-1 px-3 py-2 rounded-lg font-medium text-sm flex items-center justify-center gap-2 transition-all ${
+                        className={`flex-1 flex flex-col items-center justify-center py-3 rounded-2xl transition-all border ${
                           userData.has_liked_profile
-                            ? 'bg-red-500/20 text-red-400 border border-red-500/30'
-                            : 'bg-[#262626] text-gray-400 hover:text-white'
+                            ? 'bg-red-500/10 border-red-500/20 text-red-500 shadow-lg shadow-red-500/10'
+                            : 'bg-[#1a1a1a] border-transparent text-gray-500 hover:text-red-400 hover:bg-red-500/5'
                         }`}
                       >
                         <Heart
-                          size={16}
-                          fill={
-                            userData.has_liked_profile ? 'currentColor' : 'none'
-                          }
+                          size={18}
+                          fill={userData.has_liked_profile ? 'currentColor' : 'none'}
                         />
-                        {userData.has_liked_profile ? 'Liké' : 'Liker'}
                       </button>
 
                       <button
@@ -285,38 +273,32 @@ const SearchResults = () => {
                             ? handleUnfollow(userData.id)
                             : handleFollow(userData.id)
                         }
-                        className={`flex-1 px-3 py-2 rounded-lg font-medium text-sm flex items-center justify-center gap-2 transition-all ${
+                        className={`flex-[2] py-3 rounded-2xl font-bold text-sm transition-all border ${
                           userData.is_following
-                            ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
-                            : 'bg-[#262626] text-gray-400 hover:text-white'
+                            ? 'bg-purple-500/10 border-purple-500/20 text-purple-400'
+                            : 'bg-white text-black hover:bg-gray-200'
                         }`}
                       >
-                        <UserCheck size={16} />
                         {userData.is_following ? 'Abonné' : "S'abonner"}
                       </button>
 
                       {userData.is_friend ? (
                         <button
-                          onClick={() =>
-                            navigate(`/messages?userId=${userData.id}`)
-                          }
-                          className='px-3 py-2 bg-[#262626] text-gray-400 hover:text-white rounded-lg font-medium text-sm flex items-center justify-center gap-2 transition-all'
+                          onClick={() => navigate(`/messages?userId=${userData.id}`)}
+                          className='p-3 bg-[#1a1a1a] text-gray-400 hover:text-white rounded-2xl transition-all'
                         >
-                          <MessageCircle size={16} />
-                          Message
+                          <MessageCircle size={20} />
                         </button>
                       ) : userData.has_pending_request ? (
-                        <div className='px-3 py-2 bg-yellow-500/20 text-yellow-400 rounded-lg font-medium text-sm flex items-center gap-2'>
-                          <Loader2 size={16} className='animate-spin' />
-                          En attente
+                        <div className='p-3 bg-yellow-500/10 text-yellow-500 rounded-2xl border border-yellow-500/20 animate-pulse'>
+                          <Loader2 size={18} className='animate-spin' />
                         </div>
                       ) : (
                         <button
                           onClick={() => handleSendFriendRequest(userData.id)}
-                          className='px-3 py-2 bg-white text-black rounded-lg font-medium text-sm flex items-center justify-center gap-2 hover:bg-gray-200 transition-all'
+                          className='p-3 bg-[#1a1a1a] text-gray-400 hover:text-purple-400 rounded-2xl hover:bg-purple-500/5 hover:border-purple-500/20 border border-transparent transition-all'
                         >
-                          <UserPlus size={16} />
-                          Ami
+                          <UserPlus size={20} />
                         </button>
                       )}
                     </>

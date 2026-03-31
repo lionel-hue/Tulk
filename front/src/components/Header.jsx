@@ -15,6 +15,7 @@ import {
 } from 'lucide-react'
 import Modal, { useModal } from './Modal'
 import Avatar from './common/Avatar'
+import { useNotificationCounts } from '../hooks/useNotificationCounts'
 
 const Header = ({
   sidebarOpen,
@@ -30,6 +31,7 @@ const Header = ({
   const profileDropdownRef = useRef(null)
   const searchInputRef = useRef(null)
   const { modal, setModal, confirm } = useModal()
+  const { messages, notifications, friends, home } = useNotificationCounts()
 
   // Sync local search query with parent
   useEffect(() => {
@@ -58,7 +60,11 @@ const Header = ({
     if (onSearchChange) {
       onSearchChange('')
     }
-    if (searchInputRef.current) {
+    
+    // If on search page, go back to previous section
+    if (location.pathname === '/search') {
+      navigate(-1)
+    } else if (searchInputRef.current) {
       searchInputRef.current.focus()
     }
   }
@@ -106,7 +112,7 @@ const Header = ({
         onSearchChange('')
       }
     }
-    navigate(`/${section}`)
+    navigate(section === 'feed' ? '/home' : `/${section}`)
   }
 
   useEffect(() => {
@@ -136,10 +142,10 @@ const Header = ({
   }, [isProfileDropdownOpen, localSearchQuery])
 
   const navItems = [
-    { id: 'feed', icon: LayoutDashboard, label: 'Fil', badge: null },
-    { id: 'friends', icon: Users, label: 'Amis', badge: null },
-    { id: 'messages', icon: MessageCircle, label: 'Messages', badge: 0 },
-    { id: 'notifications', icon: Bell, label: 'Notifications', badge: 3 },
+    { id: 'feed', icon: LayoutDashboard, label: 'Fil', badge: home },
+    { id: 'friends', icon: Users, label: 'Amis', badge: friends },
+    { id: 'messages', icon: MessageCircle, label: 'Messages', badge: messages },
+    { id: 'notifications', icon: Bell, label: 'Notifications', badge: notifications },
     { id: 'profile', icon: User, label: 'Profil', badge: null },
     ...(user?.role === 'admin' || user?.role === 'mod'
       ? [
@@ -196,9 +202,10 @@ const Header = ({
             {localSearchQuery ? (
               <button
                 onClick={clearSearch}
-                className='absolute right-8 text-gray-400 hover:text-white transition-colors'
+                className='absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-white/5 hover:bg-white/10 rounded-full text-gray-400 hover:text-white transition-all hover:scale-110 active:scale-95'
+                type='button'
               >
-                <X size={18} />
+                <X size={14} />
               </button>
             ) : (
               <Search size={18} className='absolute right-3' />

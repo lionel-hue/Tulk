@@ -328,6 +328,50 @@ class PostController extends Controller
         }
     }
 
+
+    // Get count of new posts from friends since last feed view
+    public function unreadCount()
+    {
+        try {
+            $user = Auth::user();
+            $friendIds = $this->getFriendIds($user->id);
+            
+            $count = Article::whereIn('id_uti', $friendIds)
+                ->where('date', '>', $user->last_feed_view ?? '2000-01-01 00:00:00')
+                ->count();
+
+            return response()->json([
+                'success' => true,
+                'count' => $count
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors du comptage des nouveaux posts'
+            ], 500);
+        }
+    }
+
+    // Update last_feed_view timestamp
+    public function markFeedAsRead()
+    {
+        try {
+            $user = Auth::user();
+            $user->last_feed_view = now();
+            $user->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Fil d\'actualité marqué comme lu'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors de la mise à jour de la vue du fil'
+            ], 500);
+        }
+    }
+
     // Helper function to get friend IDs
     private function getFriendIds($userId)
     {

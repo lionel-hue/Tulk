@@ -22,6 +22,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/posts/feed', [PostController::class, 'getFeedPosts']);
     Route::post('/posts', [PostController::class, 'createPost']);
     Route::delete('/posts/{post}', [PostController::class, 'deletePost']);
+    Route::get('/posts/unread-count', [PostController::class, 'unreadCount']);
+    Route::post('/posts/mark-read', [PostController::class, 'markFeedAsRead']);
 
     // Like routes
     Route::post('/posts/{post}/like', [PostController::class, 'toggleLike']);
@@ -35,6 +37,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/', [AmitieController::class, 'getFriends']);
         Route::get('/suggestions', [AmitieController::class, 'getSuggestions']);
         Route::get('/pending', [AmitieController::class, 'getPendingRequests']);
+        Route::get('/pending-count', [AmitieController::class, 'pendingCount']);
         Route::get('/search', [AmitieController::class, 'search']);
         Route::post('/request', [AmitieController::class, 'sendRequest']);
         Route::post('/accept', [AmitieController::class, 'acceptRequest']);
@@ -72,6 +75,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Message routes
     Route::prefix('messages')->group(function () {
         Route::get('/conversations', [App\Http\Controllers\MessageController::class, 'getConversations']);
+        Route::get('/unread-count', [App\Http\Controllers\MessageController::class, 'unreadCount']);
         Route::get('/{userId}', [App\Http\Controllers\MessageController::class, 'getMessages']);
         Route::post('/', [App\Http\Controllers\MessageController::class, 'sendMessage']);
     });

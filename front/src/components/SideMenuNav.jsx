@@ -14,12 +14,14 @@ import {
 } from 'lucide-react'
 import { getImageUrl } from '../utils/imageUrls'
 import Avatar from './common/Avatar'
+import { useNotificationCounts } from '../hooks/useNotificationCounts'
 
 const SideMenuNav = ({ isOpen, onClose }) => {
   const { user, logout } = useAuth()
   const sidebarRef = useRef(null)
   const navigate = useNavigate()
   const location = useLocation()
+  const { messages, notifications, friends } = useNotificationCounts()
 
   useEffect(() => {
     const handleClickOutside = event => {
@@ -69,9 +71,9 @@ const SideMenuNav = ({ isOpen, onClose }) => {
       label: "Fil d'actualité",
       badge: null
     },
-    { id: 'friends', icon: Users, label: 'Amis', badge: null },
-    { id: 'messages', icon: MessageCircle, label: 'Messages', badge: 0 },
-    { id: 'notifications', icon: Bell, label: 'Notifications', badge: 3 },
+    { id: 'friends', icon: Users, label: 'Amis', badge: friends },
+    { id: 'messages', icon: MessageCircle, label: 'Messages', badge: messages },
+    { id: 'notifications', icon: Bell, label: 'Notifications', badge: notifications },
     { id: 'profile', icon: User, label: 'Profil', badge: null },
     ...(user?.role === 'admin' || user?.role === 'mod'
       ? [

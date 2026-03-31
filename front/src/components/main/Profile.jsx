@@ -103,7 +103,7 @@ const Profile = () => {
     if (profile && activeTab === 'posts') {
       loadPosts()
     }
-  }, [activeTab, profile])
+  }, [activeTab, profile?.id]) // Only reload if tab or profile ID changes
 
   const loadPosts = async () => {
     try {
@@ -885,18 +885,25 @@ const Profile = () => {
                         <p>Aucune publication pour le moment</p>
                       </div>
                     ) : (
-                      posts.map(post => (
+                      posts.map((post, index) => (
                         <div
-                          key={post.id}
+                          key={`profile-post-${post.id}-${index}`} 
                           className='bg-[#1f1f1f] rounded-xl p-4'
                         >
                           <p className='text-white mb-3'>{post.description}</p>
-                          {post.image && (
+                          {post.image ? (
                             <img
                               src={getImageUrl(post.image)}
                               alt='Post'
-                              className='w-full max-h-96 object-cover rounded-lg mb-3'
+                              className='w-full max-h-96 object-cover rounded-xl mb-3 shadow-xl'
                             />
+                          ) : (
+                            <div className='w-full h-40 bg-gradient-to-br from-purple-500/10 via-blue-500/5 to-pink-500/10 rounded-xl mb-3 flex flex-col items-center justify-center border border-white/5 shadow-inner group'>
+                              <div className='w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center mb-2 group-hover:scale-110 transition-transform duration-500 border border-white/10'>
+                                <Image size={20} className='text-purple-400/50' />
+                              </div>
+                              <span className='text-white/20 text-[10px] font-bold uppercase tracking-[0.2em]'>Pas d'image</span>
+                            </div>
                           )}
                           <div className='flex gap-4 text-sm text-gray-400'>
                             <span className='flex items-center gap-1'>
