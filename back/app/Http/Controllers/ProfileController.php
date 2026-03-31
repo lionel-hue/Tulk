@@ -78,7 +78,7 @@ class ProfileController extends Controller
                     'sexe' => $targetUser->sexe,
                     'role' => $targetUser->role,
                     'created_at' => $targetUser->created_at,
-                    'is_owner' => $targetUserId === $user->id,
+                    'is_owner' => (int)$targetUserId === (int)$user->id,
                     'is_friend' => $friendship && $friendship->statut === 'ami',
                     'has_pending_request' => $friendship && $friendship->statut === 'en attente' && $friendship->id_2 === $user->id,
                     'is_following' => $isFollowing,

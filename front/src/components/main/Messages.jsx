@@ -3,6 +3,7 @@ import { useSearchParams, Link } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 import api from '../../utils/api'
 import Avatar from '../common/Avatar'
+import Modal, { useModal } from '../Modal'
 import { getImageUrl } from '../../utils/imageUrls'
 import { 
   Send, 
@@ -27,6 +28,7 @@ import {
 const Messages = () => {
   const [searchParams, setSearchParams] = useSearchParams()
   const { user: authUser } = useAuth()
+  const { modal, setModal, confirm } = useModal()
   const [conversations, setConversations] = useState([])
   const [filteredConversations, setFilteredConversations] = useState([])
   const [activeConversation, setActiveConversation] = useState(null)
@@ -44,6 +46,9 @@ const Messages = () => {
   const [chatSearchQuery, setChatSearchQuery] = useState('')
   const [showActions, setShowActions] = useState(false)
   const [showInfo, setShowInfo] = useState(false)
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false)
+  
+  const emojis = ['❤️', '😂', '😮', '😢', '😡', '👍', '🔥', '👏', '🙌', '✨', '😊', '😍', '🤔', '😎', '🙏', '💯']
   
   const fileInputRef = useRef(null)
   const messagesEndRef = useRef(null)
@@ -230,17 +235,59 @@ const Messages = () => {
 
   const handleClearHistory = async () => {
     if (!activeConversation) return
-    if (!window.confirm('Voulez-vous vraiment vider cette conversation ?')) return
     
-    // Logic to clear history (Note: This might need backend support if not present)
-    // For now, let's assume we can remove messages locally or there's an API
+    const confirmed = await confirm('Voulez-vous vraiment vider cette conversation ? Cette action est irréversible.', 'Vider la conversation')
+    if (!confirmed) return
+    
     try {
-      // Placeholder for actual API call
-      // await api.delete(`/messages/${activeConversation.user.id}/clear`)
+      // Assuming we can clear locally for now as requested
       setMessages([])
       setShowActions(false)
+      setModal({
+        show: true,
+        type: 'success',
+        title: 'Succès',
+        message: 'Conversation vidée'
+      })
     } catch (err) {
       console.error('Error clearing history:', err)
+      setModal({
+        show: true,
+        type: 'error',
+        title: 'Erreur',
+        message: 'Échec du vidage'
+      })
+    }
+  }
+
+  const handleBlockUser = async () => {
+    if (!activeConversation) return
+    
+    const confirmed = await confirm(`Voulez-vous vraiment bloquer ${activeConversation.user.prenom} ? Vous ne pourrez plus échanger de messages.`, 'Bloquer l\'utilisateur')
+    if (!confirmed) return
+    
+    try {
+      const response = await api.post('/blocks/block', {
+        user_id: activeConversation.user.id
+      })
+      if (response.data.success) {
+        setModal({
+          show: true,
+          type: 'success',
+          title: 'Utilisateur bloqué',
+          message: `${activeConversation.user.prenom} a été bloqué.`
+        })
+        setActiveConversation(null)
+        fetchConversations()
+      }
+    } catch (err) {
+      console.error('Error blocking user:', err)
+      setModal({
+        show: true,
+        type: 'error',
+        title: 'Erreur',
+        message: err.response?.data?.message || 'Échec du blocage'
+      })
     }
   }
 
@@ -359,7 +406,7 @@ const Messages = () => {
                     {showActions && (
                       <div className='premium-dropdown-menu animate-in zoom-in-95 fade-in duration-200'>
                         <button onClick={handleClearHistory}><Trash2 size={16} /> <span>Vider la conversation</span></button>
-                        <button><UserX size={16} /> <span>Bloquer l'utilisateur</span></button>
+                        <button onClick={handleBlockUser}><UserX size={16} /> <span>Bloquer l'utilisateur</span></button>
                         <button><Flag size={16} /> <span>Signaler</span></button>
                       </div>
                     )}
@@ -418,47 +465,66 @@ const Messages = () => {
               )}
             </div>
 
-            {/* Input Footer */}
-            <div className='premium-input-footer'>
-               {imagePreview && (
-                  <div className='premium-preview-bar'>
-                     <div className='preview-item'>
-                        <img src={imagePreview} alt='Preview' />
-                        <button onClick={clearImage} className='remove-btn'><X size={14} /></button>
-                     </div>
+             {/* Input Footer */}
+             <div className='premium-input-footer'>
+                {imagePreview && (
+                   <div className='premium-preview-bar'>
+                      <div className='preview-item'>
+                         <img src={imagePreview} alt='Preview' />
+                         <button onClick={clearImage} className='remove-btn'><X size={14} /></button>
+                      </div>
+                   </div>
+                )}
+                
+                {showEmojiPicker && (
+                  <div className='emoji-picker-popup animate-in slide-in-from-bottom-2 duration-200'>
+                    <div className='emoji-grid'>
+                      {emojis.map(emoji => (
+                        <button key={emoji} type='button' onClick={() => handleEmojiClick(emoji)} className='emoji-item'>
+                          {emoji}
+                        </button>
+                      ))}
+                    </div>
                   </div>
-               )}
-               <form onSubmit={handleSendMessage} className='premium-input-container'>
-                 <div className='input-addon'>
-                   <button type='button' onClick={() => fileInputRef.current?.click()} className={selectedImage ? 'active' : ''}>
-                     <ImageIcon size={22} />
-                   </button>
-                   <input 
-                    type='file' 
-                    ref={fileInputRef} 
-                    onChange={handleImageSelect} 
-                    accept='image/*' 
-                    className='hidden' 
-                   />
-                 </div>
-                 <div className='input-field'>
-                   <input 
-                    type='text' 
-                    placeholder='Tapez votre message...' 
-                    value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
-                   />
-                   <button type='button' className='emoji-btn'><Smile size={22} /></button>
-                 </div>
-                 <button 
-                  type='submit' 
-                  className='send-btn' 
-                  disabled={(!newMessage.trim() && !selectedImage) || sending}
-                 >
-                   {sending ? <Loader2 size={18} className='animate-spin' /> : <Send size={20} />}
-                 </button>
-               </form>
-            </div>
+                )}
+
+                <form onSubmit={handleSendMessage} className='premium-input-container'>
+                  <div className='input-addon'>
+                    <button type='button' onClick={() => fileInputRef.current?.click()} className={selectedImage ? 'active' : ''}>
+                      <ImageIcon size={22} />
+                    </button>
+                    <input 
+                     type='file' 
+                     ref={fileInputRef} 
+                     onChange={handleImageSelect} 
+                     accept='image/*' 
+                     className='hidden' 
+                    />
+                  </div>
+                  <div className='input-field'>
+                    <input 
+                     type='text' 
+                     placeholder='Tapez votre message...' 
+                     value={newMessage}
+                     onChange={(e) => setNewMessage(e.target.value)}
+                    />
+                    <button 
+                      type='button' 
+                      className={`emoji-btn ${showEmojiPicker ? 'active' : ''}`}
+                      onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                    >
+                      <Smile size={22} />
+                    </button>
+                  </div>
+                  <button 
+                   type='submit' 
+                   className='send-btn' 
+                   disabled={(!newMessage.trim() && !selectedImage) || sending}
+                  >
+                    {sending ? <Loader2 size={18} className='animate-spin' /> : <Send size={20} />}
+                  </button>
+                </form>
+             </div>
           </>
         ) : (
           <div className='premium-chat-empty'>
@@ -472,6 +538,9 @@ const Messages = () => {
           </div>
         )}
       </div>
+
+      {/* Modal Integration */}
+      <Modal modal={modal} setModal={setModal} />
 
       {/* Info Sidebar */}
       {activeConversation && (

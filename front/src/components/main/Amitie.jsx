@@ -24,11 +24,13 @@ const Amitie = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
   const [friends, setFriends] = useState([])
   const [suggestions, setSuggestions] = useState([])
   const [pendingRequests, setPendingRequests] = useState([])
+  const [blockedUsers, setBlockedUsers] = useState([])
   const [searchResults, setSearchResults] = useState([])
   const [loading, setLoading] = useState({
     friends: false,
     suggestions: false,
     pending: false,
+    blocked: false,
     search: false
   })
   const [activeTab, setActiveTab] = useState('friends')
@@ -41,6 +43,7 @@ const Amitie = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
       loadFriends()
       loadSuggestions()
       loadPendingRequests()
+      loadBlockedUsers()
     }
   }, [isSearching])
 
@@ -118,6 +121,50 @@ const Amitie = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
       })
     } finally {
       setLoading(prev => ({ ...prev, pending: false }))
+    }
+  }
+
+  const loadBlockedUsers = async () => {
+    setLoading(prev => ({ ...prev, blocked: true }))
+    try {
+      const response = await api.get('/blocks')
+      if (response.data.success) {
+        setBlockedUsers(response.data.blocked_users)
+      }
+    } catch (error) {
+      console.error('Error loading blocked users:', error)
+    } finally {
+      setLoading(prev => ({ ...prev, blocked: false }))
+    }
+  }
+
+  const handleUnblock = async (userId, userName) => {
+    const shouldUnblock = await confirm(
+      `Voulez-vous vraiment débloquer ${userName} ?`,
+      'Débloquer l\'utilisateur'
+    )
+    if (!shouldUnblock) return
+
+    try {
+      const response = await api.post('/blocks/unblock', { user_id: userId })
+      if (response.data.success) {
+        setModal({
+          show: true,
+          type: 'success',
+          title: 'Succès',
+          message: 'Utilisateur débloqué.'
+        })
+        setBlockedUsers(blockedUsers.filter(u => u.id !== userId))
+        loadSuggestions()
+      }
+    } catch (error) {
+      console.error('Error unblocking user:', error)
+      setModal({
+        show: true,
+        type: 'error',
+        title: 'Erreur',
+        message: 'Impossible de débloquer l\'utilisateur.'
+      })
     }
   }
 
@@ -473,6 +520,16 @@ const Amitie = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
               >
                 Demandes ({pendingRequests.length})
               </button>
+              <button
+                className={`px-4 py-2 font-medium ${
+                  activeTab === 'blocked'
+                    ? 'text-white border-b-2 border-white'
+                    : 'text-gray-400 hover:text-white'
+                }`}
+                onClick={() => setActiveTab('blocked')}
+              >
+                Bloqués ({blockedUsers.length})
+              </button>
             </div>
 
             {activeTab === 'friends' && (
@@ -555,6 +612,48 @@ const Amitie = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
                     </h3>
                     <p className='text-gray-400'>
                       Vous n'avez pas de demandes d'amitié en attente.
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {activeTab === 'blocked' && (
+              <div>
+                {loading.blocked ? (
+                  <div className='text-center py-8'>
+                    <div className='text-gray-400'>Chargement des utilisateurs bloqués...</div>
+                  </div>
+                ) : blockedUsers.length > 0 ? (
+                  <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
+                    {blockedUsers.map(user => (
+                      <div key={user.id} className='bg-[#141414] border border-[#262626] rounded-lg p-4'>
+                        <div className='flex items-center justify-between'>
+                           <div className='flex items-center gap-3'>
+                              <Avatar user={user} size='w-12 h-12' />
+                              <div>
+                                 <h4 className='text-white font-medium'>{user.prenom} {user.nom}</h4>
+                                 <p className='text-gray-500 text-xs'>ID: {user.id}</p>
+                              </div>
+                           </div>
+                           <button 
+                            className='px-3 py-1 bg-[#262626] text-gray-300 text-sm font-medium rounded-lg hover:bg-gray-700 hover:text-white transition-colors'
+                            onClick={() => handleUnblock(user.id, `${user.prenom} ${user.nom}`)}
+                           >
+                            Débloquer
+                           </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className='text-center py-8 bg-[#141414] border border-[#262626] rounded-lg'>
+                    <UserX size={48} className='mx-auto text-gray-400 mb-4' />
+                    <h3 className='text-lg font-semibold text-white mb-2'>
+                      Aucun utilisateur bloqué
+                    </h3>
+                    <p className='text-gray-400'>
+                      Les utilisateurs que vous bloquez apparaîtront ici.
                     </p>
                   </div>
                 )}

@@ -75,4 +75,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/{userId}', [App\Http\Controllers\MessageController::class, 'getMessages']);
         Route::post('/', [App\Http\Controllers\MessageController::class, 'sendMessage']);
     });
+
+    // Block routes
+    Route::prefix('blocks')->group(function () {
+        Route::get('/', [App\Http\Controllers\BloquageController::class, 'index']);
+        Route::post('/block', [App\Http\Controllers\BloquageController::class, 'block']);
+        Route::post('/unblock', [App\Http\Controllers\BloquageController::class, 'unblock']);
+    });
 });
