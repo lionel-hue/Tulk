@@ -8,29 +8,33 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class MessageController extends Controller
 {
     /**
      * Get list of conversations for the authenticated user.
      */
-    public function getConversations()
+    public function getConversations(Request $request)
     {
         try {
             $user = Auth::user();
+            $perPage = 20;
 
-            // Get all unique users the current user has chatted with
-            $userIds = Message::where('id_uti_1', $user->id)
+            // Get all unique users the current user has chatted with, ordered by last message
+            $subquery = Message::where('id_uti_1', $user->id)
                 ->orWhere('id_uti_2', $user->id)
-                ->get()
-                ->map(function ($message) use ($user) {
-                    return $message->id_uti_1 == $user->id ? $message->id_uti_2 : $message->id_uti_1;
-                })
-                ->unique()
-                ->values();
+                ->select(DB::raw('CASE WHEN id_uti_1 = ' . $user->id . ' THEN id_uti_2 ELSE id_uti_1 END as other_user_id'), DB::raw('MAX(date) as last_message_date'))
+                ->groupBy('other_user_id')
+                ->orderBy('last_message_date', 'desc');
+
+            $paginatedUserIds = DB::table(DB::raw("({$subquery->toSql()}) as sub"))
+                ->mergeBindings($subquery->getQuery())
+                ->paginate($perPage);
 
             $conversations = [];
-            foreach ($userIds as $otherUserId) {
+            foreach ($paginatedUserIds->items() as $row) {
+                $otherUserId = $row->other_user_id;
                 $otherUser = Utilisateur::select('id', 'nom', 'prenom', 'image', 'email')
                     ->find($otherUserId);
 
@@ -43,21 +47,31 @@ class MessageController extends Controller
                     $q->where('id_uti_1', $otherUserId)->where('id_uti_2', $user->id);
                 })->orderBy('date', 'desc')->first();
 
+                // Get unread count for this specific conversation
+                $unreadCount = Message::where('id_uti_1', $otherUserId)
+                    ->where('id_uti_2', $user->id)
+                    ->where('is_read', false)
+                    ->count();
+
+                if ($otherUser && $otherUser->image) {
+                    $otherUser->image = Storage::url($otherUser->image);
+                }
+
                 $conversations[] = [
                     'user' => $otherUser,
                     'last_message' => $lastMessage,
-                    'unread_count' => 0 // Placeholder as we don't have is_read yet
+                    'unread_count' => $unreadCount
                 ];
             }
-
-            // Sort conversations by last message date
-            usort($conversations, function ($a, $b) {
-                return ($b['last_message']->date ?? '') <=> ($a['last_message']->date ?? '');
-            });
 
             return response()->json([
                 'success' => true,
                 'conversations' => $conversations,
+                'pagination' => [
+                    'current_page' => $paginatedUserIds->currentPage(),
+                    'last_page' => $paginatedUserIds->lastPage(),
+                    'has_more' => $paginatedUserIds->hasMorePages()
+                ],
                 'unread_total' => Message::where('id_uti_2', $user->id)->where('is_read', false)->count()
             ]);
         } catch (\Exception $e) {
@@ -81,7 +95,7 @@ class MessageController extends Controller
                 $q->where('id_uti_1', $user->id)->where('id_uti_2', $otherUserId);
             })->orWhere(function ($q) use ($user, $otherUserId) {
                 $q->where('id_uti_1', $otherUserId)->where('id_uti_2', $user->id);
-            })->orderBy('date', 'asc')->get();
+            })->orderBy('date', 'desc')->paginate(30);
 
             // Mark as read
             Message::where('id_uti_1', $otherUserId)

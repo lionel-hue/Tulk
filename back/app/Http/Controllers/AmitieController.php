@@ -8,6 +8,7 @@ use App\Models\Follow;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use App\Services\NotificationService;
 
 class AmitieController extends Controller
@@ -81,31 +82,30 @@ class AmitieController extends Controller
         $request->validate([
             'user_id' => 'required|integer|exists:Utilisateur,id'
         ]);
-
+    
         $user = Auth::user();
         $requesterId = $request->input('user_id');
         $requester = Utilisateur::find($requesterId);
-
-        $friendship = Amitie::where('id_1', $requesterId)
-            ->where('id_2', $user->id)
-            ->where('statut', 'en attente')
-            ->first();
-
+    
+        // Find the pending request (could be in either direction, though typically requester is id_1)
+        $friendship = Amitie::where(function($q) use ($requesterId, $user) {
+            $q->where('id_1', $requesterId)->where('id_2', $user->id);
+        })->orWhere(function($q) use ($requesterId, $user) {
+            $q->where('id_1', $user->id)->where('id_2', $requesterId);
+        })->where('statut', 'en attente')->first();
+    
         if (!$friendship) {
             return response()->json([
                 'success' => false,
                 'message' => 'Demande d\'amitié non trouvée'
             ], 404);
         }
-
-        // Use query builder for updates as Eloquent doesn't natively support composite primary keys for model instances
-        Amitie::where('id_1', $requesterId)
-            ->where('id_2', $user->id)
+    
+        // Update to ami
+        Amitie::where('id_1', $friendship->id_1)
+            ->where('id_2', $friendship->id_2)
             ->update(['statut' => 'ami']);
         
-        // Refresh the instance data (without relying on primary key search)
-        $friendship->statut = 'ami';
-
         if ($requester) {
             $this->notificationService->sendFriendAcceptedNotification(
                 $requester,
@@ -113,13 +113,13 @@ class AmitieController extends Controller
                 true
             );
         }
-
+    
         return response()->json([
             'success' => true,
             'message' => 'Demande d\'amitié acceptée',
             'friendship' => [
-                'id_1' => $requesterId,
-                'id_2' => $user->id,
+                'id_1' => $friendship->id_1,
+                'id_2' => $friendship->id_2,
                 'statut' => 'ami'
             ]
         ]);
@@ -172,12 +172,19 @@ class AmitieController extends Controller
     public function getFriends(Request $request)
     {
         $user = Auth::user();
+        $targetUserId = $request->query('user_id', $user->id);
+        $targetUser = Utilisateur::find($targetUserId);
+
+        if (!$targetUser) {
+            return response()->json(['success' => false, 'message' => 'Utilisateur non trouvé'], 404);
+        }
+
         $perPage = 12;
         $page = max(1, (int) $request->query('page', 1));
 
-        $friendships = Amitie::where(function ($query) use ($user) {
-            $query->where('id_1', $user->id)
-                ->orWhere('id_2', $user->id);
+        $friendships = Amitie::where(function ($query) use ($targetUser) {
+            $query->where('id_1', $targetUser->id)
+                ->orWhere('id_2', $targetUser->id);
         })
         ->where('statut', 'ami')
         ->with([
@@ -190,7 +197,7 @@ class AmitieController extends Controller
         $seenIds = [];
         
         foreach ($friendships as $friendship) {
-            $friend = ($friendship->id_1 == $user->id) ? $friendship->utilisateur2 : $friendship->utilisateur1;
+            $friend = ($friendship->id_1 == $targetUser->id) ? $friendship->utilisateur2 : $friendship->utilisateur1;
             
             if (!$friend || in_array($friend->id, $seenIds)) continue;
             $seenIds[] = $friend->id;
@@ -200,7 +207,7 @@ class AmitieController extends Controller
                 'nom'             => $friend->nom,
                 'prenom'          => $friend->prenom,
                 'email'           => $friend->email,
-                'image'           => $friend->image,
+                'image'           => $friend->image ? Storage::url($friend->image) : null,
                 'role'            => $friend->role,
                 'bio'             => $friend->bio ? mb_substr($friend->bio, 0, 100) : null,
                 'location'        => $friend->location,
@@ -287,7 +294,7 @@ class AmitieController extends Controller
                 'nom'             => $userData->nom,
                 'prenom'          => $userData->prenom,
                 'email'           => $userData->email,
-                'image'           => $userData->image,
+                'image'           => $userData->image ? Storage::url($userData->image) : null,
                 'role'            => $userData->role,
                 'bio'             => $userData->bio ? mb_substr($userData->bio, 0, 100) : null,
                 'location'        => $userData->location,
@@ -338,7 +345,7 @@ class AmitieController extends Controller
                 'nom'             => $u->nom,
                 'prenom'          => $u->prenom,
                 'email'           => $u->email,
-                'image'           => $u->image,
+                'image'           => $u->image ? Storage::url($u->image) : null,
                 'role'            => $u->role,
                 'bio'             => $u->bio ? mb_substr($u->bio, 0, 100) : null,
                 'location'        => $u->location,
@@ -412,12 +419,16 @@ class AmitieController extends Controller
                 ->where('following_id', $userData->id)
                 ->exists();
 
+            $hasLikedProfile = \App\Models\ProfileLike::where('id_uti', $user->id)
+                ->where('id_uti_profile', $userData->id)
+                ->exists();
+
             $results->push([
                 'id'                  => $userData->id,
                 'nom'                 => $userData->nom,
                 'prenom'              => $userData->prenom,
                 'email'               => $userData->email,
-                'image'               => $userData->image,
+                'image'               => $userData->image ? Storage::url($userData->image) : null,
                 'role'                => $userData->role,
                 'bio'                 => $userData->bio ? mb_substr($userData->bio, 0, 100) : null,
                 'location'            => $userData->location,
@@ -425,6 +436,7 @@ class AmitieController extends Controller
                 'is_friend'           => $friendship && $friendship->statut == 'ami',
                 'has_pending_request' => $friendship && $friendship->statut == 'en attente',
                 'is_following'        => $isFollowing,
+                'has_liked_profile'   => $hasLikedProfile,
                 'followers_count'     => $userData->followers_count,
                 'posts_count'         => $userData->articles_count,
                 'mutual_friends'      => $this->countMutualFriendsWithList($myFriendIds, $userData->id)

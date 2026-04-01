@@ -221,17 +221,24 @@ class ProfileController extends Controller
             $posts = $targetUser->articles()
                 ->with(['utilisateur', 'likes', 'commentaires'])
                 ->orderBy('date', 'desc')
-                ->get()
-                ->map(function ($post) {
-                    return [
-                        'id' => $post->id,
-                        'description' => $post->description,
-                        'image' => $post->image ? Storage::url($post->image) : null,
-                        'date' => $post->date,
-                        'likes_count' => $post->likes()->count(),
-                        'comments_count' => $post->commentaires()->count(),
-                    ];
-                });
+                ->paginate(10);
+
+            $posts->getCollection()->transform(function ($post) {
+                return [
+                    'id' => $post->id,
+                    'description' => $post->description,
+                    'image' => $post->image ? Storage::url($post->image) : null,
+                    'date' => $post->date,
+                    'likes_count' => $post->likes()->count(),
+                    'comments_count' => $post->commentaires()->count(),
+                    'utilisateur' => [
+                        'id' => $post->utilisateur->id,
+                        'nom' => $post->utilisateur->nom,
+                        'prenom' => $post->utilisateur->prenom,
+                        'image' => $post->utilisateur->image ? Storage::url($post->utilisateur->image) : null,
+                    ]
+                ];
+            });
 
             return response()->json([
                 'success' => true,
