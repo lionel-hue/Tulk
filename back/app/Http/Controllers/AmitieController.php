@@ -155,9 +155,11 @@ class AmitieController extends Controller
         ]);
     }
 
-    public function getFriends()
+    public function getFriends(Request $request)
     {
         $user = Auth::user();
+        $perPage = 12;
+        $page = max(1, (int) $request->query('page', 1));
 
         $friendships = Amitie::where(function ($query) use ($user) {
             $query->where('id_1', $user->id)
@@ -165,41 +167,54 @@ class AmitieController extends Controller
         })
             ->where('statut', 'ami')
             ->where(function ($query) use ($user) {
-                // Ensure we don't return friendship with oneself if it exists in DB
                 $query->where('id_1', '!=', $user->id)
                     ->orWhere('id_2', '!=', $user->id);
             })
             ->get();
 
-        $friends = [];
+        $allFriends = [];
         foreach ($friendships as $friendship) {
             $friendId = ($friendship->id_1 == $user->id) ? $friendship->id_2 : $friendship->id_1;
-            $friend = Utilisateur::select('id', 'nom', 'prenom', 'email', 'image', 'role')
+            $friend = Utilisateur::select('id', 'nom', 'prenom', 'email', 'image', 'role', 'bio', 'location')
                 ->find($friendId);
 
             if ($friend) {
-                $friends[] = [
-                    'id' => $friend->id,
-                    'nom' => $friend->nom,
-                    'prenom' => $friend->prenom,
-                    'email' => $friend->email,
-                    'image' => $friend->image,
-                    'role' => $friend->role,
-                    'friendship_id' => $friendship->id_1 . '_' . $friendship->id_2,
+                $allFriends[] = [
+                    'id'              => $friend->id,
+                    'nom'             => $friend->nom,
+                    'prenom'          => $friend->prenom,
+                    'email'           => $friend->email,
+                    'image'           => $friend->image,
+                    'role'            => $friend->role,
+                    'bio'             => $friend->bio ? mb_substr($friend->bio, 0, 100) : null,
+                    'location'        => $friend->location,
+                    'followers_count' => $friend->followers()->count(),
+                    'posts_count'     => $friend->articles()->count(),
+                    'friendship_id'   => $friendship->id_1 . '_' . $friendship->id_2,
                     'friendship_date' => $friendship->created_at ?? null
                 ];
             }
         }
 
+        $total    = count($allFriends);
+        $offset   = ($page - 1) * $perPage;
+        $slice    = array_slice($allFriends, $offset, $perPage);
+        $hasMore  = ($offset + $perPage) < $total;
+
         return response()->json([
-            'success' => true,
-            'friends' => $friends
+            'success'  => true,
+            'friends'  => $slice,
+            'total'    => $total,
+            'page'     => $page,
+            'has_more' => $hasMore
         ]);
     }
 
-    public function getSuggestions()
+    public function getSuggestions(Request $request)
     {
         $user = Auth::user();
+        $perPage = 12;
+        $page = max(1, (int) $request->query('page', 1));
 
         $currentFriends = Amitie::where(function ($query) use ($user) {
             $query->where('id_1', $user->id)
@@ -211,6 +226,15 @@ class AmitieController extends Controller
                 return ($friendship->id_1 == $user->id) ? $friendship->id_2 : $friendship->id_1;
             })
             ->toArray();
+
+        // Also exclude users with any pending request
+        $pendingIds = Amitie::where(function ($q) use ($user) {
+            $q->where('id_1', $user->id)->orWhere('id_2', $user->id);
+        })->where('statut', 'en attente')->get()->map(function ($a) use ($user) {
+            return ($a->id_1 == $user->id) ? $a->id_2 : $a->id_1;
+        })->toArray();
+
+        $excludeIds = array_unique(array_merge($currentFriends, $pendingIds, [$user->id]));
 
         $suggestions = [];
         foreach ($currentFriends as $friendId) {
@@ -225,24 +249,24 @@ class AmitieController extends Controller
                 $potentialFriendId = ($friendFriendship->id_1 == $friendId) ?
                     $friendFriendship->id_2 : $friendFriendship->id_1;
 
-                if (
-                    $potentialFriendId != $user->id &&
-                    !in_array($potentialFriendId, $currentFriends) &&
-                    !isset($suggestions[$potentialFriendId])
-                ) {
+                if (!in_array($potentialFriendId, $excludeIds) && !isset($suggestions[$potentialFriendId])) {
                     $mutualFriends = $this->countMutualFriends($user->id, $potentialFriendId);
-                    $userData = Utilisateur::select('id', 'nom', 'prenom', 'email', 'image', 'role')
+                    $userData = Utilisateur::select('id', 'nom', 'prenom', 'email', 'image', 'role', 'bio', 'location')
                         ->find($potentialFriendId);
 
                     if ($userData) {
                         $suggestions[$potentialFriendId] = [
-                            'id' => $userData->id,
-                            'nom' => $userData->nom,
-                            'prenom' => $userData->prenom,
-                            'email' => $userData->email,
-                            'image' => $userData->image,
-                            'role' => $userData->role,
-                            'mutual_friends' => $mutualFriends,
+                            'id'              => $userData->id,
+                            'nom'             => $userData->nom,
+                            'prenom'          => $userData->prenom,
+                            'email'           => $userData->email,
+                            'image'           => $userData->image,
+                            'role'            => $userData->role,
+                            'bio'             => $userData->bio ? mb_substr($userData->bio, 0, 100) : null,
+                            'location'        => $userData->location,
+                            'followers_count' => $userData->followers()->count(),
+                            'posts_count'     => $userData->articles()->count(),
+                            'mutual_friends'  => $mutualFriends,
                         ];
                     }
                 }
@@ -253,92 +277,127 @@ class AmitieController extends Controller
             return $b['mutual_friends'] <=> $a['mutual_friends'];
         });
 
+        $suggestions = array_values($suggestions);
+        $total   = count($suggestions);
+        $offset  = ($page - 1) * $perPage;
+        $slice   = array_slice($suggestions, $offset, $perPage);
+        $hasMore = ($offset + $perPage) < $total;
+
         return response()->json([
-            'success' => true,
-            'suggestions' => array_slice($suggestions, 0, 10)
+            'success'     => true,
+            'suggestions' => $slice,
+            'total'       => $total,
+            'page'        => $page,
+            'has_more'    => $hasMore
         ]);
     }
 
-    public function getPendingRequests()
+    public function getPendingRequests(Request $request)
     {
         $user = Auth::user();
+        $perPage = 12;
+        $page = max(1, (int) $request->query('page', 1));
 
-        $pendingRequests = Amitie::where('id_2', $user->id)
-            ->where('id_1', '!=', $user->id) // Exclude self-requests
+        $allPending = Amitie::where('id_2', $user->id)
+            ->where('id_1', '!=', $user->id)
             ->where('statut', 'en attente')
-            ->with('utilisateur1:id,nom,prenom,email,image,role')
+            ->with('utilisateur1:id,nom,prenom,email,image,role,bio,location')
             ->get()
-            ->map(function ($request) {
+            ->map(function ($amitie) {
+                $u = $amitie->utilisateur1;
                 return [
-                    'id' => $request->utilisateur1->id,
-                    'nom' => $request->utilisateur1->nom,
-                    'prenom' => $request->utilisateur1->prenom,
-                    'email' => $request->utilisateur1->email,
-                    'image' => $request->utilisateur1->image,
-                    'role' => $request->utilisateur1->role,
-                    'request_date' => $request->created_at ?? null
+                    'id'              => $u->id,
+                    'nom'             => $u->nom,
+                    'prenom'          => $u->prenom,
+                    'email'           => $u->email,
+                    'image'           => $u->image,
+                    'role'            => $u->role,
+                    'bio'             => $u->bio ? mb_substr($u->bio, 0, 100) : null,
+                    'location'        => $u->location,
+                    'followers_count' => $u->followers()->count(),
+                    'posts_count'     => $u->articles()->count(),
+                    'request_date'    => $amitie->created_at ?? null
                 ];
-            });
+            })->toArray();
+
+        $total   = count($allPending);
+        $offset  = ($page - 1) * $perPage;
+        $slice   = array_slice($allPending, $offset, $perPage);
+        $hasMore = ($offset + $perPage) < $total;
 
         return response()->json([
-            'success' => true,
-            'pending_requests' => $pendingRequests
+            'success'          => true,
+            'pending_requests' => $slice,
+            'total'            => $total,
+            'page'             => $page,
+            'has_more'         => $hasMore
         ]);
     }
 
     public function search(Request $request)
     {
         $request->validate([
-            'query' => 'required|string|min:2'
+            'query' => 'required|string|min:2',
+            'page'  => 'nullable|integer'
         ]);
 
         $user = Auth::user();
         $query = $request->input('query');
+        $perPage = 12;
+        $page = max(1, (int) $request->query('page', 1));
 
-        $users = Utilisateur::where('id', '!=', $user->id)
+        $allUsers = Utilisateur::where('id', '!=', $user->id)
             ->where(function ($q) use ($query) {
                 $q->where('nom', 'LIKE', "%{$query}%")
                     ->orWhere('prenom', 'LIKE', "%{$query}%")
                     ->orWhere('email', 'LIKE', "%{$query}%");
             })
             ->select('id', 'nom', 'prenom', 'email', 'image', 'role', 'bio', 'location')
-            ->limit(20)
-            ->get()
-            ->map(function ($userData) use ($user) {
-                $friendship = Amitie::where(function ($q) use ($user, $userData) {
-                    $q->where('id_1', $user->id)
-                        ->where('id_2', $userData->id);
-                })->orWhere(function ($q) use ($user, $userData) {
-                    $q->where('id_1', $userData->id)
-                        ->where('id_2', $user->id);
-                })->first();
+            ->get();
 
-                $isFollowing = Follow::where('follower_id', $user->id)
-                    ->where('following_id', $userData->id)
-                    ->exists();
+        $results = $allUsers->map(function ($userData) use ($user) {
+            $friendship = Amitie::where(function ($q) use ($user, $userData) {
+                $q->where('id_1', $user->id)
+                    ->where('id_2', $userData->id);
+            })->orWhere(function ($q) use ($user, $userData) {
+                $q->where('id_1', $userData->id)
+                    ->where('id_2', $user->id);
+            })->first();
 
-                return [
-                    'id' => $userData->id,
-                    'nom' => $userData->nom,
-                    'prenom' => $userData->prenom,
-                    'email' => $userData->email,
-                    'image' => $userData->image,
-                    'role' => $userData->role,
-                    'bio' => substr($userData->bio ?? '', 0, 100),
-                    'location' => $userData->location,
-                    'friendship_status' => $friendship ? $friendship->statut : null,
-                    'is_friend' => $friendship && $friendship->statut == 'ami',
-                    'has_pending_request' => $friendship && $friendship->statut == 'en attente',
-                    'is_following' => $isFollowing,
-                    'followers_count' => $userData->followers()->count(),
-                    'posts_count' => $userData->articles()->count(),
-                    'mutual_friends' => $this->countMutualFriends($user->id, $userData->id)
-                ];
-            });
+            $isFollowing = Follow::where('follower_id', $user->id)
+                ->where('following_id', $userData->id)
+                ->exists();
+
+            return [
+                'id'                  => $userData->id,
+                'nom'                 => $userData->nom,
+                'prenom'              => $userData->prenom,
+                'email'               => $userData->email,
+                'image'               => $userData->image,
+                'role'                => $userData->role,
+                'bio'                 => $userData->bio ? mb_substr($userData->bio, 0, 100) : null,
+                'location'            => $userData->location,
+                'friendship_status'   => $friendship ? $friendship->statut : null,
+                'is_friend'           => $friendship && $friendship->statut == 'ami',
+                'has_pending_request' => $friendship && $friendship->statut == 'en attente',
+                'is_following'        => $isFollowing,
+                'followers_count'     => $userData->followers()->count(),
+                'posts_count'         => $userData->articles()->count(),
+                'mutual_friends'      => $this->countMutualFriends($user->id, $userData->id)
+            ];
+        });
+
+        $total   = $results->count();
+        $offset  = ($page - 1) * $perPage;
+        $slice   = $results->slice($offset, $perPage)->values();
+        $hasMore = ($offset + $perPage) < $total;
 
         return response()->json([
-            'success' => true,
-            'users' => $users
+            'success'  => true,
+            'users'    => $slice,
+            'total'    => $total,
+            'page'     => $page,
+            'has_more' => $hasMore
         ]);
     }
 
