@@ -48,10 +48,13 @@ class ProfileController extends Controller
                 ->take(12)
                 ->map(function ($friend) {
                     return [
-                        'id' => $friend->id,
-                        'nom' => $friend->nom,
-                        'prenom' => $friend->prenom,
-                        'image' => $friend->image,
+                        'id'              => $friend->id,
+                        'nom'             => $friend->nom,
+                        'prenom'          => $friend->prenom,
+                        'image'           => $friend->image,
+                        'bio'             => $friend->bio ? mb_substr($friend->bio, 0, 100) : null,
+                        'followers_count' => $friend->followers()->count(),
+                        'posts_count'     => $friend->articles()->count(),
                     ];
                 });
 

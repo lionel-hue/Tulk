@@ -1,7 +1,7 @@
 // front/src/components/main/Profile.jsx
 import React, { useState, useEffect, useRef } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
-import { useNavigate, useParams, useLocation } from 'react-router-dom'
+import { useNavigate, useParams, useLocation, Link } from 'react-router-dom'
 import api from '../../utils/api'
 import Modal, { useModal } from '../Modal'
 import { getImageUrl } from '../../utils/imageUrls'
@@ -24,7 +24,8 @@ import {
   Image,
   User,
   Bell,
-  Mail
+  Mail,
+  UserMinus
 } from 'lucide-react'
 import Header from '../Header'
 import SideMenuNav from '../SideMenuNav'
@@ -290,15 +291,30 @@ const Profile = () => {
     }
   }
 
-  const handleRemoveFriend = async () => {
-    const confirmed = await confirm('Supprimer cet ami ?', 'Confirmer')
+  const handleRemoveFriend = async (targetId = null, targetName = null) => {
+    const id = targetId || profile.id
+    const name = targetName || `${profile.prenom} ${profile.nom}`
+    
+    const confirmed = await confirm(`Supprimer ${name} de vos amis ?`, 'Confirmer')
     if (!confirmed) return
     try {
       const response = await api.post('/friends/remove', {
-        user_id: profile.id
+        user_id: id
       })
       if (response.data.success) {
-        setProfile(prev => ({ ...prev, is_friend: false }))
+        if (!targetId || targetId === profile.id) {
+          setProfile(prev => ({ ...prev, is_friend: false }))
+        }
+        
+        // Also update the friends list if we're on the friends tab
+        if (targetId) {
+          setProfile(prev => ({
+            ...prev,
+            recent_friends: prev.recent_friends.filter(f => f.id !== targetId),
+            stats: { ...prev.stats, friends: Math.max(0, prev.stats.friends - 1) }
+          }))
+        }
+        
         setModal({
           show: true,
           type: 'success',
@@ -430,6 +446,99 @@ const Profile = () => {
 
   const getInitials = user => {
     return `${user?.prenom?.[0] || ''}${user?.nom?.[0] || ''}`.toUpperCase()
+  }
+
+  /* ─── Rich user card for friends tab ─────────────────────────────── */
+  const renderUserCard = (user, index) => {
+    const isMe = user.id === currentUser?.id
+
+    return (
+      <div key={`friend-${user.id}-${index}`}
+        className='group bg-[#0f0f0f] border border-white/5 rounded-[2rem] overflow-hidden hover:border-purple-500/20 hover:-translate-y-1 hover:shadow-[0_20px_60px_rgba(139,92,246,0.1)] transition-all duration-500 flex flex-col h-full'
+      >
+        {/* Banner area */}
+        <div className='h-24 bg-gradient-to-br from-purple-900/40 via-gray-900 to-black flex-shrink-0 relative overflow-hidden'>
+          <div className='absolute inset-0 opacity-20 bg-[url("https://www.transparenttextures.com/patterns/carbon-fibre.png")]'></div>
+          <div className='absolute -bottom-6 -right-6 w-24 h-24 bg-purple-500/10 rounded-full blur-2xl group-hover:bg-purple-500/20 transition-all duration-700'></div>
+        </div>
+
+        {/* Content area */}
+        <div className='px-5 pb-5 flex-1 flex flex-col'>
+          {/* Avatar & Top actions */}
+          <div className='flex items-start justify-between -mt-10 mb-4 relative z-10'>
+            <div className='p-1 bg-[#0f0f0f] rounded-2xl md:rounded-[1.5rem] shadow-2xl group-hover:scale-105 transition-transform duration-700'>
+              <Avatar user={user} size='w-16 h-16 md:w-20 md:h-20' className='rounded-[1.2rem] md:rounded-[1.4rem] border-2 border-[#0f0f0f]' />
+            </div>
+            
+            {!isMe && (
+              <Link
+                to={`/messages?userId=${user.id}`}
+                className='mb-1 p-2.5 text-gray-400 hover:text-white hover:bg-white/10 rounded-xl border border-transparent hover:border-white/10 transition-all'
+                title='Envoyer un message'
+              >
+                <MessageCircle size={18} />
+              </Link>
+            )}
+          </div>
+
+          {/* Name */}
+          <Link to={`/profile/${user.id}`} className='hover:text-purple-400 transition-colors mb-0.5'>
+            <h4 className='text-white font-bold text-sm leading-snug'>
+              {user.prenom} {user.nom}
+              {isMe && <span className='ml-2 text-[10px] font-black bg-purple-500/15 text-purple-400 px-2 py-0.5 rounded-full border border-purple-500/20'>Vous</span>}
+            </h4>
+          </Link>
+
+          {/* Bio */}
+          {user.bio ? (
+            <p className='text-gray-500 text-[12px] leading-relaxed mb-4 line-clamp-2 flex-1'>
+              {user.bio}
+            </p>
+          ) : (
+            <div className='flex-1'></div>
+          )}
+
+          {/* Stats row */}
+          <div className='flex items-center gap-3 mb-5 flex-wrap'>
+            {user.followers_count != null && (
+              <span className='flex items-center gap-1 text-[11px] text-gray-500'>
+                <Heart size={11} className='text-pink-500/60' />
+                <span className='font-semibold text-gray-400'>{user.followers_count}</span>
+                <span>abonnés</span>
+              </span>
+            )}
+            {user.posts_count != null && (
+              <span className='flex items-center gap-1 text-[11px] text-gray-500'>
+                <FileText size={11} className='text-purple-500/60' />
+                <span className='font-semibold text-gray-400'>{user.posts_count}</span>
+                <span>posts</span>
+              </span>
+            )}
+          </div>
+
+          {/* Action button */}
+          {!isMe && (
+            <div className='mt-auto pt-2 border-t border-white/5'>
+              <div className='flex gap-2'>
+                <Link
+                  to={`/messages?userId=${user.id}`}
+                  className='flex-1 flex items-center justify-center gap-2 py-2 text-xs font-bold text-gray-300 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 rounded-xl transition-all'
+                >
+                  <MessageCircle size={14} /> Message
+                </Link>
+                <button
+                  className='flex items-center justify-center gap-1 px-3 py-2 text-xs font-bold text-gray-600 hover:text-red-400 bg-white/5 hover:bg-red-500/10 border border-white/5 hover:border-red-500/20 rounded-xl transition-all'
+                  onClick={() => handleRemoveFriend(user.id, `${user.prenom} ${user.nom}`)}
+                  title="Supprimer l'ami"
+                >
+                  <UserMinus size={14} />
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    )
   }
 
   const toggleSidebar = () => {
@@ -703,34 +812,34 @@ const Profile = () => {
 
             {/* 3. Navigation Tabs */}
             <div className='mt-16 px-4 md:px-16'>
-              <div className='bg-white/5 backdrop-blur-md p-1.5 rounded-[2.5rem] border border-white/5 flex gap-2 w-fit mx-auto md:mx-0'>
-                {[
-                  { id: 'posts', label: 'Feeds', icon: FileText },
-                  { id: 'friends', label: 'Friends', icon: Users, count: profile.stats.friends },
-                  { id: 'about', label: 'Details', icon: MapPin }
-                ].map(tab => (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`px-10 py-4 rounded-[2rem] font-black text-[10px] uppercase tracking-[0.25em] transition-all duration-700 flex items-center gap-3 ${
-                      activeTab === tab.id ? 'bg-white text-black shadow-2xl scale-105' : 'text-gray-500 hover:text-white hover:bg-white/5'
-                    }`}
-                  >
-                    <tab.icon size={16} />
-                    <span>{tab.label}</span>
-                    {tab.count !== undefined && tab.count > 0 && (
-                      <span className={`px-2 py-0.5 rounded-full text-[8px] ${activeTab === tab.id ? 'bg-black text-white' : 'bg-white/10 text-gray-500'}`}>
-                        {tab.count}
-                      </span>
-                    )}
-                  </button>
-                ))}
-              </div>
+            <div className='flex flex-wrap sm:flex-nowrap items-center justify-center md:justify-start gap-2 w-full'>
+              {[
+                { id: 'posts', label: 'Feeds', icon: FileText },
+                { id: 'friends', label: 'Friends', icon: Users, count: profile.stats.friends },
+                { id: 'about', label: 'Details', icon: MapPin }
+              ].map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`px-6 sm:px-10 py-3.5 sm:py-4 rounded-[1.5rem] sm:rounded-[2rem] font-black text-[10px] uppercase tracking-[0.25em] transition-all duration-700 flex items-center gap-3 ${
+                    activeTab === tab.id ? 'bg-white text-black shadow-2xl scale-105' : 'text-gray-500 hover:text-white hover:bg-white/5 border border-transparent hover:border-white/5'
+                  }`}
+                >
+                  <tab.icon size={16} />
+                  <span>{tab.label}</span>
+                  {tab.count !== undefined && tab.count > 0 && (
+                    <span className={`px-2 py-0.5 rounded-full text-[8px] ${activeTab === tab.id ? 'bg-black text-white' : 'bg-white/10 text-gray-500'}`}>
+                      {tab.count}
+                    </span>
+                  )}
+                </button>
+              ))}
+            </div>
 
               {/* Tab Content Panes */}
-              <div className='mt-12 mb-20 min-h-[400px]'>
+              <div className='mt-12 mb-20 min-h-[400px] overflow-x-hidden'>
                 {activeTab === 'posts' && (
-                  <div className='grid grid-cols-1 md:grid-cols-2 gap-8 animate-in fade-in slide-in-from-bottom-5 duration-700'>
+                  <div className='grid grid-cols-1 md:grid-cols-2 gap-8 animate-in fade-in slide-in-from-bottom-5 duration-700 px-1 sm:px-0'>
                     {posts.length === 0 ? (
                       <div className='col-span-full py-32 flex flex-col items-center justify-center bg-white/5 border border-dashed border-white/10 rounded-[4rem] group'>
                          <div className='w-24 h-24 bg-white/5 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-700'>
@@ -783,18 +892,9 @@ const Profile = () => {
                 )}
 
                 {activeTab === 'friends' && (
-                  <div className='grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8 animate-in fade-in slide-in-from-bottom-5 duration-700'>
+                  <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-5 duration-700 px-1 sm:px-0'>
                     {profile.recent_friends?.length > 0 ? (
-                      profile.recent_friends.map(friend => (
-                        <div key={friend.id} onClick={() => navigate(`/profile/${friend.id}`)} className='group relative bg-white/5 border border-white/5 rounded-[3rem] p-8 text-center hover:bg-white/10 transition-all duration-700 cursor-pointer overflow-hidden'>
-                           <div className='absolute -top-12 -right-12 w-32 h-32 bg-purple-500/10 rounded-full blur-[40px] group-hover:bg-purple-500/20 transition-all duration-1000'></div>
-                           <div className='relative mb-6'>
-                              <Avatar user={friend} size='w-24 h-24' className='mx-auto rounded-[2rem] shadow-2xl border-2 border-white/10 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-1000' />
-                           </div>
-                           <h4 className='text-white font-black text-sm tracking-tight truncate'>{friend.prenom}</h4>
-                           <p className='text-gray-500 font-bold text-[10px] uppercase tracking-tighter truncate'>{friend.nom}</p>
-                        </div>
-                      ))
+                      profile.recent_friends.map((friend, index) => renderUserCard(friend, index))
                     ) : (
                       <div className='col-span-full py-32 text-center bg-white/5 rounded-[4rem] border border-dashed border-white/10'>
                         <Users size={40} className='mx-auto mb-4 text-gray-700' />
@@ -805,8 +905,8 @@ const Profile = () => {
                 )}
 
                 {activeTab === 'about' && (
-                  <div className='max-w-5xl mx-auto animate-in fade-in slide-in-from-bottom-5 duration-700'>
-                    <div className='grid md:grid-cols-2 gap-10'>
+                  <div className='max-w-5xl mx-auto animate-in fade-in slide-in-from-bottom-5 duration-700 px-1 sm:px-0'>
+                    <div className='grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10'>
                       <div className='space-y-10'>
                         <div className='group'>
                           <h3 className='text-[10px] font-black uppercase tracking-[0.5em] text-purple-400 mb-8 flex items-center gap-6'>
