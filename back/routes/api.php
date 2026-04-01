@@ -81,6 +81,23 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/', [App\Http\Controllers\MessageController::class, 'sendMessage']);
     });
 
+    // Group routes
+    Route::prefix('groups')->group(function () {
+        Route::get('/', [App\Http\Controllers\GroupController::class, 'index']);
+        Route::post('/', [App\Http\Controllers\GroupController::class, 'store']);
+        Route::get('/{id}', [App\Http\Controllers\GroupController::class, 'show']);
+        Route::post('/{id}/invite', [App\Http\Controllers\GroupController::class, 'invite']);
+        Route::delete('/{id}/members/{userId}', [App\Http\Controllers\GroupController::class, 'removeMember']);
+        Route::patch('/{id}/members/{userId}/role', [App\Http\Controllers\GroupController::class, 'updateRole']);
+        Route::post('/{id}/leave', [App\Http\Controllers\GroupController::class, 'leave']);
+        Route::patch('/{id}/settings', [App\Http\Controllers\GroupController::class, 'toggleSettings']);
+        
+        // Group Messages
+        Route::get('/{id}/messages', [App\Http\Controllers\GroupMessageController::class, 'index']);
+        Route::post('/{id}/messages', [App\Http\Controllers\GroupMessageController::class, 'store']);
+        Route::delete('/{id}/messages/{messageId}', [App\Http\Controllers\GroupMessageController::class, 'destroy']);
+    });
+
     // Block routes
     Route::prefix('blocks')->group(function () {
         Route::get('/', [App\Http\Controllers\BloquageController::class, 'index']);

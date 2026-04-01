@@ -119,4 +119,12 @@ class Utilisateur extends Model
     {
         return $this->hasMany(Message::class, 'id_uti_2');
     }
+
+    // Groups this user belongs to
+    public function groupes()
+    {
+        return $this->belongsToMany(Groupe::class, 'GroupeMembre', 'utilisateur_id', 'groupe_id')
+                    ->withPivot('role', 'joined_at')
+                    ->withTimestamps();
+    }
 }

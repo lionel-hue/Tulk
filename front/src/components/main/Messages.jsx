@@ -23,8 +23,14 @@ import {
   UserCheck,
   Flag,
   UserX,
-  Grid
+  Grid,
+  PlusCircle,
+  Users,
+  ShieldAlert
 } from 'lucide-react'
+import GroupChat from './GroupChat'
+import GroupModal from './GroupModal'
+import EmojiPicker from 'emoji-picker-react'
 
 const Messages = () => {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -51,42 +57,38 @@ const Messages = () => {
   const [hasMoreMsg, setHasMoreMsg] = useState(false)
   const [loadingMoreMsg, setLoadingMoreMsg] = useState(false)
   
-  const loadMoreConversations = () => {
-    if (hasMoreConv && !loadingMoreConv) {
-      fetchConversations(convPage + 1)
-    }
-  }
-
-  const loadMoreMessages = () => {
-    if (hasMoreMsg && !loadingMoreMsg) {
-      fetchMessages(activeConversation.user.id, msgPage + 1)
-    }
-  }
-
-  const { sentinelRef: convSentinel } = useInfiniteScroll(loadMoreConversations, hasMoreConv, loadingMoreConv)
-  const { sentinelRef: msgSentinel } = useInfiniteScroll(loadMoreMessages, hasMoreMsg, loadingMoreMsg)
-  
   // Advanced Features State
   const [showChatSearch, setShowChatSearch] = useState(false)
   const [chatSearchQuery, setChatSearchQuery] = useState('')
   const [showActions, setShowActions] = useState(false)
   const [showInfo, setShowInfo] = useState(false)
   const [showEmojiPicker, setShowEmojiPicker] = useState(false)
-  
-  const emojis = ['❤️', '😂', '😮', '😢', '😡', '👍', '🔥', '👏', '🙌', '✨', '😊', '😍', '🤔', '😎', '🙏', '💯']
+
+  // Group Chat State
+  const [activeTab, setActiveTab] = useState('direct') // 'direct' or 'groups'
+  const [groups, setGroups] = useState([])
+  const [activeGroup, setActiveGroup] = useState(null)
+  const [groupModal, setGroupModal] = useState({ show: false, type: 'create', data: null })
+  const [loadingGroups, setLoadingGroups] = useState(false)
   
   const fileInputRef = useRef(null)
   const messagesEndRef = useRef(null)
   const pollingInterval = useRef(null)
   const actionsRef = useRef(null)
+  const emojiRef = useRef(null)
 
   const userIdParam = searchParams.get('userId')
+  const groupIdParam = searchParams.get('groupId')
 
   useEffect(() => {
     fetchConversations()
+    fetchGroups()
     const handleClickOutside = (event) => {
       if (actionsRef.current && !actionsRef.current.contains(event.target)) {
         setShowActions(false)
+      }
+      if (emojiRef.current && !emojiRef.current.contains(event.target)) {
+        setShowEmojiPicker(false)
       }
     }
     document.addEventListener('mousedown', handleClickOutside)
@@ -143,8 +145,34 @@ const Messages = () => {
     } catch (error) {
       console.error('Error fetching conversations:', error)
     } finally {
-      setLoading(false)
+      if (page === 1) setLoading(false)
       setLoadingMoreConv(false)
+    }
+  }
+
+  const fetchGroups = async () => {
+    try {
+      setLoadingGroups(true)
+      const response = await api.get('/groups')
+      if (response.data.success) {
+        setGroups(response.data.groups || [])
+      }
+    } catch (error) {
+      console.error('Error fetching groups:', error)
+    } finally {
+      setLoadingGroups(false)
+    }
+  }
+
+  const fetchGroupDetails = async (groupId) => {
+    try {
+      const response = await api.get(`/groups/${groupId}`)
+      if (response.data.success) {
+        setActiveGroup(response.data.group)
+        setActiveTab('groups')
+      }
+    } catch (error) {
+      console.error('Error fetching group details:', error)
     }
   }
 
@@ -182,8 +210,6 @@ const Messages = () => {
       const response = await api.get(`/messages/${userId}?page=${page}`)
       if (response.data.success) {
         const paginatedMessages = response.data.messages
-        // Note: backend returns data: [latest...older]
-        // Defensive check: ensure data is an array
         const messageData = Array.isArray(paginatedMessages?.data) ? paginatedMessages.data : []
         const reverseMessages = [...messageData].reverse()
         
@@ -191,7 +217,6 @@ const Messages = () => {
           setMessages(reverseMessages)
           scrollToBottom()
         } else {
-          // Prepend older messages
           setMessages(prev => [...reverseMessages, ...prev])
         }
         
@@ -220,7 +245,6 @@ const Messages = () => {
 
   const refreshMessages = async (userId) => {
     try {
-      // For refresh, we only want the first page
       const response = await api.get(`/messages/${userId}?page=1`)
       if (response.data.success) {
         const paginatedMessages = response.data.messages
@@ -239,6 +263,21 @@ const Messages = () => {
     }
   }
 
+  const loadMoreConversations = () => {
+    if (hasMoreConv && !loadingMoreConv) {
+      fetchConversations(convPage + 1)
+    }
+  }
+
+  const loadMoreMessages = () => {
+    if (hasMoreMsg && !loadingMoreMsg) {
+      fetchMessages(activeConversation.user.id, msgPage + 1)
+    }
+  }
+
+  const { sentinelRef: convSentinel } = useInfiniteScroll(loadMoreConversations, hasMoreConv, loadingMoreConv)
+  const { sentinelRef: msgSentinel } = useInfiniteScroll(loadMoreMessages, hasMoreMsg, loadingMoreMsg)
+
   const handleSelectConversation = (conv) => {
     setActiveConversation(conv)
     setSearchParams({ userId: conv.user.id })
@@ -247,6 +286,16 @@ const Messages = () => {
     setShowActions(false)
     setShowChatSearch(false)
     setChatSearchQuery('')
+    setActiveTab('direct')
+    setActiveGroup(null)
+  }
+
+  const handleSelectGroup = (group) => {
+    setActiveGroup(group)
+    setSearchParams({ groupId: group.id })
+    setActiveTab('groups')
+    setActiveConversation(null)
+    setShowInfo(false)
   }
 
   const handleImageSelect = (e) => {
@@ -300,59 +349,30 @@ const Messages = () => {
 
   const handleClearHistory = async () => {
     if (!activeConversation) return
-    
     const confirmed = await confirm('Voulez-vous vraiment vider cette conversation ? Cette action est irréversible.', 'Vider la conversation')
     if (!confirmed) return
-    
     try {
-      // Assuming we can clear locally for now as requested
       setMessages([])
       setShowActions(false)
-      setModal({
-        show: true,
-        type: 'success',
-        title: 'Succès',
-        message: 'Conversation vidée'
-      })
+      setModal({ show: true, type: 'success', title: 'Succès', message: 'Conversation vidée' })
     } catch (err) {
       console.error('Error clearing history:', err)
-      setModal({
-        show: true,
-        type: 'error',
-        title: 'Erreur',
-        message: 'Échec du vidage'
-      })
     }
   }
 
   const handleBlockUser = async () => {
     if (!activeConversation) return
-    
     const confirmed = await confirm(`Voulez-vous vraiment bloquer ${activeConversation.user.prenom} ? Vous ne pourrez plus échanger de messages.`, 'Bloquer l\'utilisateur')
     if (!confirmed) return
-    
     try {
-      const response = await api.post('/blocks/block', {
-        user_id: activeConversation.user.id
-      })
+      const response = await api.post('/blocks/block', { user_id: activeConversation.user.id })
       if (response.data.success) {
-        setModal({
-          show: true,
-          type: 'success',
-          title: 'Utilisateur bloqué',
-          message: `${activeConversation.user.prenom} a été bloqué.`
-        })
+        setModal({ show: true, type: 'success', title: 'Utilisateur bloqué', message: `${activeConversation.user.prenom} a été bloqué.` })
         setActiveConversation(null)
         fetchConversations()
       }
     } catch (err) {
       console.error('Error blocking user:', err)
-      setModal({
-        show: true,
-        type: 'error',
-        title: 'Erreur',
-        message: err.response?.data?.message || 'Échec du blocage'
-      })
     }
   }
 
@@ -376,7 +396,6 @@ const Messages = () => {
     return msg.texte?.toLowerCase().includes(chatSearchQuery.toLowerCase())
   })
 
-  // Extract shared images for info panel
   const sharedImages = messages.filter(msg => msg.image).map(msg => msg.image)
 
   if (loading) {
@@ -391,9 +410,9 @@ const Messages = () => {
   }
 
   return (
-    <div className='premium-chat-layout animate-fade-in mobile-responsive-height flex bg-[#060606] h-[calc(100vh-80px)] overflow-hidden rounded-[3rem] border border-white/5 shadow-2xl mt-4 mx-4 md:mt-8 md:mx-8 mb-4 max-w-7xl lg:mx-auto'>
+    <div className='premium-chat-layout animate-fade-in mobile-responsive-height flex bg-[#060606] h-[calc(100vh-80px)] overflow-hidden rounded-[3rem] border border-white/5 shadow-2xl mt-4 mx-4 md:mt-8 md:mx-8 mb-4 max-w-7xl lg:mx-auto relative'>
       {/* Search & List Sidebar */}
-      <div className={`bg-[#0f0f0f] flex-col border-r border-white/5 w-full lg:w-96 flex-shrink-0 relative ${activeConversation ? 'hidden lg:flex' : 'flex'}`}>
+      <div className={`bg-[#0f0f0f] flex-col border-r border-white/5 w-full lg:w-96 flex-shrink-0 relative ${activeConversation || activeGroup ? 'hidden lg:flex' : 'flex'}`}>
         <div className='p-8 border-b border-white/5 relative overflow-hidden'>
           <div className='absolute -top-12 -left-12 w-32 h-32 bg-purple-500/10 rounded-full blur-[40px]'></div>
           <h2 className='text-3xl font-black text-white tracking-tighter mb-6 relative'>Discussions</h2>
@@ -401,45 +420,116 @@ const Messages = () => {
             <Search size={18} className='text-gray-400' />
             <input 
               type='text' 
-              placeholder='Rechercher un ami...' 
+              placeholder={activeTab === 'direct' ? 'Rechercher un ami...' : 'Rechercher un groupe...'} 
               className='bg-transparent border-none outline-none text-white w-full placeholder-gray-600 text-sm font-bold tracking-wide'
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
+          
+          <div className='flex items-center gap-2 mt-6 p-1 bg-white/5 border border-white/10 rounded-[1.5rem] relative'>
+             <button 
+               onClick={() => setActiveTab('direct')}
+               className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'direct' ? 'bg-white/10 text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}
+             >
+                <MessageCircle size={14} /> Direct
+             </button>
+             <button 
+               onClick={() => setActiveTab('groups')}
+               className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'groups' ? 'bg-white/10 text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}
+             >
+                <Users size={14} /> Groupes
+             </button>
+          </div>
         </div>
 
         <div className='flex-1 overflow-y-auto custom-scrollbar p-3 space-y-1'>
-          {filteredConversations.length === 0 ? (
-            <div className='flex flex-col items-center justify-center p-8 mt-4 bg-white/5 rounded-[2.5rem] border border-dashed border-white/10 text-center mx-2 group'>
-              <div className='w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform'>
-                <MessageCircle size={24} className='text-gray-600' />
+          {activeTab === 'groups' && (
+            <button 
+              onClick={() => setGroupModal({ show: true, type: 'create', data: null })}
+              className='w-full flex items-center gap-4 p-4 rounded-[2rem] border border-dashed border-purple-500/30 bg-purple-500/5 hover:bg-purple-500/10 transition-all mb-4 group'
+            >
+               <div className='w-12 h-12 bg-purple-500/20 rounded-[1.2rem] flex items-center justify-center group-hover:scale-110 transition-transform'>
+                  <PlusCircle size={24} className='text-purple-400' />
+               </div>
+               <div className='text-left'>
+                  <p className='text-white font-bold text-sm'>Créer un groupe</p>
+                  <p className='text-[9px] font-black text-purple-400 uppercase tracking-widest'>Nouvelle discussion collective</p>
+               </div>
+            </button>
+          )}
+
+          {activeTab === 'direct' ? (
+            filteredConversations.length === 0 ? (
+              <div className='flex flex-col items-center justify-center p-8 mt-4 bg-white/5 rounded-[2.5rem] border border-dashed border-white/10 text-center mx-2 group'>
+                <div className='w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform'>
+                  <MessageCircle size={24} className='text-gray-600' />
+                </div>
+                <p className='text-[10px] font-black uppercase tracking-widest text-gray-500'>{searchQuery ? 'Aucun ami trouvé' : 'Commencez à discuter'}</p>
               </div>
-              <p className='text-[10px] font-black uppercase tracking-widest text-gray-500'>{searchQuery ? 'Aucun ami trouvé' : 'Commencez à discuter'}</p>
-            </div>
+            ) : (
+              filteredConversations.map((conv) => (
+                <div 
+                  key={conv.user.id}
+                  onClick={() => handleSelectConversation(conv)}
+                  className={`flex items-center gap-4 p-4 rounded-[2rem] cursor-pointer transition-all duration-500 border border-transparent ${activeConversation?.user.id === conv.user.id ? 'bg-white/10 border-white/10 shadow-xl ml-2' : 'hover:bg-white/5 hover:border-white/5'}`}
+                >
+                  <div className='relative flex-shrink-0'>
+                    <Avatar user={conv.user} size='w-12 h-12' className='rounded-[1.2rem] shadow-lg' />
+                    <span className='absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-[#0f0f0f] rounded-full'></span>
+                  </div>
+                  <div className='flex-1 min-w-0'>
+                    <div className='flex items-center justify-between mb-1'>
+                      <span className='text-white font-bold text-sm truncate'>{conv.user.prenom} {conv.user.nom}</span>
+                      <span className='text-[9px] font-black text-gray-500 uppercase tracking-widest flex-shrink-0 ml-2'>{conv.last_message ? formatDate(conv.last_message.date) : ''}</span>
+                    </div>
+                    <div className='text-xs font-medium text-gray-400 truncate'>
+                      {conv.last_message?.image && <ImageIcon size={12} className='inline mr-1 text-purple-400' />}
+                      {conv.last_message?.texte || (conv.last_message?.image ? 'Image partagée' : 'Envoyer un message')}
+                    </div>
+                  </div>
+                </div>
+              ))
+            )
           ) : (
-            filteredConversations.map((conv) => (
-              <div 
-                key={conv.user.id}
-                onClick={() => handleSelectConversation(conv)}
-                className={`flex items-center gap-4 p-4 rounded-[2rem] cursor-pointer transition-all duration-500 border border-transparent ${activeConversation?.user.id === conv.user.id ? 'bg-white/10 border-white/10 shadow-xl ml-2' : 'hover:bg-white/5 hover:border-white/5'}`}
-              >
-                <div className='relative flex-shrink-0'>
-                  <Avatar user={conv.user} size='w-12 h-12' className='rounded-[1.2rem] shadow-lg' />
-                  <span className='absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-[#0f0f0f] rounded-full'></span>
+            groups.length === 0 ? (
+              <div className='flex flex-col items-center justify-center p-8 mt-4 bg-white/5 rounded-[2.5rem] border border-dashed border-white/10 text-center mx-2 group'>
+                <div className='w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform'>
+                  <Users size={24} className='text-gray-600' />
                 </div>
-                <div className='flex-1 min-w-0'>
-                  <div className='flex items-center justify-between mb-1'>
-                    <span className='text-white font-bold text-sm truncate'>{conv.user.prenom} {conv.user.nom}</span>
-                    <span className='text-[9px] font-black text-gray-500 uppercase tracking-widest flex-shrink-0 ml-2'>{conv.last_message ? formatDate(conv.last_message.date) : ''}</span>
-                  </div>
-                  <div className='text-xs font-medium text-gray-400 truncate'>
-                    {conv.last_message?.image && <ImageIcon size={12} className='inline mr-1 text-purple-400' />}
-                    {conv.last_message?.texte || (conv.last_message?.image ? 'Image partagée' : 'Envoyer un message')}
-                  </div>
-                </div>
+                <p className='text-[10px] font-black uppercase tracking-widest text-gray-500'>Aucun groupe trouvé</p>
               </div>
-            ))
+            ) : (
+              groups.map((group) => (
+                <div 
+                  key={group.id}
+                  onClick={() => handleSelectGroup(group)}
+                  className={`flex items-center gap-4 p-4 rounded-[2rem] cursor-pointer transition-all duration-500 border border-transparent ${activeGroup?.id === group.id ? 'bg-white/10 border-white/10 shadow-xl ml-2' : 'hover:bg-white/5 hover:border-white/5'}`}
+                >
+                  <div className='relative flex-shrink-0'>
+                     <Avatar user={{ image: group.image, prenom: group.nom }} size='w-12 h-12' className='rounded-[1.2rem] shadow-lg ring-1 ring-white/5' />
+                     <div className='absolute -bottom-1 -right-1 p-1 bg-purple-500 rounded-full border-2 border-[#0f0f0f]'>
+                        <Users size={8} className='text-white' />
+                     </div>
+                  </div>
+                  <div className='flex-1 min-w-0'>
+                    <div className='flex items-center justify-between mb-1'>
+                      <span className='text-white font-bold text-sm truncate'>{group.nom}</span>
+                      <span className='text-[9px] font-black text-gray-500 uppercase tracking-widest flex-shrink-0 ml-2'>{group.last_message ? group.last_message.date : ''}</span>
+                    </div>
+                    <div className='text-xs font-medium text-gray-400 truncate'>
+                      <span className='text-purple-400 mr-1 font-black uppercase text-[8px] tracking-tighter bg-purple-500/10 px-1 rounded'>{group.role}</span>
+                      {group.last_message ? (
+                        <>
+                          <span className='text-gray-300 font-bold'>{group.last_message.sender}: </span>
+                          {group.last_message.texte}
+                        </>
+                      ) : 'Aucun message'}
+                    </div>
+                  </div>
+                </div>
+              ))
+            )
           )}
           {/* Conversations Infinite Scroll Sentinel */}
           {hasMoreConv && (
@@ -451,7 +541,7 @@ const Messages = () => {
       </div>
 
       {/* Main Chat Area */}
-      <div className={`flex-1 flex col bg-[#060606] relative ${!activeConversation ? 'hidden lg:flex' : 'flex flex-col'}`}>
+      <div className={`flex-1 flex flex-col bg-[#060606] relative ${!activeConversation && !activeGroup ? 'hidden lg:flex' : 'flex flex-col'}`}>
         {activeConversation ? (
           <>
             {/* Header */}
@@ -558,14 +648,16 @@ const Messages = () => {
                 )}
                 
                 {showEmojiPicker && (
-                  <div className='absolute bottom-full right-4 mb-4 p-4 bg-[#141414] border border-white/10 rounded-[2rem] shadow-2xl animate-in zoom-in-95 duration-200 w-64'>
-                    <div className='grid grid-cols-4 gap-3'>
-                      {emojis.map(emoji => (
-                        <button key={emoji} type='button' onClick={() => { setNewMessage(prev => prev + emoji); setShowEmojiPicker(false); }} className='w-10 h-10 flex items-center justify-center text-xl bg-white/5 hover:bg-white/10 rounded-xl transition-all hover:scale-110 active:scale-95'>
-                          {emoji}
-                        </button>
-                      ))}
-                    </div>
+                  <div className='absolute bottom-full right-4 mb-4 z-50' ref={emojiRef}>
+                    <EmojiPicker 
+                      onEmojiClick={(emojiData) => {
+                        setNewMessage(prev => prev + emojiData.emoji);
+                        setShowEmojiPicker(false);
+                      }}
+                      theme="dark"
+                      width={300}
+                      height={400}
+                    />
                   </div>
                 )}
 
@@ -606,6 +698,12 @@ const Messages = () => {
                 </form>
              </div>
           </>
+        ) : activeGroup ? (
+          <GroupChat 
+            group={activeGroup} 
+            onBack={() => setActiveGroup(null)} 
+            onUpdate={(action) => setGroupModal({ show: true, type: action.type, data: action })}
+          />
         ) : (
           <div className='flex-1 flex flex-col items-center justify-center text-center p-8 relative overflow-hidden'>
              <div className='absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_rgba(168,85,247,0.05),transparent_60%)]'></div>
@@ -622,12 +720,9 @@ const Messages = () => {
         )}
       </div>
 
-      {/* Modal Integration */}
-      <Modal modal={modal} setModal={setModal} />
-
       {/* Info Sidebar */}
-      {activeConversation && (
-        <div className={`bg-[#0a0a0a] border-l border-white/5 w-80 lg:w-96 flex-col absolute lg:relative right-0 top-0 bottom-0 z-40 transform transition-transform duration-500 ${showInfo ? 'translate-x-0 flex' : 'translate-x-full lg:hidden lg:translate-x-0'}`}>
+      {activeConversation && showInfo && (
+        <div className={`bg-[#0a0a0a] border-l border-white/5 w-80 lg:w-96 flex-col absolute lg:relative right-0 top-0 bottom-0 z-40 transform transition-transform duration-500 flex shadow-2xl`}>
            <div className='flex-1 overflow-y-auto custom-scrollbar pb-10'>
               <div className='flex items-center justify-between p-6 border-b border-white/5 bg-[#0f0f0f]/60 backdrop-blur-xl sticky top-0 z-10'>
                  <h3 className='text-xl font-black text-white tracking-tighter'>Détails</h3>
@@ -679,6 +774,24 @@ const Messages = () => {
            </div>
         </div>
       )}
+
+      {/* Group Modal Integration */}
+      {groupModal.show && (
+        <GroupModal 
+          type={groupModal.type} 
+          data={groupModal.data} 
+          onClose={() => setGroupModal({ show: false, type: 'create', data: null })}
+          onRefresh={(groupId) => {
+             fetchGroups()
+             if (groupId) {
+               fetchGroupDetails(groupId)
+             }
+          }}
+        />
+      )}
+
+      {/* Standard Modal Integration */}
+      <Modal modal={modal} setModal={setModal} />
     </div>
   )
 }
