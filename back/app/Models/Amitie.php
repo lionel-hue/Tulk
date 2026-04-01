@@ -20,7 +20,8 @@ class Amitie extends Model
     ];
 
     // Composite primary keys are NOT supported by Eloquent model instances
-    // protected $primaryKey = ['id_1', 'id_2'];
+    // We set a dummy single key to avoid "array on array" errors during serialization
+    protected $primaryKey = 'id_1';
 
     // Friendship belongs to user 1
     public function utilisateur1()

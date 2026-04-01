@@ -68,7 +68,11 @@ class AmitieController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Demande d\'amitié envoyée',
-            'friendship' => $amitie
+            'friendship' => [
+                'id_1' => $user->id,
+                'id_2' => $targetUserId,
+                'statut' => 'en attente'
+            ]
         ]);
     }
 
@@ -113,7 +117,11 @@ class AmitieController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Demande d\'amitié acceptée',
-            'friendship' => $friendship
+            'friendship' => [
+                'id_1' => $requesterId,
+                'id_2' => $user->id,
+                'statut' => 'ami'
+            ]
         ]);
     }
 
@@ -171,40 +179,33 @@ class AmitieController extends Controller
             $query->where('id_1', $user->id)
                 ->orWhere('id_2', $user->id);
         })
-            ->where('statut', 'ami')
-            ->where(function ($query) use ($user) {
-                $query->where('id_1', '!=', $user->id)
-                    ->orWhere('id_2', '!=', $user->id);
-            })
-            ->get();
+        ->where('statut', 'ami')
+        ->with(['utilisateur1', 'utilisateur2'])
+        ->get();
 
         $allFriends = [];
         $seenIds = [];
+        
         foreach ($friendships as $friendship) {
-            $friendId = ($friendship->id_1 == $user->id) ? $friendship->id_2 : $friendship->id_1;
+            $friend = ($friendship->id_1 == $user->id) ? $friendship->utilisateur2 : $friendship->utilisateur1;
             
-            if (in_array($friendId, $seenIds)) continue;
-            $seenIds[] = $friendId;
+            if (!$friend || in_array($friend->id, $seenIds)) continue;
+            $seenIds[] = $friend->id;
 
-            $friend = Utilisateur::select('id', 'nom', 'prenom', 'email', 'image', 'role', 'bio', 'location')
-                ->find($friendId);
-
-            if ($friend) {
-                $allFriends[] = [
-                    'id'              => $friend->id,
-                    'nom'             => $friend->nom,
-                    'prenom'          => $friend->prenom,
-                    'email'           => $friend->email,
-                    'image'           => $friend->image,
-                    'role'            => $friend->role,
-                    'bio'             => $friend->bio ? mb_substr($friend->bio, 0, 100) : null,
-                    'location'        => $friend->location,
-                    'followers_count' => $friend->followers()->count(),
-                    'posts_count'     => $friend->articles()->count(),
-                    'friendship_id'   => $friendship->id_1 . '_' . $friendship->id_2,
-                    'friendship_date' => $friendship->created_at ?? null
-                ];
-            }
+            $allFriends[] = [
+                'id'              => $friend->id,
+                'nom'             => $friend->nom,
+                'prenom'          => $friend->prenom,
+                'email'           => $friend->email,
+                'image'           => $friend->image,
+                'role'            => $friend->role,
+                'bio'             => $friend->bio ? mb_substr($friend->bio, 0, 100) : null,
+                'location'        => $friend->location,
+                'followers_count' => $friend->followers()->count(),
+                'posts_count'     => $friend->articles()->count(),
+                'friendship_id'   => $friendship->id_1 . '_' . $friendship->id_2,
+                'friendship_date' => $friendship->created_at ?? null
+            ];
         }
 
         $total    = count($allFriends);
@@ -227,68 +228,73 @@ class AmitieController extends Controller
         $perPage = 12;
         $page = max(1, (int) $request->query('page', 1));
 
-        $currentFriends = Amitie::where(function ($query) use ($user) {
-            $query->where('id_1', $user->id)
-                ->orWhere('id_2', $user->id);
-        })
-            ->where('statut', 'ami')
-            ->get()
-            ->map(function ($friendship) use ($user) {
-                return ($friendship->id_1 == $user->id) ? $friendship->id_2 : $friendship->id_1;
-            })
-            ->toArray();
-
-        // Also exclude users with any pending request
-        $pendingIds = Amitie::where(function ($q) use ($user) {
+        // Get currently related user IDs (friends or pending) to exclude
+        $relatedIds = Amitie::where(function ($q) use ($user) {
             $q->where('id_1', $user->id)->orWhere('id_2', $user->id);
-        })->where('statut', 'en attente')->get()->map(function ($a) use ($user) {
+        })->get()->map(function ($a) use ($user) {
             return ($a->id_1 == $user->id) ? $a->id_2 : $a->id_1;
+        })->unique()->toArray();
+
+        $excludeIds = array_merge($relatedIds, [$user->id]);
+
+        // Get friends of friends in one go
+        $myFriendIds = Amitie::where(function ($query) use ($user) {
+            $query->where('id_1', $user->id)->orWhere('id_2', $user->id);
+        })->where('statut', 'ami')->get()->map(function ($friendship) use ($user) {
+            return ($friendship->id_1 == $user->id) ? $friendship->id_2 : $friendship->id_1;
         })->toArray();
 
-        $excludeIds = array_unique(array_merge($currentFriends, $pendingIds, [$user->id]));
-
-        $suggestions = [];
-        foreach ($currentFriends as $friendId) {
-            $friendFriendships = Amitie::where(function ($query) use ($friendId) {
-                $query->where('id_1', $friendId)
-                    ->orWhere('id_2', $friendId);
-            })
-                ->where('statut', 'ami')
+        if (empty($myFriendIds)) {
+            // If no friends, just suggest some popular or random users
+            $suggestedUsers = Utilisateur::whereNotIn('id', $excludeIds)
+                ->limit($perPage)
                 ->get();
+        } else {
+            // Find users who are friends with my friends but NOT friends with me
+            $fofIds = Amitie::where(function($q) use ($myFriendIds) {
+                    $q->whereIn('id_1', $myFriendIds)->orWhereIn('id_2', $myFriendIds);
+                })
+                ->where('statut', 'ami')
+                ->get()
+                ->map(function($f) use ($myFriendIds) {
+                    return in_array($f->id_1, $myFriendIds) ? $f->id_2 : $f->id_1;
+                })
+                ->filter(function($id) use ($excludeIds) {
+                    return !in_array($id, $excludeIds);
+                })
+                ->countBy()
+                ->sortByDesc(function($count) { return $count; })
+                ->keys()
+                ->take(50) // Limit to top 50 candidates
+                ->toArray();
 
-            foreach ($friendFriendships as $friendFriendship) {
-                $potentialFriendId = ($friendFriendship->id_1 == $friendId) ?
-                    $friendFriendship->id_2 : $friendFriendship->id_1;
-
-                if (!in_array($potentialFriendId, $excludeIds) && !isset($suggestions[$potentialFriendId])) {
-                    $mutualFriends = $this->countMutualFriends($user->id, $potentialFriendId);
-                    $userData = Utilisateur::select('id', 'nom', 'prenom', 'email', 'image', 'role', 'bio', 'location')
-                        ->find($potentialFriendId);
-
-                    if ($userData) {
-                        $suggestions[$potentialFriendId] = [
-                            'id'              => $userData->id,
-                            'nom'             => $userData->nom,
-                            'prenom'          => $userData->prenom,
-                            'email'           => $userData->email,
-                            'image'           => $userData->image,
-                            'role'            => $userData->role,
-                            'bio'             => $userData->bio ? mb_substr($userData->bio, 0, 100) : null,
-                            'location'        => $userData->location,
-                            'followers_count' => $userData->followers()->count(),
-                            'posts_count'     => $userData->articles()->count(),
-                            'mutual_friends'  => $mutualFriends,
-                        ];
-                    }
-                }
-            }
+            $suggestedUsers = Utilisateur::whereIn('id', $fofIds)
+                ->withCount(['followers'])
+                ->get();
         }
 
+        $suggestions = [];
+        foreach ($suggestedUsers as $userData) {
+            $suggestions[] = [
+                'id'              => $userData->id,
+                'nom'             => $userData->nom,
+                'prenom'          => $userData->prenom,
+                'email'           => $userData->email,
+                'image'           => $userData->image,
+                'role'            => $userData->role,
+                'bio'             => $userData->bio ? mb_substr($userData->bio, 0, 100) : null,
+                'location'        => $userData->location,
+                'followers_count' => $userData->followers_count ?? $userData->followers()->count(),
+                'posts_count'     => $userData->articles()->count(),
+                'mutual_friends'  => $this->countMutualFriends($user->id, $userData->id),
+            ];
+        }
+
+        // Sort by mutual friends if available
         usort($suggestions, function ($a, $b) {
             return $b['mutual_friends'] <=> $a['mutual_friends'];
         });
 
-        $suggestions = array_values($suggestions);
         $total   = count($suggestions);
         $offset  = ($page - 1) * $perPage;
         $slice   = array_slice($suggestions, $offset, $perPage);
@@ -312,9 +318,8 @@ class AmitieController extends Controller
         $allPending = [];
         $seenIds = [];
         $friendships = Amitie::where('id_2', $user->id)
-            ->where('id_1', '!=', $user->id)
             ->where('statut', 'en attente')
-            ->with('utilisateur1:id,nom,prenom,email,image,role,bio,location')
+            ->with(['utilisateur1'])
             ->get();
 
         foreach ($friendships as $amitie) {
