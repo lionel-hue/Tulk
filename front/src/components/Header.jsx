@@ -93,9 +93,7 @@ const Header = ({
       case 'profile':
         navigate('/profile')
         break
-      case 'settings':
-        navigate('/settings')
-        break
+
       case 'logout':
         const shouldLogout = await confirm(
           'Êtes-vous sûr de vouloir vous déconnecter?',
@@ -167,7 +165,7 @@ const Header = ({
 
   return (
     <>
-      <header className='sticky top-0 z-40 bg-[#060606]/80 backdrop-blur-xl border-b border-white/5 transition-all duration-500 overflow-hidden'>
+      <header className='sticky top-0 z-40 bg-[#060606]/80 backdrop-blur-xl border-b border-white/5 transition-all duration-500'>
         <div className='max-w-full mx-auto px-4 md:px-8 flex items-center justify-between h-20 gap-2 md:gap-6'>
           {/* Side Menu Toggle */}
           <button 
@@ -262,13 +260,7 @@ const Header = ({
                       <User size={18} className='group-hover/item:scale-125 transition-transform' />
                       <span className='font-bold text-sm'>Mon Profil</span>
                     </button>
-                    <button
-                      className='w-full flex items-center gap-4 p-4 rounded-2xl text-gray-400 hover:text-white hover:bg-white/5 transition-all group/item'
-                      onClick={() => handleProfileAction('settings')}
-                    >
-                      <Settings size={18} className='group-hover/item:scale-125 transition-transform' />
-                      <span className='font-bold text-sm'>Paramètres</span>
-                    </button>
+
                     <div className='h-px bg-white/5 my-4 mx-2'></div>
                     <button
                       className='w-full flex items-center gap-4 p-4 rounded-2xl text-red-500 hover:bg-red-500/10 transition-all group/item'
