@@ -183,19 +183,20 @@ const Messages = () => {
       if (response.data.success) {
         const paginatedMessages = response.data.messages
         // Note: backend returns data: [latest...older]
-        const reverseMessages = [...paginatedMessages.data].reverse()
+        // Defensive check: ensure data is an array
+        const messageData = Array.isArray(paginatedMessages?.data) ? paginatedMessages.data : []
+        const reverseMessages = [...messageData].reverse()
         
         if (page === 1) {
           setMessages(reverseMessages)
           scrollToBottom()
         } else {
-          // Preserve scroll position logic would go here
-          // For now, prepend them
+          // Prepend older messages
           setMessages(prev => [...reverseMessages, ...prev])
         }
         
         setMsgPage(page)
-        setHasMoreMsg(paginatedMessages.current_page < paginatedMessages.last_page)
+        setHasMoreMsg(paginatedMessages?.current_page < paginatedMessages?.last_page)
       }
     } catch (error) {
       console.error('Error fetching messages:', error)
@@ -222,10 +223,10 @@ const Messages = () => {
       // For refresh, we only want the first page
       const response = await api.get(`/messages/${userId}?page=1`)
       if (response.data.success) {
-        const latestPage = [...response.data.messages.data].reverse()
+        const paginatedMessages = response.data.messages
+        const messageData = Array.isArray(paginatedMessages?.data) ? paginatedMessages.data : []
+        const latestPage = [...messageData].reverse()
         
-        // Find if we have new messages (simple length check for now, can be improved)
-        // If we're on page 1, just update. If we've scrolled up, maybe just append new ones.
         if (msgPage === 1) {
            if (latestPage.length !== messages.length) {
               setMessages(latestPage)

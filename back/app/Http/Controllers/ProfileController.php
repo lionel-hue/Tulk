@@ -223,7 +223,8 @@ class ProfileController extends Controller
                 ->orderBy('date', 'desc')
                 ->paginate(10);
 
-            $posts->getCollection()->transform(function ($post) {
+            $user = Auth::user();
+            $posts->getCollection()->transform(function ($post) use ($user) {
                 return [
                     'id' => $post->id,
                     'description' => $post->description,
@@ -231,6 +232,8 @@ class ProfileController extends Controller
                     'date' => $post->date,
                     'likes_count' => $post->likes()->count(),
                     'comments_count' => $post->commentaires()->count(),
+                    'is_liked' => $post->likes()->where('id_uti', $user->id)->exists(),
+                    'is_owner' => $post->id_uti === $user->id,
                     'utilisateur' => [
                         'id' => $post->utilisateur->id,
                         'nom' => $post->utilisateur->nom,

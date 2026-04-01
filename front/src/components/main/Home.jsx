@@ -148,17 +148,18 @@ const Home = () => {
       const response = await api.get(`/posts/feed?page=${pageNum}`)
       if (response.data.success) {
         if (pageNum === 1) {
-          setPosts(response.data.posts)
+          const postsData = response.data.posts.data
+          setPosts(postsData)
           // Reset comments state only on first page
           setPostComments({})
           setExpandedComments({})
           setCommentInputs({})
         } else {
-          setPosts(prev => [...prev, ...response.data.posts])
+          setPosts(prev => [...prev, ...postsData])
         }
         
-        setHasMore(response.data.has_more)
-        setPage(response.data.current_page)
+        setHasMore(response.data.posts.has_more)
+        setPage(response.data.posts.current_page)
       } else {
         setModal({
           show: true,

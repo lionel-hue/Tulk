@@ -147,9 +147,11 @@ class PostController extends Controller
             
             return response()->json([
                 'success' => true,
-                'posts' => $posts,
-                'has_more' => $paginator->hasMorePages(),
-                'current_page' => $paginator->currentPage(),
+                'posts' => [
+                    'data' => $posts,
+                    'has_more' => $paginator->hasMorePages(),
+                    'current_page' => $paginator->currentPage(),
+                ]
             ]);
             
         } catch (\Exception $e) {

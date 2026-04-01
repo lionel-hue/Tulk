@@ -61,6 +61,13 @@ const Profile = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [likingProfile, setLikingProfile] = useState(false)
   const [following, setFollowing] = useState(false)
+  
+  // Post Details & Social State
+  const [selectedPost, setSelectedPost] = useState(null)
+  const [postComments, setPostComments] = useState({})
+  const [loadingComments, setLoadingComments] = useState({})
+  const [commentInputs, setCommentInputs] = useState({})
+  
   const fileInputRef = useRef(null)
   const bannerInputRef = useRef(null)
 
@@ -248,6 +255,81 @@ const Profile = () => {
     } finally {
       setUploadingImage(false)
     }
+  }
+
+  // Social Actions
+  const handleLikePost = async (postId) => {
+    try {
+      const response = await api.post(`/posts/${postId}/like`)
+      if (response.data.success) {
+        setPosts(prev => prev.map(post => {
+          if (post.id === postId) {
+            return {
+              ...post,
+              is_liked: response.data.liked,
+              likes_count: response.data.likes_count
+            }
+          }
+          return post
+        }))
+        // Also update selectedPost if it's the one being liked
+        if (selectedPost?.id === postId) {
+          setSelectedPost(prev => ({
+            ...prev,
+            is_liked: response.data.liked,
+            likes_count: response.data.likes_count
+          }))
+        }
+      }
+    } catch (error) {
+      console.error('Error liking post:', error)
+    }
+  }
+
+  const loadPostComments = async (postId) => {
+    try {
+      setLoadingComments(prev => ({ ...prev, [postId]: true }))
+      const response = await api.get(`/posts/${postId}/comments`)
+      if (response.data.success) {
+        setPostComments(prev => ({ ...prev, [postId]: response.data.comments }))
+      }
+    } catch (error) {
+      console.error('Error loading comments:', error)
+    } finally {
+      setLoadingComments(prev => ({ ...prev, [postId]: false }))
+    }
+  }
+
+  const handleAddComment = async (postId) => {
+    const text = commentInputs[postId]
+    if (!text?.trim()) return
+
+    try {
+      const response = await api.post(`/posts/${postId}/comments`, { texte: text })
+      if (response.data.success) {
+        setCommentInputs(prev => ({ ...prev, [postId]: '' }))
+        setPostComments(prev => ({
+          ...prev,
+          [postId]: [...(prev[postId] || []), response.data.comment]
+        }))
+        setPosts(prev => prev.map(p => {
+          if (p.id === postId) {
+            return { ...p, comments_count: response.data.comments_count }
+          }
+          return p
+        }))
+        if (selectedPost?.id === postId) {
+          setSelectedPost(prev => ({ ...prev, comments_count: response.data.comments_count }))
+        }
+      }
+    } catch (error) {
+       console.error('Error adding comment:', error)
+    }
+  }
+
+  const openPostDetails = (post) => {
+    setSelectedPost(post)
+    loadPostComments(post.id)
   }
 
   const handleBannerUpload = async e => {
@@ -949,16 +1031,30 @@ const Profile = () => {
 
                           <div className='flex items-center justify-between'>
                             <div className='flex gap-8'>
-                               <div className='flex items-center gap-2 group/btn cursor-pointer'>
-                                 <Heart size={20} className='text-gray-600 group-hover/btn:text-red-500 transition-colors' />
-                                 <span className='text-xs font-black text-gray-500 group-hover/btn:text-white'>{post.likes_count}</span>
+                               <div 
+                                 onClick={() => handleLikePost(post.id)}
+                                 className='flex items-center gap-2 group/btn cursor-pointer'
+                               >
+                                 <Heart 
+                                   size={20} 
+                                   className={`transition-colors ${post.is_liked ? 'text-red-500 fill-red-500' : 'text-gray-600 group-hover/btn:text-red-500'}`} 
+                                 />
+                                 <span className={`text-xs font-black transition-colors ${post.is_liked ? 'text-white' : 'text-gray-500 group-hover/btn:text-white'}`}>{post.likes_count}</span>
                                </div>
-                               <div className='flex items-center gap-2 group/btn cursor-pointer'>
+                               <div 
+                                 onClick={() => openPostDetails(post)}
+                                 className='flex items-center gap-2 group/btn cursor-pointer'
+                               >
                                  <MessageCircle size={20} className='text-gray-600 group-hover/btn:text-blue-500 transition-colors' />
                                  <span className='text-xs font-black text-gray-500 group-hover/btn:text-white'>{post.comments_count}</span>
                                </div>
                             </div>
-                            <button className='text-[10px] font-black uppercase tracking-[0.2em] text-gray-700 hover:text-white transition-colors'>View details</button>
+                            <button 
+                              onClick={() => openPostDetails(post)}
+                              className='text-[10px] font-black uppercase tracking-[0.2em] text-gray-700 hover:text-white transition-colors'
+                            >
+                              View details
+                            </button>
                           </div>
                         </div>
                       ))
@@ -1062,6 +1158,112 @@ const Profile = () => {
           </div>
         </main>
       </div>
+
+      {/* Post Details Modal */}
+      {selectedPost && (
+        <div className='fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8 animate-in fade-in duration-300'>
+          <div className='absolute inset-0 bg-black/80 backdrop-blur-xl' onClick={() => setSelectedPost(null)}></div>
+          <div className='bg-[#0f0f0f] w-full max-w-5xl max-h-[90vh] rounded-[3rem] border border-white/10 shadow-[0_0_100px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col md:flex-row relative z-10'>
+            {/* Left side: Image only */}
+            <div className='w-full md:w-3/5 bg-black flex items-center justify-center border-r border-white/5'>
+              {selectedPost.image ? (
+                <img src={getImageUrl(selectedPost.image)} alt='Post' className='max-w-full max-h-full object-contain' />
+              ) : (
+                <div className='flex flex-col items-center gap-4 text-white/10'>
+                   <Image size={64} />
+                   <span className='text-xs font-black uppercase tracking-[0.4em]'>Tulk Visual Content</span>
+                </div>
+              )}
+            </div>
+
+            {/* Right side: Header, Content, Comments */}
+            <div className='w-full md:w-2/5 flex flex-col bg-[#0a0a0a]'>
+              {/* Header */}
+              <div className='p-6 border-b border-white/5 flex items-center justify-between'>
+                <div className='flex items-center gap-3'>
+                  <Avatar user={selectedPost.utilisateur || profile} size='w-10 h-10' />
+                  <div>
+                    <p className='text-white font-black text-sm tracking-tight'>{(selectedPost.utilisateur || profile).prenom} {(selectedPost.utilisateur || profile).nom}</p>
+                    <p className='text-gray-500 text-[10px] uppercase font-black tracking-widest'>{selectedPost.date}</p>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setSelectedPost(null)}
+                  className='w-10 h-10 flex items-center justify-center bg-white/5 rounded-xl text-gray-400 hover:text-white transition-all'
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              {/* Content */}
+              <div className='p-6 overflow-y-auto flex-1 custom-scrollbar'>
+                <p className='text-white text-sm leading-relaxed mb-8 opacity-80'>{selectedPost.description}</p>
+                
+                <h4 className='text-[10px] font-black uppercase tracking-widest text-gray-500 mb-6 flex items-center gap-4'>
+                   <span className='w-8 h-px bg-white/10'></span>
+                   Commentaires ({selectedPost.comments_count})
+                </h4>
+
+                <div className='space-y-6'>
+                  {loadingComments[selectedPost.id] ? (
+                    <div className='flex justify-center py-8 text-purple-500'><div className='w-8 h-8 border-4 border-current border-t-transparent rounded-full animate-spin'></div></div>
+                  ) : postComments[selectedPost.id]?.length > 0 ? (
+                    postComments[selectedPost.id].map((comment) => (
+                      <div key={comment.id} className='flex gap-4 group/comment'>
+                        <Avatar user={comment.utilisateur || comment.user} size='w-8 h-8' className='flex-shrink-0' />
+                        <div className='flex-1 bg-white/5 rounded-2xl p-4 border border-white/5 hover:border-white/10 transition-all'>
+                          <div className='flex justify-between items-center mb-1'>
+                             <span className='text-white font-bold text-[11px]'>{(comment.utilisateur || comment.user).prenom} {(comment.utilisateur || comment.user).nom}</span>
+                             <span className='text-[9px] text-gray-600 font-black uppercase tracking-tighter'>{comment.date}</span>
+                          </div>
+                          <p className='text-gray-400 text-xs leading-relaxed'>{comment.texte}</p>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <p className='text-center py-8 text-gray-600 text-xs font-bold uppercase tracking-widest italic'>Aucun commentaire pour le moment</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Interaction Bar */}
+              <div className='p-6 bg-white/[0.02] border-t border-white/5'>
+                <div className='flex items-center gap-6 mb-6'>
+                  <button 
+                    onClick={() => handleLikePost(selectedPost.id)}
+                    className={`flex items-center gap-2 group/btn ${selectedPost.is_liked ? 'text-red-500' : 'text-gray-500 hover:text-white'}`}
+                  >
+                    <Heart size={20} fill={selectedPost.is_liked ? 'currentColor' : 'none'} className='transition-transform group-hover/btn:scale-110' />
+                    <span className='text-xs font-black'>{selectedPost.likes_count}</span>
+                  </button>
+                  <div className='flex items-center gap-2 text-gray-500'>
+                    <MessageCircle size={20} />
+                    <span className='text-xs font-black'>{selectedPost.comments_count}</span>
+                  </div>
+                </div>
+
+                <div className='flex gap-3'>
+                  <input 
+                    type='text'
+                    value={commentInputs[selectedPost.id] || ''}
+                    onChange={(e) => setCommentInputs(prev => ({ ...prev, [selectedPost.id]: e.target.value }))}
+                    onKeyPress={(e) => e.key === 'Enter' && handleAddComment(selectedPost.id)}
+                    placeholder='Écrire un commentaire...'
+                    className='flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-xs font-bold focus:border-purple-500/50 outline-none transition-all placeholder:text-gray-600'
+                  />
+                  <button 
+                    onClick={() => handleAddComment(selectedPost.id)}
+                    disabled={!commentInputs[selectedPost.id]?.trim()}
+                    className='w-12 h-12 flex items-center justify-center bg-white text-black rounded-xl hover:scale-105 active:scale-95 transition-all disabled:opacity-30 disabled:hover:scale-100'
+                  >
+                    <Send size={18} />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <Modal modal={modal} setModal={setModal} />
     </div>
