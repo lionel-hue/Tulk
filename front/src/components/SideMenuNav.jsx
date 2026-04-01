@@ -119,7 +119,10 @@ const SideMenuNav = ({ isOpen, onClose }) => {
 
         {/* User Identity Card */}
         <div className='px-8 py-6 mb-4'>
-          <div className='bg-white/5 border border-white/5 rounded-[2rem] p-6 hover:border-white/20 transition-all group/user'>
+          <button 
+            onClick={() => handleNavigation('profile')}
+            className='w-full text-left bg-white/5 border border-white/5 rounded-[2rem] p-6 hover:border-white/20 hover:bg-white/10 transition-all group/user'
+          >
             <div className='flex items-center gap-4'>
               <div className='relative'>
                  <Avatar user={user} size='w-12 h-12' className='rounded-2xl border-2 border-white/10 group-hover/user:scale-110 transition-transform duration-500' />
@@ -134,7 +137,7 @@ const SideMenuNav = ({ isOpen, onClose }) => {
                 </p>
               </div>
             </div>
-          </div>
+          </button>
         </div>
 
         <nav className='flex-1 px-6 space-y-2 overflow-y-auto no-scrollbar'>

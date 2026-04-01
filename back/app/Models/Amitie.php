@@ -19,8 +19,8 @@ class Amitie extends Model
         'statut'
     ];
 
-    // Set composite primary keys
-    protected $primaryKey = ['id_1', 'id_2'];
+    // Composite primary keys are NOT supported by Eloquent model instances
+    // protected $primaryKey = ['id_1', 'id_2'];
 
     // Friendship belongs to user 1
     public function utilisateur1()

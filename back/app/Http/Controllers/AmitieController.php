@@ -94,7 +94,13 @@ class AmitieController extends Controller
             ], 404);
         }
 
-        $friendship->update(['statut' => 'ami']);
+        // Use query builder for updates as Eloquent doesn't natively support composite primary keys for model instances
+        Amitie::where('id_1', $requesterId)
+            ->where('id_2', $user->id)
+            ->update(['statut' => 'ami']);
+        
+        // Refresh the instance data (without relying on primary key search)
+        $friendship->statut = 'ami';
 
         if ($requester) {
             $this->notificationService->sendFriendAcceptedNotification(
@@ -357,11 +363,11 @@ class AmitieController extends Controller
         $perPage = 12;
         $page = max(1, (int) $request->query('page', 1));
 
-        $allUsers = Utilisateur::where('id', '!=', $user->id)
-            ->where(function ($q) use ($query) {
-                $q->where('nom', 'LIKE', "%{$query}%")
-                    ->orWhere('prenom', 'LIKE', "%{$query}%")
-                    ->orWhere('email', 'LIKE', "%{$query}%");
+        $allUsers = Utilisateur::where(function ($q) use ($query) {
+                // Use REGEXP for more advanced matches than LIKE
+                $q->where('nom', 'REGEXP', $query)
+                    ->orWhere('prenom', 'REGEXP', $query)
+                    ->orWhere('email', 'REGEXP', $query);
             })
             ->select('id', 'nom', 'prenom', 'email', 'image', 'role', 'bio', 'location')
             ->get();
