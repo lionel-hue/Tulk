@@ -17,6 +17,7 @@ Route::post('register', [AuthController::class, 'register']);
 Route::post('send-verification', [VerificationController::class, 'sendVerificationCode']);
 Route::post('verify-code', [VerificationController::class, 'verifyCode']);
 Route::post('forgot-password', [AuthController::class, 'forgotPassword']);
+Route::post('verify-2fa', [AuthController::class, 'verify2fa']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);
@@ -110,4 +111,5 @@ Route::middleware('auth:sanctum')->group(function () {
     // Settings routes
     Route::get('/settings', [SettingsController::class, 'index']);
     Route::put('/settings', [SettingsController::class, 'update']);
+    Route::post('/settings/change-password', [SettingsController::class, 'changePassword']);
 });

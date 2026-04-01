@@ -28,6 +28,7 @@ class Utilisateur extends Model
         'lang',
         'theme',
         'email_notifications',
+        'two_factor_enabled',
         'last_seen',
         'created_at'
     ];
