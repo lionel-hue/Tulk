@@ -65,7 +65,8 @@ const Profile = () => {
       console.log('Loading profile for userId:', userId || 'current user')
       setLoading(true)
       setError(null)
-      const response = await api.get(`/profile/${userId || ''}`)
+      const url = userId ? `/profile/${userId}` : '/profile'
+      const response = await api.get(url)
       console.log('Profile API response:', response.data)
       if (response.data.success) {
         setProfile(response.data.profile)
