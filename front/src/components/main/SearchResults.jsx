@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useSearchParams, useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 import api from '../../utils/api'
@@ -16,6 +16,7 @@ import {
   Clock
 } from 'lucide-react'
 import Avatar from '../common/Avatar'
+import { useInfiniteScroll } from '../../hooks/useInfiniteScroll'
 
 const SearchResults = () => {
   const [searchParams] = useSearchParams()
@@ -25,33 +26,65 @@ const SearchResults = () => {
   const [results, setResults] = useState([])
   const [loading, setLoading] = useState(false)
   const [query, setQuery] = useState('')
+  
+  // Pagination
+  const [page, setPage] = useState(1)
+  const [hasMore, setHasMore] = useState(false)
+  const [loadingMore, setLoadingMore] = useState(false)
+
+  const loadMore = () => {
+    if (hasMore && !loadingMore) {
+      handleSearch(query, page + 1, true)
+    }
+  }
+
+  const { sentinelRef } = useInfiniteScroll(loadMore, hasMore, loadingMore)
 
   useEffect(() => {
     const searchQuery = searchParams.get('q')
     if (searchQuery && searchQuery.trim().length >= 2) {
       setQuery(searchQuery)
-      handleSearch(searchQuery)
+      setPage(1)
+      setResults([])
+      handleSearch(searchQuery, 1, false)
     }
   }, [searchParams])
 
-  const handleSearch = async searchQuery => {
-    setLoading(true)
+  const handleSearch = async (searchQuery, pageNum = 1, append = false) => {
+    if (pageNum === 1) {
+      setLoading(true)
+    } else {
+      setLoadingMore(true)
+    }
+    
     try {
       const response = await api.get(
-        `/friends/search?query=${encodeURIComponent(searchQuery)}`
+        `/friends/search?query=${encodeURIComponent(searchQuery)}&page=${pageNum}`
       )
       if (response.data.success) {
-        setResults(response.data.users)
+        const newResults = response.data.users
+        if (append) {
+          setResults(prev => [...prev, ...newResults])
+        } else {
+          setResults(newResults)
+        }
+        setPage(pageNum)
+        // Assuming search returns 12 per page (it's hardcoded in controller as 12)
+        setHasMore(newResults.length === 12)
       }
     } catch (error) {
-      setModal({
-        show: true,
-        type: 'error',
-        title: 'Erreur',
-        message: "Impossible d'effectuer la recherche"
-      })
+      console.error('Search error:', error)
+      if (pageNum === 1) {
+        setModal({
+          show: true,
+          type: 'error',
+          title: 'Erreur',
+          message: "Impossible d'effectuer la recherche"
+        })
+      }
     } finally {
       setLoading(false)
+      setLoadingMore(false)
     }
   }
 
@@ -321,6 +354,13 @@ const SearchResults = () => {
                 </div>
               </div>
             ))}
+          </div>
+        )}
+        
+        {/* Infinite Scroll Sentinel */}
+        {hasMore && (
+          <div ref={sentinelRef} className='py-12 flex justify-center'>
+            <div className='w-10 h-10 border-4 border-purple-500 border-t-transparent rounded-full animate-spin'></div>
           </div>
         )}
       </div>

@@ -5,6 +5,7 @@ import { useNavigate, useParams, useLocation, Link } from 'react-router-dom'
 import api from '../../utils/api'
 import Modal, { useModal } from '../Modal'
 import { getImageUrl } from '../../utils/imageUrls'
+import { useInfiniteScroll } from '../../hooks/useInfiniteScroll'
 import {
   Camera,
   MapPin,
@@ -42,6 +43,15 @@ const Profile = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [posts, setPosts] = useState([])
+  const [postsPage, setPostsPage] = useState(1)
+  const [hasMorePosts, setHasMorePosts] = useState(false)
+  const [loadingMorePosts, setLoadingMorePosts] = useState(false)
+  
+  const [friends, setFriends] = useState([])
+  const [friendsPage, setFriendsPage] = useState(1)
+  const [hasMoreFriends, setHasMoreFriends] = useState(false)
+  const [loadingMoreFriends, setLoadingMoreFriends] = useState(false)
+
   const [activeTab, setActiveTab] = useState('posts')
   const [isEditing, setIsEditing] = useState(false)
   const [editData, setEditData] = useState({})
@@ -54,9 +64,29 @@ const Profile = () => {
   const fileInputRef = useRef(null)
   const bannerInputRef = useRef(null)
 
+  const loadMorePosts = () => {
+    if (hasMorePosts && !loadingMorePosts) {
+        loadPosts(postsPage + 1)
+    }
+  }
+
+  const loadMoreFriends = () => {
+    if (hasMoreFriends && !loadingMoreFriends) {
+        loadFriends(friendsPage + 1)
+    }
+  }
+
+  const { sentinelRef: postsSentinel } = useInfiniteScroll(loadMorePosts, hasMorePosts, loadingMorePosts)
+  const { sentinelRef: friendsSentinel } = useInfiniteScroll(loadMoreFriends, hasMoreFriends, loadingMoreFriends)
+
   useEffect(() => {
     console.log('Profile component mounted, userId:', userId)
     console.log('Current user:', currentUser)
+    // Reset pages when profile changes
+    setPostsPage(1)
+    setFriendsPage(1)
+    setPosts([])
+    setFriends([])
     loadProfile()
   }, [userId])
 
@@ -107,21 +137,65 @@ const Profile = () => {
   }
 
   useEffect(() => {
-    if (profile && activeTab === 'posts') {
-      loadPosts()
+    if (profile) {
+      if (activeTab === 'posts' && posts.length === 0) {
+        loadPosts(1)
+      } else if (activeTab === 'friends' && friends.length === 0) {
+        loadFriends(1)
+      }
     }
-  }, [activeTab, profile?.id]) // Only reload if tab or profile ID changes
+  }, [activeTab, profile?.id])
 
-  const loadPosts = async () => {
+  const loadPosts = async (page = 1) => {
     try {
-      console.log('Loading posts for user:', profile.id)
-      const response = await api.get(`/profile/${profile.id}/posts`)
+      console.log('Loading posts for user:', profile.id, 'page:', page)
+      if (page === 1) {
+        // Initial load or refresh
+      } else {
+        setLoadingMorePosts(true)
+      }
+      
+      const response = await api.get(`/profile/${profile.id}/posts?page=${page}`)
       console.log('Posts API response:', response.data)
       if (response.data.success) {
-        setPosts(response.data.posts)
+        const newPosts = response.data.posts.data
+        if (page === 1) {
+          setPosts(newPosts)
+        } else {
+          setPosts(prev => [...prev, ...newPosts])
+        }
+        setPostsPage(page)
+        setHasMorePosts(response.data.posts.current_page < response.data.posts.last_page)
       }
     } catch (error) {
       console.error('Error loading posts:', error)
+    } finally {
+      setLoadingMorePosts(false)
+    }
+  }
+
+  const loadFriends = async (page = 1) => {
+    try {
+      if (page === 1) {
+        // Initial load
+      } else {
+        setLoadingMoreFriends(true)
+      }
+      const response = await api.get(`/friends?user_id=${profile.id}&page=${page}`)
+      if (response.data.success) {
+        const newFriends = response.data.friends
+        if (page === 1) {
+          setFriends(newFriends)
+        } else {
+          setFriends(prev => [...prev, ...newFriends])
+        }
+        setFriendsPage(page)
+        setHasMoreFriends(response.data.has_more)
+      }
+    } catch (error) {
+      console.error('Error loading friends:', error)
+    } finally {
+      setLoadingMoreFriends(false)
     }
   }
 
@@ -889,17 +963,29 @@ const Profile = () => {
                         </div>
                       ))
                     )}
+                    {/* Posts Infinite Scroll Sentinel */}
+                    {hasMorePosts && (
+                      <div ref={postsSentinel} className='col-span-full py-8 flex justify-center'>
+                        <div className='w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full animate-spin'></div>
+                      </div>
+                    )}
                   </div>
                 )}
 
                 {activeTab === 'friends' && (
                   <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-5 duration-700 px-1 sm:px-0'>
-                    {profile.recent_friends?.length > 0 ? (
-                      profile.recent_friends.map((friend, index) => renderUserCard(friend, index))
+                    {friends?.length > 0 ? (
+                      friends.map((friend, index) => renderUserCard(friend, index))
                     ) : (
                       <div className='col-span-full py-32 text-center bg-white/5 rounded-[4rem] border border-dashed border-white/10'>
                         <Users size={40} className='mx-auto mb-4 text-gray-700' />
                         <p className='text-gray-500 font-black uppercase tracking-widest'>Pas encore d'amis</p>
+                      </div>
+                    )}
+                    {/* Friends Infinite Scroll Sentinel */}
+                    {hasMoreFriends && (
+                      <div ref={friendsSentinel} className='col-span-full py-8 flex justify-center'>
+                        <div className='w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full animate-spin'></div>
                       </div>
                     )}
                   </div>

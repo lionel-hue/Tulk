@@ -5,6 +5,7 @@ import api from '../../utils/api'
 import Avatar from '../common/Avatar'
 import Modal, { useModal } from '../Modal'
 import { getImageUrl } from '../../utils/imageUrls'
+import { useInfiniteScroll } from '../../hooks/useInfiniteScroll'
 import { 
   Send, 
   Search, 
@@ -40,6 +41,30 @@ const Messages = () => {
   const [selectedImage, setSelectedImage] = useState(null)
   const [imagePreview, setImagePreview] = useState(null)
   const [sending, setSending] = useState(false)
+  
+  // Pagination State
+  const [convPage, setConvPage] = useState(1)
+  const [hasMoreConv, setHasMoreConv] = useState(false)
+  const [loadingMoreConv, setLoadingMoreConv] = useState(false)
+  
+  const [msgPage, setMsgPage] = useState(1)
+  const [hasMoreMsg, setHasMoreMsg] = useState(false)
+  const [loadingMoreMsg, setLoadingMoreMsg] = useState(false)
+  
+  const loadMoreConversations = () => {
+    if (hasMoreConv && !loadingMoreConv) {
+      fetchConversations(convPage + 1)
+    }
+  }
+
+  const loadMoreMessages = () => {
+    if (hasMoreMsg && !loadingMoreMsg) {
+      fetchMessages(activeConversation.user.id, msgPage + 1)
+    }
+  }
+
+  const { sentinelRef: convSentinel } = useInfiniteScroll(loadMoreConversations, hasMoreConv, loadingMoreConv)
+  const { sentinelRef: msgSentinel } = useInfiniteScroll(loadMoreMessages, hasMoreMsg, loadingMoreMsg)
   
   // Advanced Features State
   const [showChatSearch, setShowChatSearch] = useState(false)
@@ -96,17 +121,30 @@ const Messages = () => {
     }
   }, [userIdParam, conversations.length, loading])
 
-  const fetchConversations = async () => {
+  const fetchConversations = async (page = 1) => {
     try {
-      const response = await api.get('/messages/conversations')
+      if (page === 1) {
+        setLoading(true)
+      } else {
+        setLoadingMoreConv(true)
+      }
+      const response = await api.get(`/messages/conversations?page=${page}`)
       if (response.data.success) {
-        setConversations(response.data.conversations)
-        setFilteredConversations(response.data.conversations)
+        const newConversations = response.data.conversations
+        if (page === 1) {
+          setConversations(newConversations)
+          setFilteredConversations(newConversations)
+        } else {
+          setConversations(prev => [...prev, ...newConversations])
+        }
+        setConvPage(page)
+        setHasMoreConv(response.data.pagination.has_more)
       }
     } catch (error) {
       console.error('Error fetching conversations:', error)
     } finally {
       setLoading(false)
+      setLoadingMoreConv(false)
     }
   }
 
@@ -133,18 +171,37 @@ const Messages = () => {
     }
   }
 
-  const fetchMessages = async (userId) => {
-    setMessagesLoading(true)
+  const fetchMessages = async (userId, page = 1) => {
+    if (page === 1) {
+      setMessagesLoading(true)
+    } else {
+      setLoadingMoreMsg(true)
+    }
+    
     try {
-      const response = await api.get(`/messages/${userId}`)
+      const response = await api.get(`/messages/${userId}?page=${page}`)
       if (response.data.success) {
-        setMessages(response.data.messages)
-        scrollToBottom()
+        const paginatedMessages = response.data.messages
+        // Note: backend returns data: [latest...older]
+        const reverseMessages = [...paginatedMessages.data].reverse()
+        
+        if (page === 1) {
+          setMessages(reverseMessages)
+          scrollToBottom()
+        } else {
+          // Preserve scroll position logic would go here
+          // For now, prepend them
+          setMessages(prev => [...reverseMessages, ...prev])
+        }
+        
+        setMsgPage(page)
+        setHasMoreMsg(paginatedMessages.current_page < paginatedMessages.last_page)
       }
     } catch (error) {
       console.error('Error fetching messages:', error)
     } finally {
       setMessagesLoading(false)
+      setLoadingMoreMsg(false)
     }
   }
 
@@ -162,11 +219,18 @@ const Messages = () => {
 
   const refreshMessages = async (userId) => {
     try {
-      const response = await api.get(`/messages/${userId}`)
+      // For refresh, we only want the first page
+      const response = await api.get(`/messages/${userId}?page=1`)
       if (response.data.success) {
-        if (response.data.messages.length !== messages.length) {
-          setMessages(response.data.messages)
-          scrollToBottom()
+        const latestPage = [...response.data.messages.data].reverse()
+        
+        // Find if we have new messages (simple length check for now, can be improved)
+        // If we're on page 1, just update. If we've scrolled up, maybe just append new ones.
+        if (msgPage === 1) {
+           if (latestPage.length !== messages.length) {
+              setMessages(latestPage)
+              scrollToBottom()
+           }
         }
       }
     } catch (error) {
@@ -376,6 +440,12 @@ const Messages = () => {
               </div>
             ))
           )}
+          {/* Conversations Infinite Scroll Sentinel */}
+          {hasMoreConv && (
+            <div ref={convSentinel} className='py-4 flex justify-center'>
+              <Loader2 size={24} className='animate-spin text-purple-500' />
+            </div>
+          )}
         </div>
       </div>
 
@@ -442,6 +512,12 @@ const Messages = () => {
                 </div>
               ) : (
                 <div className='flex flex-col'>
+                  {/* Messages Infinite Scroll Sentinel (at the top) */}
+                  {hasMoreMsg && (
+                    <div ref={msgSentinel} className='py-4 flex justify-center'>
+                      <Loader2 size={20} className='animate-spin text-purple-500' />
+                    </div>
+                  )}
                   {filteredMessages.length === 0 && chatSearchQuery && (
                     <div className='text-center text-gray-500 text-sm font-bold bg-white/5 py-3 rounded-2xl border border-white/5'>Aucun message trouvé pour "{chatSearchQuery}"</div>
                   )}

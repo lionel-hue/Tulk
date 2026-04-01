@@ -20,6 +20,7 @@ import {
   UserMinus
 } from 'lucide-react'
 import Avatar from '../common/Avatar'
+import { useInfiniteScroll } from '../../hooks/useInfiniteScroll'
 
 /* ─── Skeleton card placeholder ─────────────────────────────────── */
 const SkeletonCard = () => (
@@ -92,12 +93,6 @@ const Amitie = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
   const [isSearching, setIsSearching] = useState(false)
   const searchTimeoutRef = useRef(null)
 
-  // Sentinel refs for IntersectionObserver
-  const friendsSentinelRef   = useRef(null)
-  const suggestionsSentinelRef = useRef(null)
-  const pendingSentinelRef   = useRef(null)
-  const searchSentinelRef    = useRef(null)
-
   /* ── helpers ── */
   const setPag = (key, patch) =>
     setPagination(prev => ({ ...prev, [key]: { ...prev[key], ...patch } }))
@@ -157,12 +152,18 @@ const Amitie = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
 
   /* ═══ SEARCH ════════════════════════════════════════════════════ */
   const handleSearch = useCallback(async (query, page = 1, append = false) => {
+    if (!query) return
     setPag('search', page === 1 ? { initialLoading: true } : { loading: true })
     try {
-      const res = await api.get(`/friends/search?query=${encodeURIComponent(query)}`)
+      const res = await api.get(`/friends/search?query=${encodeURIComponent(query)}&page=${page}`)
       if (res.data.success) {
         setSearchResults(prev => append ? [...prev, ...res.data.users] : res.data.users)
-        setPag('search', { page, hasMore: false, initialLoading: false, loading: false })
+        setPag('search', { 
+          page, 
+          hasMore: res.data.users.length === PER_PAGE,
+          initialLoading: false, 
+          loading: false 
+        })
       }
     } catch { setPag('search', { initialLoading: false, loading: false }) }
   }, [])
@@ -179,24 +180,35 @@ const Amitie = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
     return () => clearTimeout(searchTimeoutRef.current)
   }, [searchQuery])
 
-  /* ═══ INFINITE SCROLL (IntersectionObserver) ════════════════════ */
-  const useInfiniteObserver = (sentinelRef, section, loadMore) => {
-    useEffect(() => {
-      const el = sentinelRef.current
-      if (!el) return
-      const obs = new IntersectionObserver(entries => {
-        if (entries[0].isIntersecting && pagination[section].hasMore && !pagination[section].loading) {
-          loadMore(pagination[section].page + 1, true)
-        }
-      }, { threshold: 0.1 })
-      obs.observe(el)
-      return () => obs.disconnect()
-    }, [pagination[section].hasMore, pagination[section].loading, pagination[section].page])
-  }
+  /* ═══ INFINITE SCROLL ══════════════════════════════════════════ */
+  const { sentinelRef: friendsSentinel } = useInfiniteScroll(
+    () => loadFriends(pagination.friends.page + 1, true),
+    pagination.friends.hasMore,
+    pagination.friends.loading
+  )
 
-  useInfiniteObserver(friendsSentinelRef,     'friends',     loadFriends)
-  useInfiniteObserver(suggestionsSentinelRef, 'suggestions', loadSuggestions)
-  useInfiniteObserver(pendingSentinelRef,     'pending',     loadPendingRequests)
+  const { sentinelRef: suggestionsSentinel } = useInfiniteScroll(
+    () => loadSuggestions(pagination.suggestions.page + 1, true),
+    pagination.suggestions.hasMore,
+    pagination.suggestions.loading
+  )
+
+  const { sentinelRef: pendingSentinel } = useInfiniteScroll(
+    () => loadPendingRequests(pagination.pending.page + 1, true),
+    pagination.pending.hasMore,
+    pagination.pending.loading
+  )
+
+  const { sentinelRef: searchSentinel } = useInfiniteScroll(
+    () => handleSearch(searchQuery, pagination.search.page + 1, true),
+    pagination.search.hasMore,
+    pagination.search.loading
+  )
+
+  const friendsSentinelRef   = friendsSentinel
+  const suggestionsSentinelRef = suggestionsSentinel
+  const pendingSentinelRef   = pendingSentinel
+  const searchSentinelRef    = searchSentinel
 
   /* ═══ FRIEND ACTIONS ════════════════════════════════════════════ */
 
@@ -522,7 +534,13 @@ const Amitie = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
                 <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 px-1 sm:px-0'>
                   {searchResults.map(u => renderUserCard(u, 'search'))}
                 </div>
-                <div ref={searchSentinelRef} className='h-4'></div>
+                <div ref={searchSentinelRef} className='h-8 flex items-center justify-center'>
+                  {pagination.search.loading && (
+                    <div className='flex gap-1.5'>
+                      {[0,1,2].map(i => <div key={i} className='w-2 h-2 bg-purple-500/50 rounded-full animate-bounce' style={{ animationDelay: `${i * 0.15}s` }}></div>)}
+                    </div>
+                  )}
+                </div>
               </>
             ) : (
               <EmptyState icon={Search} title='Aucun résultat' sub='Essayez un autre nom ou email.' />
