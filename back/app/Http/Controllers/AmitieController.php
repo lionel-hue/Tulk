@@ -180,7 +180,10 @@ class AmitieController extends Controller
                 ->orWhere('id_2', $user->id);
         })
         ->where('statut', 'ami')
-        ->with(['utilisateur1', 'utilisateur2'])
+        ->with([
+            'utilisateur1' => function($q) { $q->withCount(['followers', 'articles']); },
+            'utilisateur2' => function($q) { $q->withCount(['followers', 'articles']); }
+        ])
         ->get();
 
         $allFriends = [];
@@ -201,8 +204,8 @@ class AmitieController extends Controller
                 'role'            => $friend->role,
                 'bio'             => $friend->bio ? mb_substr($friend->bio, 0, 100) : null,
                 'location'        => $friend->location,
-                'followers_count' => $friend->followers()->count(),
-                'posts_count'     => $friend->articles()->count(),
+                'followers_count' => $friend->followers_count,
+                'posts_count'     => $friend->articles_count,
                 'friendship_id'   => $friendship->id_1 . '_' . $friendship->id_2,
                 'friendship_date' => $friendship->created_at ?? null
             ];
@@ -228,7 +231,18 @@ class AmitieController extends Controller
         $perPage = 12;
         $page = max(1, (int) $request->query('page', 1));
 
-        // Get currently related user IDs (friends or pending) to exclude
+        // Get my friend IDs to count mutual friends
+        $myFriendIds = Amitie::where(function ($query) use ($user) {
+                $query->where('id_1', $user->id)->orWhere('id_2', $user->id);
+            })
+            ->where('statut', 'ami')
+            ->get()
+            ->map(function ($f) use ($user) {
+                return ($f->id_1 == $user->id) ? $f->id_2 : $f->id_1;
+            })
+            ->toArray();
+
+        // Get currently related user IDs to exclude
         $relatedIds = Amitie::where(function ($q) use ($user) {
             $q->where('id_1', $user->id)->orWhere('id_2', $user->id);
         })->get()->map(function ($a) use ($user) {
@@ -237,17 +251,10 @@ class AmitieController extends Controller
 
         $excludeIds = array_merge($relatedIds, [$user->id]);
 
-        // Get friends of friends in one go
-        $myFriendIds = Amitie::where(function ($query) use ($user) {
-            $query->where('id_1', $user->id)->orWhere('id_2', $user->id);
-        })->where('statut', 'ami')->get()->map(function ($friendship) use ($user) {
-            return ($friendship->id_1 == $user->id) ? $friendship->id_2 : $friendship->id_1;
-        })->toArray();
-
         if (empty($myFriendIds)) {
-            // If no friends, just suggest some popular or random users
             $suggestedUsers = Utilisateur::whereNotIn('id', $excludeIds)
-                ->limit($perPage)
+                ->withCount(['followers', 'articles'])
+                ->limit($perPage * 2) // Fetch a bit more to ensure variety
                 ->get();
         } else {
             // Find users who are friends with my friends but NOT friends with me
@@ -265,11 +272,11 @@ class AmitieController extends Controller
                 ->countBy()
                 ->sortByDesc(function($count) { return $count; })
                 ->keys()
-                ->take(50) // Limit to top 50 candidates
+                ->take(30)
                 ->toArray();
 
             $suggestedUsers = Utilisateur::whereIn('id', $fofIds)
-                ->withCount(['followers'])
+                ->withCount(['followers', 'articles'])
                 ->get();
         }
 
@@ -284,13 +291,12 @@ class AmitieController extends Controller
                 'role'            => $userData->role,
                 'bio'             => $userData->bio ? mb_substr($userData->bio, 0, 100) : null,
                 'location'        => $userData->location,
-                'followers_count' => $userData->followers_count ?? $userData->followers()->count(),
-                'posts_count'     => $userData->articles()->count(),
-                'mutual_friends'  => $this->countMutualFriends($user->id, $userData->id),
+                'followers_count' => $userData->followers_count,
+                'posts_count'     => $userData->articles_count,
+                'mutual_friends'  => $this->countMutualFriendsWithList($myFriendIds, $userData->id),
             ];
         }
 
-        // Sort by mutual friends if available
         usort($suggestions, function ($a, $b) {
             return $b['mutual_friends'] <=> $a['mutual_friends'];
         });
@@ -319,7 +325,7 @@ class AmitieController extends Controller
         $seenIds = [];
         $friendships = Amitie::where('id_2', $user->id)
             ->where('statut', 'en attente')
-            ->with(['utilisateur1'])
+            ->with(['utilisateur1' => function($q) { $q->withCount(['followers', 'articles']); }])
             ->get();
 
         foreach ($friendships as $amitie) {
@@ -336,8 +342,8 @@ class AmitieController extends Controller
                 'role'            => $u->role,
                 'bio'             => $u->bio ? mb_substr($u->bio, 0, 100) : null,
                 'location'        => $u->location,
-                'followers_count' => $u->followers()->count(),
-                'posts_count'     => $u->articles()->count(),
+                'followers_count' => $u->followers_count,
+                'posts_count'     => $u->articles_count,
                 'request_date'    => $amitie->created_at ?? null
             ];
         }
@@ -369,13 +375,24 @@ class AmitieController extends Controller
         $page = max(1, (int) $request->query('page', 1));
 
         $allUsers = Utilisateur::where(function ($q) use ($query) {
-                // Use REGEXP for more advanced matches than LIKE
                 $q->where('nom', 'REGEXP', $query)
                     ->orWhere('prenom', 'REGEXP', $query)
                     ->orWhere('email', 'REGEXP', $query);
             })
+            ->withCount(['followers', 'articles'])
             ->select('id', 'nom', 'prenom', 'email', 'image', 'role', 'bio', 'location')
             ->get();
+
+        // Pre-fetch my friends for mutual friends count
+        $myFriendIds = Amitie::where(function ($q) use ($user) {
+                $q->where('id_1', $user->id)->orWhere('id_2', $user->id);
+            })
+            ->where('statut', 'ami')
+            ->get()
+            ->map(function ($f) use ($user) {
+                return ($f->id_1 == $user->id) ? $f->id_2 : $f->id_1;
+            })
+            ->toArray();
 
         $results = collect();
         $seenIds = [];
@@ -408,9 +425,9 @@ class AmitieController extends Controller
                 'is_friend'           => $friendship && $friendship->statut == 'ami',
                 'has_pending_request' => $friendship && $friendship->statut == 'en attente',
                 'is_following'        => $isFollowing,
-                'followers_count'     => $userData->followers()->count(),
-                'posts_count'         => $userData->articles()->count(),
-                'mutual_friends'      => $this->countMutualFriends($user->id, $userData->id)
+                'followers_count'     => $userData->followers_count,
+                'posts_count'         => $userData->articles_count,
+                'mutual_friends'      => $this->countMutualFriendsWithList($myFriendIds, $userData->id)
             ]);
         }
 
@@ -428,31 +445,22 @@ class AmitieController extends Controller
         ]);
     }
 
-    private function countMutualFriends($user1Id, $user2Id)
+    private function countMutualFriendsWithList($myFriendIds, $otherUserId)
     {
-        $user1Friends = Amitie::where(function ($query) use ($user1Id) {
-            $query->where('id_1', $user1Id)
-                ->orWhere('id_2', $user1Id);
+        if (empty($myFriendIds)) return 0;
+
+        $otherFriendIds = Amitie::where(function ($query) use ($otherUserId) {
+            $query->where('id_1', $otherUserId)
+                ->orWhere('id_2', $otherUserId);
         })
             ->where('statut', 'ami')
             ->get()
-            ->map(function ($friendship) use ($user1Id) {
-                return ($friendship->id_1 == $user1Id) ? $friendship->id_2 : $friendship->id_1;
+            ->map(function ($friendship) use ($otherUserId) {
+                return ($friendship->id_1 == $otherUserId) ? $friendship->id_2 : $friendship->id_1;
             })
             ->toArray();
 
-        $user2Friends = Amitie::where(function ($query) use ($user2Id) {
-            $query->where('id_1', $user2Id)
-                ->orWhere('id_2', $user2Id);
-        })
-            ->where('statut', 'ami')
-            ->get()
-            ->map(function ($friendship) use ($user2Id) {
-                return ($friendship->id_1 == $user2Id) ? $friendship->id_2 : $friendship->id_1;
-            })
-            ->toArray();
-
-        $mutualFriends = array_intersect($user1Friends, $user2Friends);
+        $mutualFriends = array_intersect($myFriendIds, $otherFriendIds);
         return count($mutualFriends);
     }
 
