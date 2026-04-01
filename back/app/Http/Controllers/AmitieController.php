@@ -173,8 +173,13 @@ class AmitieController extends Controller
             ->get();
 
         $allFriends = [];
+        $seenIds = [];
         foreach ($friendships as $friendship) {
             $friendId = ($friendship->id_1 == $user->id) ? $friendship->id_2 : $friendship->id_1;
+            
+            if (in_array($friendId, $seenIds)) continue;
+            $seenIds[] = $friendId;
+
             $friend = Utilisateur::select('id', 'nom', 'prenom', 'email', 'image', 'role', 'bio', 'location')
                 ->find($friendId);
 
@@ -298,27 +303,33 @@ class AmitieController extends Controller
         $perPage = 12;
         $page = max(1, (int) $request->query('page', 1));
 
-        $allPending = Amitie::where('id_2', $user->id)
+        $allPending = [];
+        $seenIds = [];
+        $friendships = Amitie::where('id_2', $user->id)
             ->where('id_1', '!=', $user->id)
             ->where('statut', 'en attente')
             ->with('utilisateur1:id,nom,prenom,email,image,role,bio,location')
-            ->get()
-            ->map(function ($amitie) {
-                $u = $amitie->utilisateur1;
-                return [
-                    'id'              => $u->id,
-                    'nom'             => $u->nom,
-                    'prenom'          => $u->prenom,
-                    'email'           => $u->email,
-                    'image'           => $u->image,
-                    'role'            => $u->role,
-                    'bio'             => $u->bio ? mb_substr($u->bio, 0, 100) : null,
-                    'location'        => $u->location,
-                    'followers_count' => $u->followers()->count(),
-                    'posts_count'     => $u->articles()->count(),
-                    'request_date'    => $amitie->created_at ?? null
-                ];
-            })->toArray();
+            ->get();
+
+        foreach ($friendships as $amitie) {
+            $u = $amitie->utilisateur1;
+            if (!$u || in_array($u->id, $seenIds)) continue;
+            $seenIds[] = $u->id;
+
+            $allPending[] = [
+                'id'              => $u->id,
+                'nom'             => $u->nom,
+                'prenom'          => $u->prenom,
+                'email'           => $u->email,
+                'image'           => $u->image,
+                'role'            => $u->role,
+                'bio'             => $u->bio ? mb_substr($u->bio, 0, 100) : null,
+                'location'        => $u->location,
+                'followers_count' => $u->followers()->count(),
+                'posts_count'     => $u->articles()->count(),
+                'request_date'    => $amitie->created_at ?? null
+            ];
+        }
 
         $total   = count($allPending);
         $offset  = ($page - 1) * $perPage;
@@ -355,7 +366,12 @@ class AmitieController extends Controller
             ->select('id', 'nom', 'prenom', 'email', 'image', 'role', 'bio', 'location')
             ->get();
 
-        $results = $allUsers->map(function ($userData) use ($user) {
+        $results = collect();
+        $seenIds = [];
+        foreach ($allUsers as $userData) {
+            if (in_array($userData->id, $seenIds)) continue;
+            $seenIds[] = $userData->id;
+
             $friendship = Amitie::where(function ($q) use ($user, $userData) {
                 $q->where('id_1', $user->id)
                     ->where('id_2', $userData->id);
@@ -368,7 +384,7 @@ class AmitieController extends Controller
                 ->where('following_id', $userData->id)
                 ->exists();
 
-            return [
+            $results->push([
                 'id'                  => $userData->id,
                 'nom'                 => $userData->nom,
                 'prenom'              => $userData->prenom,
@@ -384,8 +400,8 @@ class AmitieController extends Controller
                 'followers_count'     => $userData->followers()->count(),
                 'posts_count'         => $userData->articles()->count(),
                 'mutual_friends'      => $this->countMutualFriends($user->id, $userData->id)
-            ];
-        });
+            ]);
+        }
 
         $total   = $results->count();
         $offset  = ($page - 1) * $perPage;

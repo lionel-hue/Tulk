@@ -177,13 +177,13 @@ class AuthController extends Controller
 
         // Send the email
         try {
-            Mail::raw(
-                "Bonjour {$user->prenom},\n\nVotre code de réinitialisation de mot de passe Tulk est : {$resetCode}\n\nCe code expires dans 30 minutes.\n\nSi vous n'avez pas demandé cette réinitialisation, ignorez cet email.\n\nL'équipe Tulk",
-                function ($message) use ($user, $resetCode) {
-                    $message->to($user->email)
-                            ->subject("[Tulk] Code de réinitialisation de mot de passe : {$resetCode}");
-                }
-            );
+            Mail::send('emails.password_reset', [
+                'userName' => $user->prenom,
+                'resetCode' => $resetCode
+            ], function ($message) use ($user, $resetCode) {
+                $message->to($user->email)
+                        ->subject("[Tulk] Code de réinitialisation de mot de passe : {$resetCode}");
+            });
         } catch (\Exception $e) {
             \Log::error('Failed to send password reset email: ' . $e->getMessage());
         }

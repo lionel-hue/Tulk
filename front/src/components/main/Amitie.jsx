@@ -519,7 +519,7 @@ const Amitie = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
               </div>
             ) : searchResults.length > 0 ? (
               <>
-                <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'>
+                <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 px-1 sm:px-0'>
                   {searchResults.map(u => renderUserCard(u, 'search'))}
                 </div>
                 <div ref={searchSentinelRef} className='h-4'></div>
@@ -535,8 +535,8 @@ const Amitie = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
         ══════════════════════════════════════ */}
         {!isSearching && (
           <>
-            {/* Tab bar */}
-            <div className='bg-white/5 backdrop-blur-md p-1.5 rounded-[2.5rem] border border-white/5 flex gap-1.5 w-fit mx-auto md:mx-0 mb-8 overflow-x-auto no-scrollbar'>
+            {/* Tab bar - Wrapping on mobile to show all tabs without scrolling */}
+            <div className='flex flex-wrap sm:flex-nowrap items-center justify-center md:justify-start gap-2 mb-8 w-full'>
               {[
                 { key: 'friends',     label: 'Amis',        count: friends.length },
                 { key: 'suggestions', label: 'Suggestions',  count: suggestions.length },
@@ -545,19 +545,19 @@ const Amitie = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
               ].map(tab => (
                 <button
                   key={tab.key}
-                  className={`relative px-6 py-3 rounded-[2rem] font-black text-[10px] uppercase tracking-[0.2em] transition-all duration-500 whitespace-nowrap flex items-center gap-2 ${
+                  className={`relative px-5 py-2.5 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all duration-300 flex items-center gap-2 border ${
                     activeTab === tab.key
-                      ? 'bg-white text-black shadow-2xl scale-105'
-                      : 'text-gray-500 hover:text-white hover:bg-white/5'
+                      ? 'bg-white text-black border-white shadow-[0_0_20px_rgba(255,255,255,0.15)] scale-105'
+                      : 'bg-white/5 text-gray-400 border-white/5 hover:text-white hover:bg-white/10'
                   }`}
                   onClick={() => setActiveTab(tab.key)}
                 >
                   {tab.label}
-                  <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-black ${
-                    activeTab === tab.key ? 'bg-black/10 text-black/60' : 'bg-white/10 text-gray-400'
+                  <span className={`text-[9px] px-1.5 py-0.5 rounded-md font-black ${
+                    activeTab === tab.key ? 'bg-black/10 text-black/60' : 'bg-white/10 text-gray-500'
                   }`}>{tab.count}</span>
                   {tab.dot && activeTab !== tab.key && (
-                    <span className='absolute top-2 right-2 w-2 h-2 bg-pink-500 rounded-full'></span>
+                    <span className='absolute top-1.5 right-1.5 w-2 h-2 bg-pink-500 rounded-full shadow-[0_0_10px_rgba(236,72,153,0.5)]'></span>
                   )}
                 </button>
               ))}
@@ -572,7 +572,7 @@ const Amitie = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
                   </div>
                 ) : friends.length > 0 ? (
                   <>
-                    <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'>
+                    <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 px-1 sm:px-0'>
                       {friends.map(f => renderUserCard(f, 'friend'))}
                     </div>
                     <div ref={friendsSentinelRef} className='h-8 flex items-center justify-center'>
@@ -600,7 +600,7 @@ const Amitie = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
                   </div>
                 ) : suggestions.length > 0 ? (
                   <>
-                    <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'>
+                    <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 px-1 sm:px-0'>
                       {suggestions.map(s => renderUserCard(s, 'suggestion'))}
                     </div>
                     <div ref={suggestionsSentinelRef} className='h-8 flex items-center justify-center'>
@@ -626,7 +626,7 @@ const Amitie = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
                   </div>
                 ) : pendingRequests.length > 0 ? (
                   <>
-                    <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'>
+                    <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 px-1 sm:px-0'>
                       {pendingRequests.map(r => renderUserCard(r, 'pending'))}
                     </div>
                     <div ref={pendingSentinelRef} className='h-8 flex items-center justify-center'>
@@ -651,7 +651,7 @@ const Amitie = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
                     {[...Array(3)].map((_, i) => <SkeletonCard key={i} />)}
                   </div>
                 ) : blockedUsers.length > 0 ? (
-                  <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'>
+                  <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 px-1 sm:px-0'>
                     {blockedUsers.map((u, i) => renderBlockedCard(u, i))}
                   </div>
                 ) : (
