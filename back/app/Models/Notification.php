@@ -47,6 +47,7 @@ class Notification extends Model
     const TYPE_SECURITY = 'security';
     const TYPE_PROFILE_LIKE = 'profile_like';
     const TYPE_FOLLOW = 'follow';
+    const TYPE_MESSAGE = 'message';
 
     // Notification Subtypes
     const SUBTYPE_POST_CREATED = 'post_created';
@@ -66,6 +67,7 @@ class Notification extends Model
     const SUBTYPE_SYSTEM_ANNOUNCEMENT = 'system_announcement';
     const SUBTYPE_PROFILE_LIKED = 'profile_liked';
     const SUBTYPE_STARTED_FOLLOWING = 'started_following';
+    const SUBTYPE_MESSAGE_RECEIVED = 'message_received';
 
     // Priority Levels
     const PRIORITY_LOW = 'low';

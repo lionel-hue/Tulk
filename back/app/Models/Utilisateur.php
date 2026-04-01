@@ -25,6 +25,10 @@ class Utilisateur extends Model
         'location',
         'website',
         'banner',
+        'lang',
+        'theme',
+        'email_notifications',
+        'last_seen',
         'created_at'
     ];
 
@@ -126,5 +130,17 @@ class Utilisateur extends Model
         return $this->belongsToMany(Groupe::class, 'GroupeMembre', 'utilisateur_id', 'groupe_id')
                     ->withPivot('role', 'joined_at')
                     ->withTimestamps();
+    }
+
+    /**
+     * Check if user is online (active in the last 5 minutes)
+     */
+    public function isOnline()
+    {
+        if (!$this->last_seen) {
+            return false;
+        }
+
+        return \Carbon\Carbon::parse($this->last_seen)->greaterThan(now()->subMinutes(5));
     }
 }

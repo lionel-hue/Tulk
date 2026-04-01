@@ -12,6 +12,9 @@ import ForgotPassword from './components/auth/ForgotPassword'
 import Home from './components/main/Home'
 import Profile from './components/main/Profile'
 import SearchResults from './components/main/SearchResults'
+import Settings from './components/main/Settings'
+import { LanguageProvider } from './contexts/LanguageContext'
+import { ThemeProvider } from './contexts/ThemeContext'
 import './style/app.css'
 
 // Protected Route Component
@@ -140,6 +143,14 @@ function AppRoutes () {
             </ProtectedRoute>
           }
         />
+        <Route
+          path='/settings'
+          element={
+            <ProtectedRoute>
+              <Home />
+            </ProtectedRoute>
+          }
+        />
 
         <Route path='/' element={<Navigate to='/home' />} />
       </Routes>
@@ -151,7 +162,11 @@ export default function App () {
   return (
     <Router>
       <AuthProvider>
-        <AppRoutes />
+        <LanguageProvider>
+          <ThemeProvider>
+            <AppRoutes />
+          </ThemeProvider>
+        </LanguageProvider>
       </AuthProvider>
     </Router>
   )

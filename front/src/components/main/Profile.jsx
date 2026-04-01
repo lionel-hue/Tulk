@@ -27,7 +27,8 @@ import {
   Bell,
   Mail,
   UserMinus,
-  Send
+  Send as SendIcon,
+  Trash2
 } from 'lucide-react'
 import Header from '../Header'
 import SideMenuNav from '../SideMenuNav'
@@ -1257,7 +1258,7 @@ const Profile = () => {
                     disabled={!commentInputs[selectedPost.id]?.trim()}
                     className='w-12 h-12 flex items-center justify-center bg-white text-black rounded-xl hover:scale-105 active:scale-95 transition-all disabled:opacity-30 disabled:hover:scale-100'
                   >
-                    <Send size={18} />
+                    <SendIcon size={18} />
                   </button>
                 </div>
               </div>

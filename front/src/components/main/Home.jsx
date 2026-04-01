@@ -7,6 +7,8 @@ import SideMenuNav from '../SideMenuNav'
 import Notifications from './Notifications'
 import Amitie from './Amitie'
 import Messages from './Messages'
+import Settings from './Settings'
+import { useLanguage } from '../../contexts/LanguageContext'
 import {
   Heart,
   Share,
@@ -14,7 +16,7 @@ import {
   MessageCircle,
   Users,
   Bell,
-  Settings,
+  Settings as SettingsIcon,
   Image,
   Send,
   X,
@@ -54,6 +56,7 @@ const PostImage = ({ src }) => {
 
 const Home = () => {
   const { user, logout } = useAuth()
+  const { t } = useLanguage()
   const navigate = useNavigate()
   const location = useLocation()
   const { modal, setModal, confirm } = useModal()
@@ -93,6 +96,7 @@ const Home = () => {
     else if (path.includes('/notifications')) setActiveSection('notifications')
     else if (path.includes('/profile')) setActiveSection('profile')
     else if (path.includes('/dashboard')) setActiveSection('dashboard')
+    else if (path.includes('/settings')) setActiveSection('settings')
     else setActiveSection('feed')
   }, [location.pathname])
 
@@ -904,7 +908,7 @@ const Home = () => {
         </div>
 
         <div className='text-center py-8'>
-          <Settings size={48} className='mx-auto text-gray-400 mb-4' />
+          <SettingsIcon size={48} className='mx-auto text-gray-400 mb-4' />
           <h2 className='text-2xl font-bold text-white mb-2'>
             Tableau de bord
           </h2>
@@ -931,6 +935,8 @@ const Home = () => {
         return renderNotificationsSection()
       case 'dashboard':
         return renderDashboardSection()
+      case 'settings':
+        return <Settings />
       default:
         return renderFeedSection()
     }

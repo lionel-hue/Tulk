@@ -1,12 +1,42 @@
 @import 'tailwindcss';
 
+:root {
+  --bg-primary: #0a0a0a;
+  --bg-secondary: #141414;
+  --bg-tertiary: #1f1f1f;
+  --text-primary: #ffffff;
+  --text-secondary: #9ca3af;
+  --border-color: rgba(255, 255, 255, 0.05);
+  --border-muted: #262626;
+  --accent-primary: #8b5cf6;
+  --accent-secondary: #ec4899;
+  --glass-bg: rgba(20, 20, 20, 0.8);
+  --glass-border: rgba(255, 255, 255, 0.05);
+}
+
+.theme-light {
+  --bg-primary: #f9fafb;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f3f4f6;
+  --text-primary: #111827;
+  --text-secondary: #4b5563;
+  --border-color: rgba(0, 0, 0, 0.05);
+  --border-muted: #e5e7eb;
+  --accent-primary: #7c3aed;
+  --accent-secondary: #db2777;
+  --glass-bg: rgba(255, 255, 255, 0.8);
+  --glass-border: rgba(0, 0, 0, 0.05);
+}
+
 html, body, #root {
   max-width: 100%;
   overflow-x: hidden;
   width: 100%;
   margin: 0;
   padding: 0;
-  background-color: #0a0a0a;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 * {
@@ -42,8 +72,8 @@ html, body, #root {
 /* Home Page Layout */
 .home-page {
   min-height: 100vh;
-  background-color: #0a0a0a;
-  color: #ffffff;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
   overflow-x: hidden;
   width: 100%;
   max-width: 100vw;
@@ -62,8 +92,8 @@ html, body, #root {
 
 /* Header Styles - LOWER z-index */
 .home-header {
-  background-color: #141414;
-  border-bottom: 1px solid #262626;
+  background-color: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-muted);
   position: sticky;
   top: 0;
   z-index: 40;
@@ -166,10 +196,10 @@ html, body, #root {
 .header-search input {
   width: 100%;
   padding: 0.5rem 2.5rem 0.5rem 1rem;
-  background-color: #262626;
-  border: 1px solid #262626;
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border-muted);
   border-radius: 0.5rem;
-  color: #ffffff;
+  color: var(--text-primary);
   font-size: 0.875rem;
 }
 
@@ -206,8 +236,8 @@ html, body, #root {
   top: 100%;
   margin-top: 0.5rem;
   width: 16rem;
-  background-color: #141414;
-  border: 1px solid #262626;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-muted);
   border-radius: 0.5rem;
   box-shadow: 0 10px 15px rgba(0, 0, 0, 0.5);
   z-index: 45;
@@ -273,8 +303,8 @@ html, body, #root {
   top: 0;
   height: 100%;
   width: 20rem;
-  background-color: #141414;
-  border-right: 1px solid #262626;
+  background-color: var(--bg-secondary);
+  border-right: 1px solid var(--border-muted);
   transform: translateX(-100%);
   transition: transform 0.3s;
   z-index: 60;
@@ -428,8 +458,8 @@ html, body, #root {
 }
 
 .post-card {
-  background-color: #141414;
-  border: 1px solid #262626;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-muted);
   border-radius: 0.75rem;
   padding: 1rem;
 }

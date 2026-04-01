@@ -9,6 +9,8 @@ use App\Http\Middleware\ThrottleLogin;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\FollowController;
 use App\Http\Controllers\ProfileLikeController;
+use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\MessageController;
 
 Route::post('/login', [AuthController::class, 'login'])->middleware(ThrottleLogin::class);
 Route::post('register', [AuthController::class, 'register']);
@@ -104,4 +106,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/block', [App\Http\Controllers\BloquageController::class, 'block']);
         Route::post('/unblock', [App\Http\Controllers\BloquageController::class, 'unblock']);
     });
+
+    // Settings routes
+    Route::get('/settings', [SettingsController::class, 'index']);
+    Route::put('/settings', [SettingsController::class, 'update']);
 });

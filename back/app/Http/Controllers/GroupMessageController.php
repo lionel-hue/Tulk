@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Groupe;
 use App\Models\GroupeMessage;
 use App\Models\GroupeMembre;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -12,6 +13,13 @@ use Illuminate\Support\Facades\Log;
 
 class GroupMessageController extends Controller
 {
+    protected $notificationService;
+
+    public function __construct(NotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
+
     /**
      * Get paginated messages for a group.
      */
@@ -88,6 +96,14 @@ class GroupMessageController extends Controller
 
             // Return with sender info
             $message->load('utilisateur');
+
+            // Notify members
+            $members = $group->members()->get();
+            foreach ($members as $member) {
+                if ($member->id !== $user->id) {
+                    $this->notificationService->sendGroupMessageNotification($member, $user, $group, $request->texte ?? '');
+                }
+            }
 
             return response()->json([
                 'success' => true,

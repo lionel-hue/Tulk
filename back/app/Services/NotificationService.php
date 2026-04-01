@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\NotificationMail;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use App\Models\Groupe;
 
 class NotificationService
 {
@@ -48,9 +50,9 @@ class NotificationService
                 'channel' => $channel
             ]);
 
-            // Send email if enabled and user has email
+            // Send email if enabled, user has email, wants email notifications, and is offline
             if (
-                $sendEmail && $recipient->email &&
+                $sendEmail && $recipient->email && $recipient->email_notifications && !$recipient->isOnline() &&
                 ($channel === Notification::CHANNEL_EMAIL ||
                     $channel === Notification::CHANNEL_BOTH)
             ) {
@@ -114,7 +116,7 @@ class NotificationService
         Utilisateur $postOwner,
         Utilisateur $liker,
         Article $post,
-        bool $sendEmail = false
+        bool $sendEmail = true
     ) {
         // Don't notify yourself
         if ($postOwner->id === $liker->id) {
@@ -696,7 +698,7 @@ class NotificationService
     public function sendProfileLikeNotification(
         Utilisateur $profileOwner,
         Utilisateur $liker,
-        bool $sendEmail = false
+        bool $sendEmail = true
     ) {
         if ($profileOwner->id === $liker->id) {
             return null;
@@ -728,7 +730,7 @@ class NotificationService
     public function sendFollowNotification(
         Utilisateur $followedUser,
         Utilisateur $follower,
-        bool $sendEmail = false
+        bool $sendEmail = true
     ) {
         if ($followedUser->id === $follower->id) {
             return null;
@@ -751,6 +753,81 @@ class NotificationService
             sendEmail: $sendEmail,
             priority: Notification::PRIORITY_NORMAL,
             channel: Notification::CHANNEL_IN_APP
+        );
+    }
+
+    /**
+     * Check if a user is considered "offline" (not seen in the last 5 minutes)
+     */
+    public function isOffline(Utilisateur $user): bool
+    {
+        if (!$user->last_seen) return true;
+        return $user->last_seen->lt(now()->subMinutes(5));
+    }
+
+    /**
+     * Notify when someone sends a private message
+     */
+    public function sendMessageNotification(
+        Utilisateur $recipient,
+        Utilisateur $sender,
+        string $messageText
+    ) {
+        $isOffline = $this->isOffline($recipient);
+        
+        return $this->send(
+            recipient: $recipient,
+            type: Notification::TYPE_MESSAGE,
+            subtype: Notification::SUBTYPE_MESSAGE_RECEIVED,
+            title: 'Nouveau message! ✉️',
+            message: "{$sender->prenom} {$sender->nom} vous a envoyé un message.",
+            sender: $sender,
+            relatedId: $sender->id,
+            relatedType: Utilisateur::class,
+            data: [
+                'sender_id' => $sender->id,
+                'sender_name' => "{$sender->prenom} {$sender->nom}",
+                'message_preview' => substr($messageText, 0, 100)
+            ],
+            sendEmail: $isOffline, // Only send email if offline
+            priority: Notification::PRIORITY_HIGH,
+            channel: $isOffline ? Notification::CHANNEL_BOTH : Notification::CHANNEL_IN_APP
+        );
+    }
+
+    /**
+     * Notify when someone sends a message in a group
+     */
+    public function sendGroupMessageNotification(
+        Utilisateur $recipient,
+        Utilisateur $sender,
+        Groupe $group,
+        string $messageText
+    ) {
+        // Don't notify the sender themselves
+        if ($recipient->id === $sender->id) return null;
+
+        $isOffline = $this->isOffline($recipient);
+
+        return $this->send(
+            recipient: $recipient,
+            type: Notification::TYPE_MESSAGE,
+            subtype: 'group_message',
+            title: "Nouveau message dans {$group->nom}! 💬",
+            message: "{$sender->prenom} a envoyé un message dans le groupe.",
+            sender: $sender,
+            relatedId: $group->id,
+            relatedType: Groupe::class,
+            data: [
+                'group_id' => $group->id,
+                'group_name' => $group->nom,
+                'sender_id' => $sender->id,
+                'sender_name' => "{$sender->prenom} {$sender->nom}",
+                'message_preview' => substr($messageText, 0, 100)
+            ],
+            sendEmail: $isOffline,
+            priority: Notification::PRIORITY_NORMAL,
+            channel: $isOffline ? Notification::CHANNEL_BOTH : Notification::CHANNEL_IN_APP
         );
     }
 }

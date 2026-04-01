@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Message;
 use App\Models\Utilisateur;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -12,6 +13,13 @@ use Illuminate\Support\Facades\Storage;
 
 class MessageController extends Controller
 {
+    protected $notificationService;
+
+    public function __construct(NotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
+
     /**
      * Get list of conversations for the authenticated user.
      */
@@ -147,6 +155,12 @@ class MessageController extends Controller
                 'id_uti_1' => $user->id,
                 'id_uti_2' => $receiverId
             ]);
+
+            // Send notification
+            $receiver = Utilisateur::find($receiverId);
+            if ($receiver) {
+                $this->notificationService->sendMessageNotification($receiver, $user, $messageText);
+            }
 
             return response()->json([
                 'success' => true,

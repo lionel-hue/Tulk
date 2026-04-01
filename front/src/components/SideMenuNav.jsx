@@ -15,9 +15,11 @@ import {
 import { getImageUrl } from '../utils/imageUrls'
 import Avatar from './common/Avatar'
 import { useNotificationCounts } from '../hooks/useNotificationCounts'
+import { useLanguage } from '../contexts/LanguageContext'
 
 const SideMenuNav = ({ isOpen, onClose }) => {
   const { user, logout } = useAuth()
+  const { t } = useLanguage()
   const sidebarRef = useRef(null)
   const navigate = useNavigate()
   const location = useLocation()
@@ -68,13 +70,14 @@ const SideMenuNav = ({ isOpen, onClose }) => {
     {
       id: 'feed',
       icon: LayoutDashboard,
-      label: "Fil d'actualité",
+      label: t('nav.home'),
       badge: home
     },
-    { id: 'friends', icon: Users, label: 'Amis', badge: friends },
-    { id: 'messages', icon: MessageCircle, label: 'Messages', badge: messages },
+    { id: 'friends', icon: Users, label: t('nav.friends'), badge: friends },
+    { id: 'messages', icon: MessageCircle, label: t('nav.messages'), badge: messages },
     { id: 'notifications', icon: Bell, label: 'Notifications', badge: notifications },
-    { id: 'profile', icon: User, label: 'Profil', badge: null },
+    { id: 'profile', icon: User, label: t('nav.profile'), badge: null },
+    { id: 'settings', icon: Settings, label: t('nav.settings'), badge: null },
     ...(user?.role === 'admin' || user?.role === 'mod'
       ? [
           {
@@ -174,7 +177,7 @@ const SideMenuNav = ({ isOpen, onClose }) => {
           >
             <div className='absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000'></div>
             <LogOut size={20} className='group-hover:-translate-x-1 transition-transform' />
-            <span>Déconnexion</span>
+            <span>{t('nav.logout')}</span>
           </button>
         </div>
       </div>

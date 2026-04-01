@@ -16,6 +16,7 @@ import {
 import Modal, { useModal } from './Modal'
 import Avatar from './common/Avatar'
 import { useNotificationCounts } from '../hooks/useNotificationCounts'
+import { useLanguage } from '../contexts/LanguageContext'
 
 const Header = ({
   sidebarOpen,
@@ -25,6 +26,7 @@ const Header = ({
   onSearchChange
 }) => {
   const { user, logout } = useAuth()
+  const { t } = useLanguage()
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false)
   const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery || '')
   const navigate = useNavigate()
@@ -146,11 +148,11 @@ const Header = ({
   }, [isProfileDropdownOpen, localSearchQuery])
 
   const navItems = [
-    { id: 'feed', icon: LayoutDashboard, label: 'Fil', badge: home },
-    { id: 'friends', icon: Users, label: 'Amis', badge: friends },
-    { id: 'messages', icon: MessageCircle, label: 'Messages', badge: messages },
+    { id: 'feed', icon: LayoutDashboard, label: t('nav.home'), badge: home },
+    { id: 'friends', icon: Users, label: t('nav.friends'), badge: friends },
+    { id: 'messages', icon: MessageCircle, label: t('nav.messages'), badge: messages },
     { id: 'notifications', icon: Bell, label: 'Notifications', badge: notifications },
-    { id: 'profile', icon: User, label: 'Profil', badge: null },
+    { id: 'profile', icon: User, label: t('nav.profile'), badge: null },
     ...(user?.role === 'admin' || user?.role === 'mod'
       ? [
           {
@@ -258,7 +260,18 @@ const Header = ({
                       onClick={() => handleProfileAction('profile')}
                     >
                       <User size={18} className='group-hover/item:scale-125 transition-transform' />
-                      <span className='font-bold text-sm'>Mon Profil</span>
+                      <span className='font-bold text-sm'>{t('nav.profile')}</span>
+                    </button>
+
+                    <button
+                      className='w-full flex items-center gap-4 p-4 rounded-2xl text-gray-400 hover:text-white hover:bg-white/5 transition-all group/item'
+                      onClick={() => {
+                        setIsProfileDropdownOpen(false)
+                        navigate('/settings')
+                      }}
+                    >
+                      <Settings size={18} className='group-hover/item:rotate-90 transition-transform' />
+                      <span className='font-bold text-sm'>{t('nav.settings')}</span>
                     </button>
 
                     <div className='h-px bg-white/5 my-4 mx-2'></div>
@@ -267,7 +280,7 @@ const Header = ({
                       onClick={() => handleProfileAction('logout')}
                     >
                       <LogOut size={18} className='group-hover/item:translate-x-1 transition-transform' />
-                      <span className='font-black text-xs tracking-widest uppercase'>Déconnexion</span>
+                      <span className='font-black text-xs tracking-widest uppercase'>{t('nav.logout')}</span>
                     </button>
                   </div>
                 </div>
