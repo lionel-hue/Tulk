@@ -173,6 +173,32 @@ const SearchResults = () => {
     }
   }
 
+  const handleAcceptRequest = async userId => {
+    try {
+      const response = await api.post('/friends/accept', { user_id: userId })
+      if (response.data.success) {
+        setResults(
+          results.map(u =>
+            u.id === userId ? { ...u, is_friend: true, has_pending_request: false, is_received_request: false } : u
+          )
+        )
+        setModal({
+          show: true,
+          type: 'success',
+          title: 'Succès',
+          message: 'Demande d\'amitié acceptée !'
+        })
+      }
+    } catch (error) {
+      setModal({
+        show: true,
+        type: 'error',
+        title: 'Erreur',
+        message: error.response?.data?.message || "Erreur lors de l'acceptation"
+      })
+    }
+  }
+
   return (
     <div className='search-results-page min-h-screen bg-[#060606] text-white selection:bg-purple-500/30'>
       <div className='max-w-7xl mx-auto px-4 py-12 md:px-8'>
@@ -334,17 +360,30 @@ const SearchResults = () => {
                         <button
                           onClick={() => navigate(`/messages?userId=${userData.id}`)}
                           className='p-4 bg-white/5 text-gray-500 hover:text-purple-400 rounded-2xl border border-white/5 hover:border-purple-500/20 transition-all'
+                          title='Chatter'
                         >
                           <MessageCircle size={20} />
                         </button>
+                      ) : userData.is_received_request ? (
+                        <button
+                          onClick={() => handleAcceptRequest(userData.id)}
+                          className='p-4 bg-green-600 text-white rounded-2xl shadow-xl shadow-green-600/20 hover:scale-110 active:scale-95 transition-all'
+                          title='Accepter la demande'
+                        >
+                          <UserCheck size={20} />
+                        </button>
                       ) : userData.has_pending_request ? (
-                        <div className='p-4 bg-yellow-500/20 text-yellow-500 rounded-2xl border border-yellow-500/30'>
+                        <div 
+                          className='p-4 bg-yellow-500/20 text-yellow-500 rounded-2xl border border-yellow-500/30'
+                          title='Demande envoyée'
+                        >
                           <Clock size={20} className='animate-pulse' />
                         </div>
                       ) : (
                         <button
                           onClick={() => handleSendFriendRequest(userData.id)}
                           className='p-4 bg-purple-600 text-white rounded-2xl shadow-xl shadow-purple-600/20 hover:scale-110 active:scale-95 transition-all'
+                          title="Ajouter l'ami"
                         >
                           <UserPlus size={20} />
                         </button>

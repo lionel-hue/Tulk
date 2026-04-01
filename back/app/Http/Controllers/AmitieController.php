@@ -301,6 +301,10 @@ class AmitieController extends Controller
                 'followers_count' => $userData->followers_count,
                 'posts_count'     => $userData->articles_count,
                 'mutual_friends'  => $this->countMutualFriendsWithList($myFriendIds, $userData->id),
+                'is_received_request' => Amitie::where('id_1', $userData->id)
+                    ->where('id_2', $user->id)
+                    ->where('statut', 'en attente')
+                    ->exists(),
             ];
         }
 
@@ -439,7 +443,8 @@ class AmitieController extends Controller
                 'has_liked_profile'   => $hasLikedProfile,
                 'followers_count'     => $userData->followers_count,
                 'posts_count'         => $userData->articles_count,
-                'mutual_friends'      => $this->countMutualFriendsWithList($myFriendIds, $userData->id)
+                'mutual_friends'      => $this->countMutualFriendsWithList($myFriendIds, $userData->id),
+                'is_received_request' => $friendship && $friendship->statut == 'en attente' && $friendship->id_2 == $user->id
             ]);
         }
 

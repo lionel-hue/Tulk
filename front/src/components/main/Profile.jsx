@@ -26,7 +26,8 @@ import {
   User,
   Bell,
   Mail,
-  UserMinus
+  UserMinus,
+  Send
 } from 'lucide-react'
 import Header from '../Header'
 import SideMenuNav from '../SideMenuNav'

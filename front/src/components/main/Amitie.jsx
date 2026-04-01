@@ -428,6 +428,13 @@ const Amitie = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
                     <div className='flex items-center justify-center gap-2 py-2.5 text-xs font-bold text-green-400 bg-green-500/10 border border-green-500/20 rounded-2xl'>
                       <UserCheck size={14} /> Amis
                     </div>
+                  ) : user.is_received_request ? (
+                    <button
+                      className='w-full flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-green-600 to-emerald-500 text-white text-xs font-black tracking-wider rounded-2xl hover:scale-[1.02] active:scale-95 shadow-[0_8px_24px_rgba(34,197,94,0.3)] transition-all'
+                      onClick={() => handleAcceptRequest(user.id)}
+                    >
+                      <Check size={15} /> Accepter
+                    </button>
                   ) : user.has_pending_request ? (
                     <div className='flex items-center justify-center gap-2 py-2.5 text-xs font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 rounded-2xl'>
                       <Clock size={14} /> En attente

@@ -147,8 +147,8 @@ const Home = () => {
 
       const response = await api.get(`/posts/feed?page=${pageNum}`)
       if (response.data.success) {
+        const postsData = response.data.posts.data
         if (pageNum === 1) {
-          const postsData = response.data.posts.data
           setPosts(postsData)
           // Reset comments state only on first page
           setPostComments({})
