@@ -167,8 +167,8 @@ const Header = ({
 
   return (
     <>
-      <header className='sticky top-0 z-40 bg-[#060606]/80 backdrop-blur-xl border-b border-white/5 transition-all duration-500'>
-        <div className='max-w-full mx-auto px-4 md:px-8 flex items-center justify-between h-20 gap-6'>
+      <header className='sticky top-0 z-40 bg-[#060606]/80 backdrop-blur-xl border-b border-white/5 transition-all duration-500 overflow-hidden'>
+        <div className='max-w-full mx-auto px-4 md:px-8 flex items-center justify-between h-20 gap-2 md:gap-6'>
           {/* Side Menu Toggle */}
           <button 
             className='w-12 h-12 flex items-center justify-center bg-white/5 border border-white/10 rounded-2xl text-gray-400 hover:text-white hover:bg-white/10 transition-all hover:scale-110 active:scale-95 group shadow-xl' 
@@ -182,14 +182,14 @@ const Header = ({
             {navItems.map(item => (
               <button
                 key={item.id}
-                className={`flex items-center gap-3 px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all duration-500 relative group ${
+                className={`flex-shrink flex items-center gap-3 px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-wider transition-all duration-500 relative group ${
                   activeSection === item.id 
                     ? 'bg-white text-black shadow-2xl scale-105' 
                     : 'text-gray-500 hover:text-white hover:bg-white/5'
                 }`}
                 onClick={() => handleNavigation(item.id)}
               >
-                <item.icon size={16} className={`${activeSection === item.id ? 'opacity-100' : 'opacity-40 group-hover:opacity-100 group-hover:scale-125'} transition-all`} />
+                <item.icon size={16} className={`${activeSection === item.id ? 'opacity-100' : 'opacity-40 group-hover:opacity-100 group-hover:scale-125'} transition-all flex-shrink-0`} />
                 <span>{item.label}</span>
                 {item.badge !== null && item.badge > 0 && (
                   <span className={`absolute -top-1 -right-1 px-2 py-0.5 rounded-full text-[8px] font-black border animate-pulse ${
@@ -203,7 +203,7 @@ const Header = ({
           </nav>
 
           {/* Search Bar - with form submission */}
-          <div className='relative flex-1 max-w-2xl group/search'>
+          <div className='relative flex-1 max-w-2xl min-w-0 group/search'>
             <form onSubmit={handleSearchSubmit} className='w-full relative'>
               <input
                 ref={searchInputRef}

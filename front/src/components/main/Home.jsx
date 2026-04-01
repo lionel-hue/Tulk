@@ -1,5 +1,5 @@
 // components/Home.jsx
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
 import { useNavigate, useLocation } from 'react-router-dom'
 import Header from '../Header'
@@ -68,6 +68,11 @@ const Home = () => {
   // Posts state for feed and profile sections
   const [posts, setPosts] = useState([])
   const [loading, setLoading] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [page, setPage] = useState(1)
+  const [hasMore, setHasMore] = useState(true)
+  const loaderRef = useRef(null)
+  const searchInputRef = useRef(null)
   const [posting, setPosting] = useState(false)
   const [newPostDescription, setNewPostDescription] = useState('')
   const [postImage, setPostImage] = useState(null)
@@ -113,6 +118,10 @@ const Home = () => {
   const handleSearchFocus = () => {
     if (activeSection === 'friends') {
       setIsSearchFocused(true)
+      setTimeout(() => {
+        const searchInput = document.querySelector('header input[type="text"]')
+        if (searchInput) searchInput.focus()
+      }, 50)
     }
   }
 
@@ -127,16 +136,29 @@ const Home = () => {
   }
 
   // Load posts from API
-  const loadPosts = async () => {
+  const loadPosts = async (pageNum = 1) => {
     try {
-      setLoading(true)
-      const response = await api.get('/posts/feed')
+      if (pageNum === 1) {
+        setLoading(true)
+        setPage(1)
+      } else {
+        setLoadingMore(true)
+      }
+
+      const response = await api.get(`/posts/feed?page=${pageNum}`)
       if (response.data.success) {
-        setPosts(response.data.posts)
-        // Reset comments state
-        setPostComments({})
-        setExpandedComments({})
-        setCommentInputs({})
+        if (pageNum === 1) {
+          setPosts(response.data.posts)
+          // Reset comments state only on first page
+          setPostComments({})
+          setExpandedComments({})
+          setCommentInputs({})
+        } else {
+          setPosts(prev => [...prev, ...response.data.posts])
+        }
+        
+        setHasMore(response.data.has_more)
+        setPage(response.data.current_page)
       } else {
         setModal({
           show: true,
@@ -167,8 +189,36 @@ const Home = () => {
       })
     } finally {
       setLoading(false)
+      setLoadingMore(false)
     }
   }
+
+  // Infinite scroll using Intersection Observer
+  useEffect(() => {
+    const options = {
+      root: null,
+      rootMargin: '400px', // Start loading when within 400px of bottom
+      threshold: 0
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+      const [entry] = entries
+      if (entry.isIntersecting && hasMore && !loadingMore && !loading && activeSection === 'feed') {
+        loadPosts(page + 1)
+      }
+    }, options)
+
+    const currentLoader = loaderRef.current
+    if (currentLoader) {
+      observer.observe(currentLoader)
+    }
+
+    return () => {
+      if (currentLoader) {
+        observer.unobserve(currentLoader)
+      }
+    }
+  }, [hasMore, loadingMore, loading, activeSection, page])
 
   useEffect(() => {
     if (activeSection === 'feed') {
@@ -691,7 +741,7 @@ const Home = () => {
       </div>
 
       {/* Posts Feed */}
-      <div className='posts-feed'>
+      <div className='posts-feed max-w-full overflow-x-hidden px-4'>
         {loading ? (
           <div className='text-center py-8'>
             <div className='text-gray-400'>Chargement des posts...</div>
@@ -704,7 +754,32 @@ const Home = () => {
             </div>
           </div>
         ) : (
-          <div className='space-y-4'>{posts.map((post, index) => renderPost(post, index))}</div>
+          <>
+            <div className='space-y-4'>
+              {posts.map((post, index) => renderPost(post, index))}
+            </div>
+
+            {/* Pivot for Intersection Observer */}
+            <div ref={loaderRef} className='h-4 w-full max-w-full' />
+            
+            {/* Loading More Indicator */}
+            {loadingMore && (
+              <div className='py-8 flex justify-center'>
+                <div className='flex items-center gap-3 bg-white/5 border border-white/10 px-6 py-3 rounded-2xl backdrop-blur-xl'>
+                   <div className='w-4 h-4 border-2 border-purple-500 border-t-transparent rounded-full animate-spin'></div>
+                   <span className='text-[10px] font-bold text-white/50'>Chargement...</span>
+                </div>
+              </div>
+            )}
+            
+            {/* End of Feed Indicator */}
+            {!hasMore && posts.length > 0 && (
+              <div className='py-12 flex flex-col items-center justify-center opacity-30'>
+                <div className='h-px w-20 bg-white/10 mb-6'></div>
+                <span className='text-[10px] font-bold text-white/40'>Fin du fil</span>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
@@ -881,7 +956,7 @@ const Home = () => {
           onSearchChange={handleSearchChange}
         />
 
-        <main className='home-main-content'>{renderSection()}</main>
+        <main className='home-main-content overflow-x-hidden w-full'>{renderSection()}</main>
       </div>
 
       <Modal modal={modal} setModal={setModal} />

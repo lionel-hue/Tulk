@@ -158,17 +158,17 @@ const Notifications = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
 
   const getNotificationColor = type => {
     const colors = {
-      like: 'bg-red-500/10 border-red-500/20',
-      comment: 'bg-blue-500/10 border-blue-500/20',
-      friend_request: 'bg-purple-500/10 border-purple-500/20',
-      friend_accepted: 'bg-green-500/10 border-green-500/20',
-      mention: 'bg-yellow-500/10 border-yellow-500/20',
-      welcome: 'bg-pink-500/10 border-pink-500/20',
-      system: 'bg-gray-500/10 border-gray-500/20',
-      profile_like: 'bg-red-500/10 border-red-500/20',
-      follow: 'bg-purple-500/10 border-purple-500/20'
+      like: 'bg-red-500/5 border-red-500/10 hover:border-red-500/20',
+      comment: 'bg-blue-500/5 border-blue-500/10 hover:border-blue-500/20',
+      friend_request: 'bg-purple-500/5 border-purple-500/10 hover:border-purple-500/20',
+      friend_accepted: 'bg-green-500/5 border-green-500/10 hover:border-green-500/20',
+      mention: 'bg-yellow-500/5 border-yellow-500/10 hover:border-yellow-500/20',
+      welcome: 'bg-pink-500/5 border-pink-500/10 hover:border-pink-500/20',
+      system: 'bg-white/5 border-white/10 hover:border-white/20',
+      profile_like: 'bg-red-500/5 border-red-500/10 hover:border-red-500/20',
+      follow: 'bg-purple-500/5 border-purple-500/10 hover:border-purple-500/20'
     }
-    return colors[type] || 'bg-gray-500/10 border-gray-500/20'
+    return colors[type] || 'bg-white/5 border-white/10 hover:border-white/20'
   }
 
   // Avatar logic replaced by Avatar component
@@ -177,66 +177,70 @@ const Notifications = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
     <div className='section-content active'>
       <div className='notifications-container max-w-4xl mx-auto'>
         {/* Header */}
-        <div className='section-header mb-6'>
-          <div className='flex items-center gap-3'>
-            <Bell size={28} className='text-white' />
-            <h2>Notifications</h2>
-            {unreadCount > 0 && (
-              <span className='bg-red-500 text-white text-xs px-2 py-1 rounded-full'>
-                {unreadCount}
-              </span>
-            )}
+        <div className='flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10'>
+          <div className='flex items-center gap-4'>
+            <div className='w-16 h-16 bg-white/5 rounded-[1.5rem] flex items-center justify-center border border-white/10 shadow-2xl'>
+              <Bell size={28} className='text-white' />
+            </div>
+            <div>
+              <h2 className='text-3xl md:text-5xl font-black text-white tracking-tighter'>Notifications</h2>
+              {unreadCount > 0 && (
+                <span className='inline-block mt-2 px-3 py-1 bg-red-500/20 text-red-500 border border-red-500/30 text-[10px] font-black uppercase tracking-widest rounded-full'>
+                  {unreadCount} non lues
+                </span>
+              )}
+            </div>
           </div>
-          <div className='flex gap-2'>
+          <div className='flex items-center gap-3 bg-white/5 p-2 rounded-[2rem] border border-white/10 backdrop-blur-md'>
             {unreadCount > 0 && (
               <button
                 onClick={markAllAsRead}
-                className='btn-text flex items-center gap-2'
+                className='px-6 py-3 rounded-[1.5rem] bg-white text-black font-black text-[10px] uppercase tracking-widest shadow-2xl hover:scale-105 active:scale-95 transition-all flex items-center gap-2'
               >
                 <CheckCheck size={16} />
-                Tout lire
+                <span>Tout lire</span>
               </button>
             )}
             {notifications.length > 0 && (
               <button
                 onClick={deleteAllNotifications}
-                className='btn-text flex items-center gap-2 text-red-400 hover:text-red-300'
+                className='px-6 py-3 rounded-[1.5rem] bg-red-500/10 text-red-500 font-black text-[10px] border border-red-500/20 uppercase tracking-widest hover:bg-red-500/20 transition-all flex items-center gap-2'
               >
                 <Trash2 size={16} />
-                Tout supprimer
+                <span>Vider</span>
               </button>
             )}
           </div>
         </div>
 
         {/* Filters */}
-        <div className='flex gap-2 mb-6'>
+        <div className='bg-white/5 backdrop-blur-md p-1.5 rounded-[2.5rem] border border-white/5 flex gap-2 w-fit mb-10 overflow-x-auto no-scrollbar'>
           <button
             onClick={() => setFilter('all')}
-            className={`px-4 py-2 rounded-lg font-medium transition-all ${
+            className={`px-8 py-3 rounded-[2rem] font-black text-[10px] uppercase tracking-[0.2em] transition-all duration-700 whitespace-nowrap ${
               filter === 'all'
-                ? 'bg-white text-black'
-                : 'bg-[#141414] text-gray-400 hover:text-white border border-[#262626]'
+                ? 'bg-white text-black shadow-2xl scale-105'
+                : 'text-gray-500 hover:text-white hover:bg-white/5'
             }`}
           >
             Toutes
           </button>
           <button
             onClick={() => setFilter('unread')}
-            className={`px-4 py-2 rounded-lg font-medium transition-all ${
+            className={`px-8 py-3 rounded-[2rem] font-black text-[10px] uppercase tracking-[0.2em] transition-all duration-700 whitespace-nowrap ${
               filter === 'unread'
-                ? 'bg-white text-black'
-                : 'bg-[#141414] text-gray-400 hover:text-white border border-[#262626]'
+                ? 'bg-white text-black shadow-2xl scale-105'
+                : 'text-gray-500 hover:text-white hover:bg-white/5'
             }`}
           >
             Non lues
           </button>
           <button
             onClick={() => setFilter('read')}
-            className={`px-4 py-2 rounded-lg font-medium transition-all ${
+            className={`px-8 py-3 rounded-[2rem] font-black text-[10px] uppercase tracking-[0.2em] transition-all duration-700 whitespace-nowrap ${
               filter === 'read'
-                ? 'bg-white text-black'
-                : 'bg-[#141414] text-gray-400 hover:text-white border border-[#262626]'
+                ? 'bg-white text-black shadow-2xl scale-105'
+                : 'text-gray-500 hover:text-white hover:bg-white/5'
             }`}
           >
             Lues
@@ -244,25 +248,23 @@ const Notifications = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
         </div>
 
         {/* Notifications List */}
-        <div className='space-y-3'>
+        <div className='space-y-4'>
           {loading ? (
-            <div className='text-center py-12 text-gray-400'>
-              <Clock
-                size={48}
-                className='mx-auto mb-4 opacity-50 animate-pulse'
-              />
-              <p>Chargement des notifications...</p>
+            <div className='col-span-full py-24 flex flex-col items-center justify-center bg-white/5 border border-dashed border-white/10 rounded-[3rem] group'>
+              <div className='w-24 h-24 bg-white/5 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-700'>
+                 <Clock size={40} className='text-gray-700 animate-pulse' />
+              </div>
+              <p className='text-gray-500 font-bold text-[10px] uppercase tracking-widest'>Chargement des notifications...</p>
             </div>
           ) : notifications.length === 0 ? (
-            <div className='text-center py-12 bg-[#141414] border border-[#262626] rounded-xl'>
-              <Bell
-                size={48}
-                className='mx-auto mb-4 text-gray-400 opacity-50'
-              />
-              <h3 className='text-lg font-semibold text-white mb-2'>
+            <div className='col-span-full py-24 flex flex-col items-center justify-center bg-white/5 border border-dashed border-white/10 rounded-[3rem] group'>
+              <div className='w-24 h-24 bg-white/5 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-700'>
+                <Bell size={40} className='text-gray-700' />
+              </div>
+              <h3 className='text-lg font-black uppercase tracking-widest text-white mb-2'>
                 Aucune notification
               </h3>
-              <p className='text-gray-400'>
+              <p className='text-gray-500 font-bold text-[10px] uppercase tracking-widest'>
                 {filter === 'unread'
                   ? "Vous n'avez aucune notification non lue"
                   : "Vous n'avez aucune notification pour le moment"}
@@ -272,59 +274,60 @@ const Notifications = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
             notifications.map(notification => (
               <div
                 key={notification.id}
-                className={`p-4 rounded-xl border transition-all ${
+                className={`p-6 md:p-8 rounded-[2rem] border transition-all duration-500 shadow-2xl group relative overflow-hidden ${
                   notification.is_read
-                    ? 'bg-[#141414] border-[#262626]'
-                    : `${getNotificationColor(
-                        notification.type
-                      )} border-opacity-50`
+                    ? 'bg-[#0f0f0f] border-white/5 hover:border-white/10 hover:-translate-y-1'
+                    : `${getNotificationColor(notification.type)} backdrop-blur-md`
                 }`}
               >
-                <div className='flex items-start gap-4'>
+                {!notification.is_read && (
+                    <div className='absolute top-0 right-0 w-32 h-32 bg-purple-500/10 rounded-full blur-[40px] pointer-events-none'></div>
+                )}
+                <div className='flex items-start md:items-center gap-6 relative'>
                   {/* Icon */}
-                  <div className='flex-shrink-0 w-10 h-10 rounded-full bg-[#1f1f1f] flex items-center justify-center'>
+                  <div className='flex-shrink-0 w-14 h-14 rounded-[1.5rem] bg-white/5 border border-white/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-500 shadow-inner'>
                     {getNotificationIcon(notification.type)}
                   </div>
                   {/* Content */}
                   <div className='flex-1 min-w-0'>
-                    <div className='flex items-start justify-between gap-2'>
+                    <div className='flex flex-col md:flex-row md:items-center justify-between gap-4'>
                       <div>
-                        <h4 className='text-white font-medium'>
+                        <h4 className='text-white font-black text-sm md:text-base tracking-tight'>
                           {notification.title}
                         </h4>
-                        <p className='text-gray-400 text-sm mt-1'>
+                        <p className='text-gray-300 font-medium text-sm mt-1 leading-relaxed'>
                           {notification.message}
                         </p>
-                        <p className='text-gray-500 text-xs mt-2'>
+                        <p className='text-gray-500 font-black text-[10px] uppercase tracking-widest mt-3'>
                           {notification.created_at}
                         </p>
                       </div>
-                      <div className='flex items-center gap-2'>
+                      <div className='flex items-center gap-2 self-start md:self-auto bg-white/5 p-1 rounded-2xl border border-white/5'>
                         {!notification.is_read && (
                           <button
                             onClick={() => markAsRead(notification.id)}
-                            className='p-2 text-gray-400 hover:text-green-500 transition-colors'
+                            className='p-3 text-gray-400 hover:text-green-400 hover:bg-green-500/10 rounded-xl transition-all'
                             title='Marquer comme lu'
                           >
-                            <Check size={16} />
+                            <Check size={18} />
                           </button>
                         )}
                         <button
                           onClick={() => deleteNotification(notification.id)}
-                          className='p-2 text-gray-400 hover:text-red-500 transition-colors'
+                          className='p-3 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-xl transition-all'
                           title='Supprimer'
                         >
-                          <Trash2 size={16} />
+                          <Trash2 size={18} />
                         </button>
                       </div>
                     </div>
                     {/* Sender Info */}
                     {notification.sender && (
-                      <div className='flex items-center gap-3 mt-3 pt-3 border-t border-[#262626]'>
-                        <div className='w-8 h-8 rounded-full overflow-hidden flex-shrink-0 relative'>
-                          <Avatar user={notification.sender} size='w-8 h-8' />
+                      <div className='flex items-center gap-4 mt-6 pt-4 border-t border-white/5'>
+                        <div className='w-10 h-10 rounded-[1rem] overflow-hidden flex-shrink-0 relative shadow-xl'>
+                          <Avatar user={notification.sender} size='w-10 h-10' />
                         </div>
-                        <span className='text-sm text-gray-300'>
+                        <span className='text-xs font-black uppercase tracking-widest text-gray-400'>
                           {notification.sender.prenom} {notification.sender.nom}
                         </span>
                       </div>

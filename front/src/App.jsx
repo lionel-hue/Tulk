@@ -8,6 +8,7 @@ import {
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import Login from './components/auth/Login'
 import Signup from './components/auth/Signup'
+import ForgotPassword from './components/auth/ForgotPassword'
 import Home from './components/main/Home'
 import Profile from './components/main/Profile'
 import SearchResults from './components/main/SearchResults'
@@ -62,6 +63,10 @@ function AppRoutes () {
               <Signup />
             </PublicRoute>
           }
+        />
+        <Route
+          path='/forgot-password'
+          element={<ForgotPassword />}
         />
 
         {/* Search Route - MUST come before /home/* to avoid conflicts */}

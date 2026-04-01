@@ -315,13 +315,14 @@ const Amitie = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
     }
   }
 
-  const renderUserCard = (user, type = 'friend') => {
+  const renderUserCard = (user, type = 'friend', index = 0) => {
     return (
       <div
-        key={user.id}
-        className='bg-[#141414] border border-[#262626] rounded-lg p-4'
+        key={`${type}-${user.id}-${index}`}
+        className='bg-[#0f0f0f] border border-white/5 rounded-[2rem] p-6 hover:shadow-2xl hover:border-purple-500/20 transition-all duration-700 hover:-translate-y-2 group relative overflow-hidden'
       >
-        <div className='flex items-start justify-between'>
+        <div className='absolute -top-12 -right-12 w-32 h-32 bg-purple-500/5 rounded-full blur-[40px] group-hover:bg-purple-500/10 transition-all duration-1000'></div>
+        <div className='flex items-start justify-between relative'>
           <div className='flex items-center gap-3 min-w-0 flex-1'>
             <Link
               to={`/profile/${user.id}`}
@@ -358,27 +359,27 @@ const Amitie = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
                 {type === 'friend' && (
                   <>
                     <Link
-                      className='p-2 text-gray-400 hover:text-white transition-colors rounded-lg hover:bg-[#262626]'
+                      className='p-3 text-gray-400 hover:text-white transition-colors rounded-2xl hover:bg-white/5 border border-transparent hover:border-white/10'
                       title='Envoyer un message'
                       to={`/messages?userId=${user.id}`}
                     >
-                      <MessageCircle size={18} />
+                      <MessageCircle size={20} />
                     </Link>
                     <button
-                      className='p-2 text-gray-400 hover:text-red-500 transition-colors rounded-lg hover:bg-[#262626]'
+                      className='p-3 text-gray-400 hover:text-red-400 transition-colors rounded-2xl hover:bg-red-500/10 border border-transparent hover:border-red-500/20'
                       onClick={() =>
                         handleRemoveFriend(user.id, `${user.prenom} ${user.nom}`)
                       }
                       title="Supprimer l'ami"
                     >
-                      <UserX size={18} />
+                      <UserX size={20} />
                     </button>
                   </>
                 )}
 
                 {type === 'suggestion' && (
                   <button
-                    className='px-3 py-1 bg-white text-black text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-2'
+                    className='px-6 py-3 bg-white text-black text-[10px] font-black tracking-widest uppercase rounded-[1.5rem] hover:scale-105 active:scale-95 transition-all shadow-[0_10px_30px_rgba(255,255,255,0.1)] flex items-center gap-2'
                     onClick={() => handleSendRequest(user.id)}
                   >
                     <UserPlus size={16} />
@@ -389,18 +390,18 @@ const Amitie = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
                 {type === 'pending' && (
                   <div className='flex gap-2'>
                     <button
-                      className='p-2 text-gray-400 hover:text-green-500 transition-colors rounded-lg hover:bg-[#262626]'
+                      className='p-3 text-gray-400 hover:text-green-400 transition-colors rounded-2xl hover:bg-green-500/10 border border-transparent hover:border-green-500/20'
                       onClick={() => handleAcceptRequest(user.id)}
                       title='Accepter'
                     >
-                      <Check size={18} />
+                      <Check size={20} />
                     </button>
                     <button
-                      className='p-2 text-gray-400 hover:text-red-500 transition-colors rounded-lg hover:bg-[#262626]'
+                      className='p-3 text-gray-400 hover:text-red-400 transition-colors rounded-2xl hover:bg-red-500/10 border border-transparent hover:border-red-500/20'
                       onClick={() => handleCancelRequest(user.id)}
                       title='Refuser'
                     >
-                      <X size={18} />
+                      <X size={20} />
                     </button>
                   </div>
                 )}
@@ -419,7 +420,7 @@ const Amitie = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
                       </div>
                     ) : (
                       <button
-                        className='px-3 py-1 bg-white text-black text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-2'
+                        className='px-6 py-3 bg-white text-black text-[10px] font-black tracking-widest uppercase rounded-[1.5rem] hover:scale-105 active:scale-95 transition-all flex items-center gap-2 shadow-[0_10px_30px_rgba(255,255,255,0.1)]'
                         onClick={() => handleSendRequest(user.id)}
                       >
                         <UserPlus size={16} />
@@ -444,10 +445,10 @@ const Amitie = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
           <div className='flex items-center gap-2'>
             {!isSearching && (
               <button
-                className='btn-primary flex items-center gap-2'
+                className='px-6 py-3 bg-white text-black text-[10px] font-black uppercase tracking-widest rounded-[1.5rem] shadow-[0_10px_30px_rgba(255,255,255,0.1)] hover:scale-105 active:scale-95 transition-all flex items-center gap-2'
                 onClick={onSearchFocus}
               >
-                <Search size={18} />
+                <Search size={16} />
                 Rechercher des amis
               </button>
             )}
@@ -477,7 +478,7 @@ const Amitie = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
               </div>
             ) : searchResults.length > 0 ? (
               <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
-                {searchResults.map(user => renderUserCard(user, 'search'))}
+                {searchResults.map((user, index) => renderUserCard(user, 'search', index))}
               </div>
             ) : (
               <div className='text-center py-8 bg-[#141414] border border-[#262626] rounded-lg'>
@@ -489,42 +490,42 @@ const Amitie = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
 
         {!isSearching && (
           <>
-            <div className='flex border-b border-[#262626] mb-6'>
+            <div className='bg-white/5 backdrop-blur-md p-1.5 rounded-[2.5rem] border border-white/5 flex gap-2 w-fit mx-auto md:mx-0 mb-8 overflow-x-auto no-scrollbar'>
               <button
-                className={`px-4 py-2 font-medium ${
+                className={`px-8 py-3 rounded-[2rem] font-black text-[10px] uppercase tracking-[0.2em] transition-all duration-700 whitespace-nowrap ${
                   activeTab === 'friends'
-                    ? 'text-white border-b-2 border-white'
-                    : 'text-gray-400 hover:text-white'
+                    ? 'bg-white text-black shadow-2xl scale-105'
+                    : 'text-gray-500 hover:text-white hover:bg-white/5'
                 }`}
                 onClick={() => setActiveTab('friends')}
               >
                 Amis ({friends.length})
               </button>
               <button
-                className={`px-4 py-2 font-medium ${
+                className={`px-8 py-3 rounded-[2rem] font-black text-[10px] uppercase tracking-[0.2em] transition-all duration-700 whitespace-nowrap ${
                   activeTab === 'suggestions'
-                    ? 'text-white border-b-2 border-white'
-                    : 'text-gray-400 hover:text-white'
+                    ? 'bg-white text-black shadow-2xl scale-105'
+                    : 'text-gray-500 hover:text-white hover:bg-white/5'
                 }`}
                 onClick={() => setActiveTab('suggestions')}
               >
                 Suggestions ({suggestions.length})
               </button>
               <button
-                className={`px-4 py-2 font-medium ${
+                className={`px-8 py-3 rounded-[2rem] font-black text-[10px] uppercase tracking-[0.2em] transition-all duration-700 whitespace-nowrap ${
                   activeTab === 'pending'
-                    ? 'text-white border-b-2 border-white'
-                    : 'text-gray-400 hover:text-white'
+                    ? 'bg-white text-black shadow-2xl scale-105'
+                    : 'text-gray-500 hover:text-white hover:bg-white/5'
                 }`}
                 onClick={() => setActiveTab('pending')}
               >
                 Demandes ({pendingRequests.length})
               </button>
               <button
-                className={`px-4 py-2 font-medium ${
+                className={`px-8 py-3 rounded-[2rem] font-black text-[10px] uppercase tracking-[0.2em] transition-all duration-700 whitespace-nowrap ${
                   activeTab === 'blocked'
-                    ? 'text-white border-b-2 border-white'
-                    : 'text-gray-400 hover:text-white'
+                    ? 'bg-white text-black shadow-2xl scale-105'
+                    : 'text-gray-500 hover:text-white hover:bg-white/5'
                 }`}
                 onClick={() => setActiveTab('blocked')}
               >
@@ -540,19 +541,21 @@ const Amitie = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
                   </div>
                 ) : friends.length > 0 ? (
                   <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
-                    {friends.map(friend => renderUserCard(friend, 'friend'))}
+                    {friends.map((friend, index) => renderUserCard(friend, 'friend', index))}
                   </div>
                 ) : (
-                  <div className='text-center py-8 bg-[#141414] border border-[#262626] rounded-lg'>
-                    <Users size={48} className='mx-auto text-gray-400 mb-4' />
-                    <h3 className='text-lg font-semibold text-white mb-2'>
+                  <div className='col-span-full py-24 flex flex-col items-center justify-center bg-white/5 border border-dashed border-white/10 rounded-[3rem] group'>
+                    <div className='w-24 h-24 bg-white/5 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-700'>
+                      <Users size={40} className='text-gray-700' />
+                    </div>
+                    <h3 className='text-lg font-black uppercase tracking-widest text-white mb-2'>
                       Aucun ami pour le moment
                     </h3>
-                    <p className='text-gray-400 mb-4'>
+                    <p className='text-gray-500 font-bold text-[10px] uppercase tracking-widest mb-8'>
                       Ajoutez des amis pour voir leur activité ici.
                     </p>
                     <button
-                      className='btn-primary'
+                      className='px-10 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-[1.5rem] font-black text-xs tracking-widest hover:scale-110 active:scale-95 shadow-[0_10px_30px_rgba(168,85,247,0.3)] transition-all'
                       onClick={() => setActiveTab('suggestions')}
                     >
                       Voir les suggestions
@@ -572,17 +575,19 @@ const Amitie = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
                   </div>
                 ) : suggestions.length > 0 ? (
                   <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
-                    {suggestions.map(suggestion =>
-                      renderUserCard(suggestion, 'suggestion')
+                    {suggestions.map((suggestion, index) =>
+                      renderUserCard(suggestion, 'suggestion', index)
                     )}
                   </div>
                 ) : (
-                  <div className='text-center py-8 bg-[#141414] border border-[#262626] rounded-lg'>
-                    <UserCog size={48} className='mx-auto text-gray-400 mb-4' />
-                    <h3 className='text-lg font-semibold text-white mb-2'>
+                  <div className='col-span-full py-24 flex flex-col items-center justify-center bg-white/5 border border-dashed border-white/10 rounded-[3rem] group'>
+                    <div className='w-24 h-24 bg-white/5 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-700'>
+                      <UserCog size={40} className='text-gray-700' />
+                    </div>
+                    <h3 className='text-lg font-black uppercase tracking-widest text-white mb-2'>
                       Aucune suggestion
                     </h3>
-                    <p className='text-gray-400'>
+                    <p className='text-gray-500 font-bold text-[10px] uppercase tracking-widest'>
                       Nous n'avons pas de suggestions d'amis pour le moment.
                     </p>
                   </div>
@@ -600,17 +605,19 @@ const Amitie = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
                   </div>
                 ) : pendingRequests.length > 0 ? (
                   <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
-                    {pendingRequests.map(request =>
-                      renderUserCard(request, 'pending')
+                    {pendingRequests.map((request, index) =>
+                      renderUserCard(request, 'pending', index)
                     )}
                   </div>
                 ) : (
-                  <div className='text-center py-8 bg-[#141414] border border-[#262626] rounded-lg'>
-                    <Clock size={48} className='mx-auto text-gray-400 mb-4' />
-                    <h3 className='text-lg font-semibold text-white mb-2'>
+                  <div className='col-span-full py-24 flex flex-col items-center justify-center bg-white/5 border border-dashed border-white/10 rounded-[3rem] group'>
+                    <div className='w-24 h-24 bg-white/5 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-700'>
+                      <Clock size={40} className='text-gray-700' />
+                    </div>
+                    <h3 className='text-lg font-black uppercase tracking-widest text-white mb-2'>
                       Aucune demande en attente
                     </h3>
-                    <p className='text-gray-400'>
+                    <p className='text-gray-500 font-bold text-[10px] uppercase tracking-widest'>
                       Vous n'avez pas de demandes d'amitié en attente.
                     </p>
                   </div>
@@ -626,18 +633,19 @@ const Amitie = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
                   </div>
                 ) : blockedUsers.length > 0 ? (
                   <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
-                    {blockedUsers.map(user => (
-                      <div key={user.id} className='bg-[#141414] border border-[#262626] rounded-lg p-4'>
-                        <div className='flex items-center justify-between'>
-                           <div className='flex items-center gap-3'>
-                              <Avatar user={user} size='w-12 h-12' />
+                    {blockedUsers.map((user, index) => (
+                      <div key={`blocked-${user.id}-${index}`} className='bg-[#0f0f0f] border border-white/5 rounded-[2rem] p-6 hover:shadow-2xl hover:border-red-500/20 transition-all duration-700 hover:-translate-y-2 group relative overflow-hidden'>
+                        <div className='absolute -top-12 -right-12 w-32 h-32 bg-red-500/5 rounded-full blur-[40px] group-hover:bg-red-500/10 transition-all duration-1000'></div>
+                        <div className='flex items-center justify-between relative'>
+                           <div className='flex items-center gap-4'>
+                              <Avatar user={user} size='w-14 h-14' />
                               <div>
                                  <h4 className='text-white font-medium'>{user.prenom} {user.nom}</h4>
-                                 <p className='text-gray-500 text-xs'>ID: {user.id}</p>
+                                 <p className='text-gray-500 text-xs mt-1'>ID: {user.id}</p>
                               </div>
                            </div>
                            <button 
-                            className='px-3 py-1 bg-[#262626] text-gray-300 text-sm font-medium rounded-lg hover:bg-gray-700 hover:text-white transition-colors'
+                            className='px-6 py-3 bg-white/5 border border-white/10 text-white text-[10px] font-black uppercase tracking-widest rounded-[1.5rem] hover:bg-white/10 hover:border-white/20 transition-all'
                             onClick={() => handleUnblock(user.id, `${user.prenom} ${user.nom}`)}
                            >
                             Débloquer
@@ -647,12 +655,14 @@ const Amitie = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
                     ))}
                   </div>
                 ) : (
-                  <div className='text-center py-8 bg-[#141414] border border-[#262626] rounded-lg'>
-                    <UserX size={48} className='mx-auto text-gray-400 mb-4' />
-                    <h3 className='text-lg font-semibold text-white mb-2'>
+                  <div className='col-span-full py-24 flex flex-col items-center justify-center bg-white/5 border border-dashed border-white/10 rounded-[3rem] group'>
+                    <div className='w-24 h-24 bg-white/5 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-700'>
+                      <UserX size={40} className='text-gray-700' />
+                    </div>
+                    <h3 className='text-lg font-black uppercase tracking-widest text-white mb-2'>
                       Aucun utilisateur bloqué
                     </h3>
-                    <p className='text-gray-400'>
+                    <p className='text-gray-500 font-bold text-[10px] uppercase tracking-widest'>
                       Les utilisateurs que vous bloquez apparaîtront ici.
                     </p>
                   </div>

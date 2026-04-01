@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use App\Services\NotificationService;
 
@@ -142,6 +143,53 @@ class AuthController extends Controller
         $request->user()->currentAccessToken()->delete();
         return response()->json([
             'message' => 'Déconnexion réussie'
+        ]);
+    }
+
+    /**
+     * Forgot password - sends a reset code by email.
+     * Always returns 200 regardless of whether email exists (security)
+     */
+    public function forgotPassword(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['message' => 'Adresse email invalide'], 422);
+        }
+
+        $user = Utilisateur::where('email', $request->email)->first();
+
+        // Always return success response for security (don't reveal if email exists)
+        if (!$user) {
+            return response()->json([
+                'message' => 'Si un compte existe avec cet email, un lien de réinitialisation a été envoyé.'
+            ]);
+        }
+
+        // Generate a 6-character reset code
+        $resetCode = strtoupper(Str::random(6));
+        
+        // Store the code in cache for 30 minutes
+        Cache::put('password_reset_' . $request->email, $resetCode, now()->addMinutes(30));
+
+        // Send the email
+        try {
+            Mail::raw(
+                "Bonjour {$user->prenom},\n\nVotre code de réinitialisation de mot de passe Tulk est : {$resetCode}\n\nCe code expires dans 30 minutes.\n\nSi vous n'avez pas demandé cette réinitialisation, ignorez cet email.\n\nL'équipe Tulk",
+                function ($message) use ($user, $resetCode) {
+                    $message->to($user->email)
+                            ->subject("[Tulk] Code de réinitialisation de mot de passe : {$resetCode}");
+                }
+            );
+        } catch (\Exception $e) {
+            \Log::error('Failed to send password reset email: ' . $e->getMessage());
+        }
+
+        return response()->json([
+            'message' => 'Si un compte existe avec cet email, un lien de réinitialisation a été envoyé.'
         ]);
     }
 }

@@ -107,7 +107,7 @@ class PostController extends Controller
     }
 
     // Get posts for feed
-    public function getFeedPosts()
+    public function getFeedPosts(Request $request)
     {
         try {
             $user = Auth::user();
@@ -118,33 +118,38 @@ class PostController extends Controller
             // Include user's own ID to see their posts too
             $userIds = array_merge([$user->id], $friendIds);
             
-            // Get posts with user information, likes count, and comments count
-            $posts = Article::with(['utilisateur', 'likes', 'commentaires'])
+            // Get posts with pagination
+            $perPage = $request->query('per_page', 10);
+            
+            $paginator = Article::with(['utilisateur', 'likes', 'commentaires'])
                 ->whereIn('id_uti', $userIds)
                 ->orderBy('date', 'desc')
-                ->get()
-                ->map(function ($post) use ($user) {
-                    return [
-                        'id' => $post->id,
-                        'description' => $post->description,
-                        'image' => $post->image,
-                        'date' => $post->date,
-                        'user' => [
-                            'id' => $post->utilisateur->id,
-                            'nom' => $post->utilisateur->nom,
-                            'prenom' => $post->utilisateur->prenom,
-                            'image' => $post->utilisateur->image,
-                        ],
-                        'likes_count' => $post->likes()->count(),
-                        'comments_count' => $post->commentaires()->count(),
-                        'is_liked' => $post->likes()->where('id_uti', $user->id)->exists(),
-                        'is_owner' => $post->id_uti == $user->id,
-                    ];
-                });
+                ->simplePaginate($perPage);
+
+            $posts = collect($paginator->items())->map(function ($post) use ($user) {
+                return [
+                    'id' => $post->id,
+                    'description' => $post->description,
+                    'image' => $post->image,
+                    'date' => $post->date,
+                    'user' => [
+                        'id' => $post->utilisateur->id,
+                        'nom' => $post->utilisateur->nom,
+                        'prenom' => $post->utilisateur->prenom,
+                        'image' => $post->utilisateur->image,
+                    ],
+                    'likes_count' => $post->likes()->count(),
+                    'comments_count' => $post->commentaires()->count(),
+                    'is_liked' => $post->likes()->where('id_uti', $user->id)->exists(),
+                    'is_owner' => $post->id_uti == $user->id,
+                ];
+            });
             
             return response()->json([
                 'success' => true,
-                'posts' => $posts
+                'posts' => $posts,
+                'has_more' => $paginator->hasMorePages(),
+                'current_page' => $paginator->currentPage(),
             ]);
             
         } catch (\Exception $e) {

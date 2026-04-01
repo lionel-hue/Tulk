@@ -1,6 +1,5 @@
 export const getImageUrl = (imagePath) => {
     if (!imagePath || imagePath === '' || imagePath.endsWith('/')) {
-        console.warn('getImageUrl: Invalid or incomplete image path:', imagePath);
         return null;
     }
     

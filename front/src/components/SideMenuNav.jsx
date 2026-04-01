@@ -98,7 +98,7 @@ const SideMenuNav = ({ isOpen, onClose }) => {
       {/* Side Menu - Glass Panel */}
       <div
         ref={sidebarRef}
-        className={`fixed left-0 top-0 h-full w-80 bg-[#0f0f0f]/90 backdrop-blur-3xl border-r border-white/5 z-[70] transition-transform duration-700 ease-out flex flex-col ${isOpen ? 'translate-x-0 shadow-[20px_0_50px_rgba(0,0,0,0.5)]' : '-translate-x-full'}`}
+        className={`fixed left-0 top-0 h-full w-80 bg-[#0f0f0f]/90 backdrop-blur-3xl border-r border-white/5 z-[70] transition-all duration-700 ease-out flex flex-col ${isOpen ? 'translate-x-0 opacity-100 shadow-[20px_0_50px_rgba(0,0,0,0.5)]' : '-translate-x-full opacity-0 invisible pointer-events-none'}`}
       >
         {/* Side Menu Header with Logo */}
         <div className='p-8 flex items-center justify-between'>
