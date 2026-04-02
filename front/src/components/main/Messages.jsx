@@ -430,7 +430,7 @@ const Messages = () => {
           <div className='flex items-center gap-2 mt-6 p-1 bg-[var(--bg-input)] border border-[var(--border-muted)] rounded-[1.5rem] relative'>
              <button 
                onClick={() => setActiveTab('direct')}
-               className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'direct' ? 'bg-white/10 text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}
+               className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'direct' ? 'bg-[var(--text-primary)] text-[var(--bg-primary)] shadow-lg' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
              >
                 <MessageCircle size={14} /> Direct
              </button>

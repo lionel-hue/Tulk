@@ -66,7 +66,9 @@ const GroupModal = ({ type, data, onClose, onRefresh }) => {
     try {
       const payLoad = new FormData()
       payLoad.append('nom', formData.nom)
-      payLoad.append('description', formData.description)
+      if (formData.description) {
+        payLoad.append('description', formData.description)
+      }
       if (formData.image) payLoad.append('image', formData.image)
 
       const response = await api.post('/groups', payLoad)
@@ -76,6 +78,10 @@ const GroupModal = ({ type, data, onClose, onRefresh }) => {
       }
     } catch (error) {
       console.error('Error creating group:', error)
+      const errorMsg = error.response?.data?.errors 
+        ? Object.values(error.response.data.errors).flat().join(', ')
+        : error.response?.data?.message || error.message
+      alert(`Erreur: ${errorMsg}`)
     } finally {
       setLoading(false)
     }

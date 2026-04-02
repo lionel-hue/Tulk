@@ -59,11 +59,16 @@ class GroupController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        $rules = [
             'nom' => 'required|string|max:255',
             'description' => 'nullable|string|max:500',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
-        ]);
+        ];
+
+        if ($request->hasFile('image')) {
+            $rules['image'] = 'image|mimes:jpeg,png,jpg,gif|max:5120';
+        }
+
+        $request->validate($rules);
 
         try {
             DB::beginTransaction();
