@@ -165,7 +165,7 @@ const GroupChat = ({ group, onBack, onUpdate }) => {
 
   if (loading) {
     return (
-      <div className='flex-1 flex items-center justify-center bg-[#060606]'>
+      <div className='flex-1 flex items-center justify-center bg-[var(--bg-primary)]'>
         <Loader2 size={32} className='animate-spin text-purple-500' />
       </div>
     )
@@ -174,47 +174,47 @@ const GroupChat = ({ group, onBack, onUpdate }) => {
   const isAdmin = group.role === 'owner' || group.role === 'admin'
 
   return (
-    <div className='flex-1 flex flex-col bg-[#060606] h-full relative overflow-hidden'>
+    <div className='flex-1 flex flex-col bg-[var(--bg-primary)] h-full relative overflow-hidden'>
       {/* Group Header */}
-      <div className='flex items-center justify-between p-6 border-b border-white/5 bg-[#0f0f0f]/60 backdrop-blur-xl z-20'>
+      <div className='flex items-center justify-between p-6 border-b border-[var(--border-color)] bg-[var(--glass-bg)] backdrop-blur-xl z-20'>
         <div className='flex items-center gap-4'>
-          <button onClick={onBack} className='lg:hidden p-2 -ml-2 text-gray-400 hover:text-white bg-white/5 rounded-xl'>
+          <button onClick={onBack} className='lg:hidden p-2 -ml-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-[var(--bg-hover)] rounded-xl'>
             <ChevronLeft size={24} />
           </button>
           <div className='relative'>
-             <Avatar user={{ image: group.image, prenom: group.nom }} size='w-12 h-12' className='rounded-[1.2rem] shadow-lg ring-2 ring-white/10' />
-             <div className='absolute -bottom-1 -right-1 p-1 bg-purple-500 rounded-full border-2 border-[#0a0a0a]'>
+             <Avatar user={{ image: group.image, prenom: group.nom }} size='w-12 h-12' className='rounded-[1.2rem] shadow-lg ring-2 ring-[var(--border-color)]' />
+             <div className='absolute -bottom-1 -right-1 p-1 bg-purple-500 rounded-full border-2 border-[var(--bg-secondary)]'>
                 <Users size={8} className='text-white' />
              </div>
           </div>
           <div>
-            <h3 className='text-white font-black text-lg tracking-tight'>{group.nom}</h3>
-            <p className='text-[10px] font-black uppercase tracking-widest text-gray-400 mt-0.5'>{group.members?.length || group.member_count} membres</p>
+            <h3 className='text-[var(--text-primary)] font-black text-lg tracking-tight'>{group.nom}</h3>
+            <p className='text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)] mt-0.5'>{group.members?.length || group.member_count} membres</p>
           </div>
         </div>
         
         <div className='flex items-center gap-2'>
            <button 
-             className={`p-3 rounded-xl transition-all ${showInfo ? 'bg-white/10 text-white' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}
+             className={`p-3 rounded-xl transition-all ${showInfo ? 'bg-[var(--bg-input)] text-[var(--text-primary)]' : 'text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]'}`}
              onClick={() => setShowInfo(!showInfo)}
            >
              <Info size={18} />
            </button>
            <div className='relative'>
               <button 
-                className={`p-3 rounded-xl transition-all ${showActions ? 'bg-white/10 text-white' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}
+                className={`p-3 rounded-xl transition-all ${showActions ? 'bg-[var(--bg-input)] text-[var(--text-primary)]' : 'text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]'}`}
                 onClick={() => setShowActions(!showActions)}
               >
                 <MoreVertical size={18} />
               </button>
               {showActions && (
-                <div className='absolute right-0 mt-2 w-56 bg-[#141414] border border-white/10 rounded-[1.5rem] shadow-2xl p-2 z-50 animate-in fade-in zoom-in-95 duration-200'>
+                <div className='absolute right-0 mt-2 w-56 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-[1.5rem] shadow-2xl p-2 z-50 animate-in fade-in zoom-in-95 duration-200'>
                    {isAdmin && (
-                     <button onClick={() => onUpdate({ type: 'settings', group })} className='w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 text-gray-300 hover:text-white text-sm font-bold transition-all'>
+                     <button onClick={() => onUpdate({ type: 'settings', group })} className='w-full flex items-center gap-3 p-3 rounded-xl hover:bg-[var(--bg-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] text-sm font-bold transition-all'>
                        <Shield size={16} className='text-purple-400' /> Gérer le groupe
                      </button>
                    )}
-                   <button onClick={() => onUpdate({ type: 'leave', group })} className='w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 text-gray-300 hover:text-white text-sm font-bold transition-all'>
+                   <button onClick={() => onUpdate({ type: 'leave', group })} className='w-full flex items-center gap-3 p-3 rounded-xl hover:bg-[var(--bg-hover)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] text-sm font-bold transition-all'>
                      <LogOut size={16} className='text-orange-400' /> Quitter le groupe
                    </button>
                 </div>
@@ -238,17 +238,17 @@ const GroupChat = ({ group, onBack, onUpdate }) => {
                   {!isMe && <Avatar user={msg.utilisateur} size='w-8 h-8' isLink={true} className='rounded-xl mt-1' />}
                   <div className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
                     {!isMe && (
-                      <Link to={`/profile/${msg.utilisateur.id}`} className='text-[10px] font-black uppercase tracking-widest text-gray-500 mb-1 ml-1 hover:text-purple-400'>
+                      <Link to={`/profile/${msg.utilisateur.id}`} className='text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)] mb-1 ml-1 hover:text-purple-400'>
                         {msg.utilisateur.prenom} {msg.utilisateur.nom}
                       </Link>
                     )}
-                    <div className={`p-4 rounded-[1.5rem] shadow-xl relative ${isMe ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-tr-sm' : 'bg-[#141414] border border-white/5 text-white rounded-tl-sm'}`}>
+                    <div className={`p-4 rounded-[1.5rem] shadow-xl relative ${isMe ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-tr-sm' : 'bg-[var(--msg-received-bg)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-tl-sm'}`}>
                         {msg.image && (
                           <img src={getImageUrl(msg.image)} alt='Attachment' className='max-w-full rounded-xl mb-2 cursor-pointer' onClick={() => window.open(getImageUrl(msg.image), '_blank')} />
                         )}
-                        {msg.texte && <div className='text-sm font-medium leading-relaxed'>{msg.texte}</div>}
+                        {msg.texte && <div className='text-sm font-bold leading-relaxed'>{msg.texte}</div>}
                     </div>
-                    <span className='text-[8px] font-black uppercase text-gray-600 mt-1 px-2'>{formatDate(msg.created_at)}</span>
+                    <span className='text-[8px] font-black uppercase text-[var(--text-secondary)] mt-1 px-2'>{formatDate(msg.created_at)}</span>
                   </div>
                 </div>
               </div>
@@ -258,11 +258,11 @@ const GroupChat = ({ group, onBack, onUpdate }) => {
       </div>
 
       {/* Input Area */}
-      <div className='p-4 border-t border-white/5 bg-[#0a0a0a]/90 backdrop-blur-xl z-20'>
+      <div className='p-4 border-t border-[var(--border-color)] bg-[var(--glass-bg)] backdrop-blur-xl z-20'>
           {imagePreview && (
-            <div className='absolute bottom-full left-0 p-4 w-full bg-[#0a0a0a]/90 backdrop-blur-xl border-t border-white/5'>
+            <div className='absolute bottom-full left-0 p-4 w-full bg-[var(--bg-primary)]/90 backdrop-blur-xl border-t border-[var(--border-color)]'>
                <div className='relative inline-block'>
-                  <img src={imagePreview} alt='Preview' className='h-24 rounded-xl border border-white/10' />
+                  <img src={imagePreview} alt='Preview' className='h-24 rounded-xl border border-[var(--border-color)]' />
                   <button onClick={() => { setSelectedImage(null); setImagePreview(null); }} className='absolute -top-2 -right-2 p-1 bg-red-500 text-white rounded-full transition-all'><X size={12} /></button>
                </div>
             </div>
@@ -281,24 +281,24 @@ const GroupChat = ({ group, onBack, onUpdate }) => {
 
           <form onSubmit={handleSendMessage} className='flex items-end gap-3 max-w-4xl mx-auto w-full'>
               {group.is_locked && !isAdmin ? (
-                <div className='flex-1 bg-white/5 border border-white/10 rounded-[2rem] p-4 text-center text-gray-500 text-xs font-bold uppercase tracking-widest'>
+                <div className='flex-1 bg-[var(--bg-hover)] border border-[var(--border-color)] rounded-[2rem] p-4 text-center text-[var(--text-secondary)] text-xs font-bold uppercase tracking-widest'>
                   <Lock size={14} className='inline mr-2' /> Seuls les administrateurs peuvent envoyer des messages
                 </div>
               ) : (
                 <>
-                  <div className='flex items-center gap-2 bg-[#0f0f0f] border border-white/10 rounded-[2.5rem] px-2 py-2 flex-1'>
-                    <button type='button' onClick={() => fileInputRef.current?.click()} className='p-3 text-gray-400 hover:text-white bg-white/5 rounded-full hover:scale-105 transition-all'>
+                  <div className='flex items-center gap-2 bg-[var(--bg-input)] border border-[var(--border-color)] rounded-[2.5rem] px-2 py-2 flex-1'>
+                    <button type='button' onClick={() => fileInputRef.current?.click()} className='p-3 text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-[var(--bg-hover)] rounded-full hover:scale-105 transition-all'>
                       <ImageIcon size={20} />
                     </button>
                     <input type='file' ref={fileInputRef} onChange={handleImageSelect} accept='image/*' className='hidden' />
                     <input 
                       type='text' 
                       placeholder='Écrivez un message collectif...' 
-                      className='bg-transparent border-none outline-none text-white w-full px-2 py-3 text-sm font-medium placeholder-gray-600'
+                      className='bg-transparent border-none outline-none text-[var(--text-primary)] w-full px-2 py-3 text-sm font-bold placeholder-gray-500'
                       value={newMessage}
                       onChange={(e) => setNewMessage(e.target.value)}
                     />
-                    <button type='button' className='p-3 text-gray-400 hover:text-white bg-white/5 rounded-full' onClick={() => setShowEmojiPicker(!showEmojiPicker)}>
+                    <button type='button' className='p-3 text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-[var(--bg-hover)] rounded-full' onClick={() => setShowEmojiPicker(!showEmojiPicker)}>
                       <Smile size={20} />
                     </button>
                   </div>
@@ -312,35 +312,35 @@ const GroupChat = ({ group, onBack, onUpdate }) => {
 
       {/* Info Sidebar Overlay */}
       {showInfo && (
-        <div className='absolute border-l border-white/10 inset-y-0 right-0 w-80 bg-[#0a0a0a] z-50 animate-in slide-in-from-right duration-300 shadow-2xl flex flex-col'>
-           <div className='p-6 border-b border-white/5 flex items-center justify-between'>
-              <h4 className='text-white font-black uppercase tracking-widest text-sm'>Détails du groupe</h4>
-              <button onClick={() => setShowInfo(false)} className='p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-xl'><X size={20} /></button>
+        <div className='absolute border-l border-[var(--border-color)] inset-y-0 right-0 w-80 bg-[var(--bg-secondary)] z-50 animate-in slide-in-from-right duration-300 shadow-2xl flex flex-col'>
+           <div className='p-6 border-b border-[var(--border-color)] flex items-center justify-between'>
+              <h4 className='text-[var(--text-primary)] font-black uppercase tracking-widest text-sm'>Détails du groupe</h4>
+              <button onClick={() => setShowInfo(false)} className='p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] rounded-xl'><X size={20} /></button>
            </div>
            
            <div className='flex-1 overflow-y-auto custom-scrollbar p-6'>
               <div className='flex flex-col items-center mb-8'>
                  <Avatar user={{ image: group.image, prenom: group.nom }} size='w-24 h-24' className='mb-4 rounded-[2rem]' />
-                 <h4 className='text-lg font-black text-white'>{group.nom}</h4>
-                 <p className='text-xs text-gray-400 text-center mt-2'>{group.description || 'Pas de description'}</p>
+                 <h4 className='text-lg font-black text-[var(--text-primary)]'>{group.nom}</h4>
+                 <p className='text-xs text-[var(--text-secondary)] text-center mt-2'>{group.description || 'Pas de description'}</p>
               </div>
 
               <div className='space-y-6'>
                  <div>
-                    <h5 className='text-[10px] font-black uppercase tracking-widest text-gray-500 mb-4'>Membres ({group.members?.length})</h5>
+                    <h5 className='text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)] mb-4'>Membres ({group.members?.length})</h5>
                     <div className='space-y-3'>
                        {group.members?.map(member => (
                          <div key={member.id} className='flex items-center justify-between group'>
                             <div className='flex items-center gap-3'>
                                <Avatar user={member} size='w-10 h-10' isLink={true} className='rounded-xl' />
                                <div>
-                                  <Link to={`/profile/${member.id}`} className='text-white text-xs font-bold hover:text-purple-400 transition-colors'>{member.prenom} {member.nom}</Link>
+                                  <Link to={`/profile/${member.id}`} className='text-[var(--text-primary)] text-xs font-bold hover:text-purple-400 transition-colors'>{member.prenom} {member.nom}</Link>
                                   <p className='text-[8px] font-black uppercase tracking-widest text-purple-400'>{member.role}</p>
                                </div>
                             </div>
                             <div className='flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity'>
                                {isAdmin && member.id !== authUser.id && member.role !== 'owner' && (
-                                 <button onClick={() => onUpdate({ type: 'remove', group, member })} className='p-2 text-gray-500 hover:text-red-400 hover:bg-white/5 rounded-lg'><UserX size={14} /></button>
+                                 <button onClick={() => onUpdate({ type: 'remove', group, member })} className='p-2 text-[var(--text-secondary)] hover:text-red-400 hover:bg-[var(--bg-hover)] rounded-lg'><UserX size={14} /></button>
                                )}
                             </div>
                          </div>
@@ -354,16 +354,16 @@ const GroupChat = ({ group, onBack, onUpdate }) => {
                  </div>
                  
                  <div>
-                    <h5 className='text-[10px] font-black uppercase tracking-widest text-gray-500 mb-4'>Paramètres rapides</h5>
+                    <h5 className='text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)] mb-4'>Paramètres rapides</h5>
                     <div className='space-y-2'>
-                       <div className='flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/5'>
-                          <span className='text-xs text-gray-300 font-bold'>Chat fermé</span>
+                       <div className='flex items-center justify-between p-3 bg-[var(--bg-input)] rounded-xl border border-[var(--border-color)]'>
+                          <span className='text-xs text-[var(--text-secondary)] font-bold'>Chat fermé</span>
                           {isAdmin ? (
-                            <button onClick={() => onUpdate({ type: 'lock', group })} className={`p-1.5 rounded-lg transition-all ${group.is_locked ? 'bg-red-500/20 text-red-400' : 'bg-white/5 text-gray-500'}`}>
+                            <button onClick={() => onUpdate({ type: 'lock', group })} className={`p-1.5 rounded-lg transition-all ${group.is_locked ? 'bg-red-500/20 text-red-400' : 'bg-[var(--bg-hover)] text-[var(--text-secondary)]'}`}>
                                {group.is_locked ? <Lock size={16} /> : <Unlock size={16} />}
                             </button>
                           ) : (
-                            <span className='text-gray-600'>{group.is_locked ? 'Oui' : 'Non'}</span>
+                            <span className='text-[var(--text-secondary)]'>{group.is_locked ? 'Oui' : 'Non'}</span>
                           )}
                        </div>
                     </div>

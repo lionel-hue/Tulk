@@ -171,7 +171,7 @@ const GroupModal = ({ type, data, onClose, onRefresh }) => {
           <form onSubmit={handleCreateGroup} className='space-y-6'>
             <div className='flex flex-col items-center gap-4'>
               <div className='relative group'>
-                <div className='w-24 h-24 bg-white/5 rounded-[2rem] border border-white/10 flex items-center justify-center overflow-hidden shadow-2xl transition-all group-hover:border-purple-500/50'>
+                <div className='w-24 h-24 bg-[var(--bg-input)] rounded-[2rem] border border-[var(--border-color)] flex items-center justify-center overflow-hidden shadow-2xl transition-all group-hover:border-purple-500/50'>
                    {formData.imagePreview ? (
                      <img src={formData.imagePreview} alt='Preview' className='w-full h-full object-cover' />
                    ) : (
@@ -183,26 +183,26 @@ const GroupModal = ({ type, data, onClose, onRefresh }) => {
                   <input type='file' className='hidden' accept='image/*' onChange={handleImageChange} />
                 </label>
               </div>
-              <p className='text-[10px] font-black uppercase tracking-widest text-gray-500'>Image du groupe</p>
+              <p className='text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)]'>Image du groupe</p>
             </div>
 
             <div className='space-y-4'>
                <div className='space-y-2'>
-                  <label className='text-[10px] font-black uppercase tracking-widest text-gray-400 ml-4'>Nom du groupe</label>
+                  <label className='text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)] ml-4'>Nom du groupe</label>
                   <input 
                     type='text' 
                     required 
                     placeholder='ex: Amis de Tulk'
-                    className='w-full bg-white/5 border border-white/10 rounded-[1.5rem] p-4 text-white font-bold placeholder-gray-600 focus:border-purple-500/50 outline-none transition-all'
+                    className='w-full bg-[var(--bg-input)] border border-[var(--border-color)] rounded-[1.5rem] p-4 text-[var(--text-primary)] font-bold placeholder-gray-500 focus:border-purple-500/50 outline-none transition-all'
                     value={formData.nom}
                     onChange={(e) => setFormData({ ...formData, nom: e.target.value })}
                   />
                </div>
                <div className='space-y-2'>
-                  <label className='text-[10px] font-black uppercase tracking-widest text-gray-400 ml-4'>Description (Optionnel)</label>
+                  <label className='text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)] ml-4'>Description (Optionnel)</label>
                   <textarea 
                     placeholder='De quoi traite ce groupe ?'
-                    className='w-full bg-white/5 border border-white/10 rounded-[1.5rem] p-4 text-white font-bold placeholder-gray-600 focus:border-purple-500/50 outline-none transition-all min-h-[100px]'
+                    className='w-full bg-[var(--bg-input)] border border-[var(--border-color)] rounded-[1.5rem] p-4 text-[var(--text-primary)] font-bold placeholder-gray-500 focus:border-purple-500/50 outline-none transition-all min-h-[100px]'
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   />
@@ -222,12 +222,12 @@ const GroupModal = ({ type, data, onClose, onRefresh }) => {
       case 'invite':
         return (
           <div className='space-y-6'>
-             <div className='flex items-center gap-3 bg-white/5 border border-white/10 rounded-[1.5rem] px-5 py-3'>
+             <div className='flex items-center gap-3 bg-[var(--bg-input)] border border-[var(--border-color)] rounded-[1.5rem] px-5 py-3'>
                 <Search size={16} className='text-gray-500' />
                 <input 
                   type='text' 
                   placeholder='Rechercher un ami...' 
-                  className='bg-transparent border-none outline-none text-white w-full text-xs font-bold placeholder-gray-600'
+                  className='bg-transparent border-none outline-none text-[var(--text-primary)] w-full text-xs font-bold placeholder-gray-500'
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
@@ -243,13 +243,13 @@ const GroupModal = ({ type, data, onClose, onRefresh }) => {
                     <div 
                       key={friend.id} 
                       onClick={() => toggleFriend(friend.id)}
-                      className={`flex items-center justify-between p-3 rounded-2xl cursor-pointer transition-all border ${selectedFriends.includes(friend.id) ? 'bg-purple-500/10 border-purple-500/30' : 'bg-white/5 border-transparent hover:border-white/10'}`}
+                      className={`flex items-center justify-between p-3 rounded-2xl cursor-pointer transition-all border ${selectedFriends.includes(friend.id) ? 'bg-purple-500/10 border-purple-500/30' : 'bg-[var(--bg-input)] border-transparent hover:border-[var(--border-color)]'}`}
                     >
                        <div className='flex items-center gap-3'>
                           <Avatar user={friend} size='w-10 h-10' className='rounded-xl' />
-                          <span className='text-white text-xs font-bold'>{friend.prenom} {friend.nom}</span>
+                          <span className='text-[var(--text-primary)] text-xs font-bold'>{friend.prenom} {friend.nom}</span>
                        </div>
-                       <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${selectedFriends.includes(friend.id) ? 'bg-purple-500 border-purple-500 text-white' : 'border-white/10'}`}>
+                       <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${selectedFriends.includes(friend.id) ? 'bg-purple-500 border-purple-500 text-white' : 'border-[var(--border-color)]'}`}>
                           {selectedFriends.includes(friend.id) && <Check size={14} />}
                        </div>
                     </div>
@@ -274,14 +274,14 @@ const GroupModal = ({ type, data, onClose, onRefresh }) => {
                 <LogOut size={32} className='text-orange-500' />
              </div>
              <div>
-                <h4 className='text-white font-black text-xl mb-2'>Quitter le groupe ?</h4>
+                <h4 className='text-[var(--text-primary)] font-black text-xl mb-2'>Quitter le groupe ?</h4>
                 <p className='text-gray-400 text-xs leading-relaxed'>
                    Êtes-vous sûr de vouloir quitter <strong>{data.group.nom}</strong> ? 
                    {data.group.role === 'owner' && " En tant que propriétaire, la responsabilité sera transférée à un autre administrateur ou membre."}
                 </p>
              </div>
              <div className='flex gap-3'>
-                <button onClick={onClose} className='flex-1 py-4 bg-white/5 text-gray-400 font-black uppercase text-[10px] tracking-widest rounded-2xl hover:bg-white/10 transition-all'>Annuler</button>
+                <button onClick={onClose} className='flex-1 py-4 bg-[var(--bg-input)] text-[var(--text-secondary)] font-black uppercase text-[10px] tracking-widest rounded-2xl hover:bg-[var(--bg-hover)] transition-all'>Annuler</button>
                 <button onClick={handleLeave} className='flex-1 py-4 bg-orange-600 text-white font-black uppercase text-[10px] tracking-widest rounded-2xl hover:bg-orange-700 transition-all shadow-xl'>Confirmer</button>
              </div>
           </div>
@@ -294,13 +294,13 @@ const GroupModal = ({ type, data, onClose, onRefresh }) => {
                 <UserX size={32} className='text-red-500' />
              </div>
              <div>
-                <h4 className='text-white font-black text-xl mb-2'>Retirer le membre ?</h4>
+                <h4 className='text-[var(--text-primary)] font-black text-xl mb-2'>Retirer le membre ?</h4>
                 <p className='text-gray-400 text-xs leading-relaxed'>
                    Voulez-vous vraiment retirer <strong>{data.member.prenom}</strong> de ce groupe ?
                 </p>
              </div>
              <div className='flex gap-3'>
-                <button onClick={onClose} className='flex-1 py-4 bg-white/5 text-gray-400 font-black uppercase text-[10px] tracking-widest rounded-2xl hover:bg-white/10 transition-all'>Annuler</button>
+                <button onClick={onClose} className='flex-1 py-4 bg-[var(--bg-input)] text-[var(--text-secondary)] font-black uppercase text-[10px] tracking-widest rounded-2xl hover:bg-[var(--bg-hover)] transition-all'>Annuler</button>
                 <button onClick={handleKick} className='flex-1 py-4 bg-red-600 text-white font-black uppercase text-[10px] tracking-widest rounded-2xl hover:bg-red-700 transition-all shadow-xl'>Retirer</button>
              </div>
           </div>
@@ -309,19 +309,19 @@ const GroupModal = ({ type, data, onClose, onRefresh }) => {
       case 'settings':
         return (
           <div className='space-y-6'>
-             <div className='p-6 bg-white/5 rounded-[2rem] border border-white/10 shadow-inner'>
+             <div className='p-6 bg-[var(--bg-input)] rounded-[2rem] border border-[var(--border-color)] shadow-inner'>
                 <h5 className='text-[10px] font-black uppercase tracking-widest text-purple-400 mb-6 flex items-center gap-2'>
                   <Settings size={12} /> Contrôle du groupe
                 </h5>
                 
                 <div className='space-y-4'>
-                   <div className='flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5 group hover:border-purple-500/30 transition-all'>
+                   <div className='flex items-center justify-between p-4 bg-[var(--bg-secondary)] rounded-2xl border border-[var(--border-color)] group hover:border-purple-500/30 transition-all'>
                       <div className='flex items-center gap-4'>
                          <div className={`p-3 rounded-xl ${data.group.is_locked ? 'bg-red-500/10 text-red-400' : 'bg-green-500/10 text-green-400'}`}>
                             {data.group.is_locked ? <Lock size={18} /> : <Unlock size={18} />}
                          </div>
                          <div>
-                            <p className='text-white text-xs font-black'>Fermer le chat</p>
+                            <p className='text-[var(--text-primary)] text-xs font-black'>Fermer le chat</p>
                             <p className='text-[9px] text-gray-500 uppercase tracking-tighter'>Seuls les admins peuvent écrire</p>
                          </div>
                       </div>
@@ -333,13 +333,13 @@ const GroupModal = ({ type, data, onClose, onRefresh }) => {
                       </button>
                    </div>
 
-                   <div className='flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5 group hover:border-purple-500/30 transition-all'>
+                   <div className='flex items-center justify-between p-4 bg-[var(--bg-secondary)] rounded-2xl border border-[var(--border-color)] group hover:border-purple-500/30 transition-all'>
                       <div className='flex items-center gap-4'>
                          <div className='p-3 bg-blue-500/10 text-blue-400 rounded-xl'>
                             <UserPlus size={18} />
                          </div>
                          <div>
-                            <p className='text-white text-xs font-black'>Invitations membres</p>
+                            <p className='text-[var(--text-primary)] text-xs font-black'>Invitations membres</p>
                             <p className='text-[9px] text-gray-500 uppercase tracking-tighter'>Permettre aux membres d'inviter</p>
                          </div>
                       </div>
@@ -353,7 +353,7 @@ const GroupModal = ({ type, data, onClose, onRefresh }) => {
                 </div>
              </div>
              
-             <button onClick={onClose} className='w-full py-4 border border-white/10 text-white font-black uppercase text-[10px] tracking-widest rounded-[1.5rem] hover:bg-white/5 transition-all'>Fermer</button>
+             <button onClick={onClose} className='w-full py-4 border border-[var(--border-color)] text-[var(--text-primary)] font-black uppercase text-[10px] tracking-widest rounded-[1.5rem] hover:bg-[var(--bg-hover)] transition-all'>Fermer</button>
           </div>
         )
 
@@ -364,20 +364,20 @@ const GroupModal = ({ type, data, onClose, onRefresh }) => {
 
   return (
     <div className='fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-300'>
-       <div className='bg-[#0f0f0f] w-full max-w-md rounded-[3rem] border border-white/10 shadow-2xl overflow-hidden relative animate-in zoom-in-95 duration-300'>
+       <div className='bg-[var(--bg-secondary)] w-full max-w-md rounded-[3rem] border border-[var(--border-color)] shadow-2xl overflow-hidden relative animate-in zoom-in-95 duration-300'>
           <div className='absolute -top-24 -right-24 w-64 h-64 bg-purple-500/10 rounded-full blur-[80px]'></div>
           <div className='absolute -bottom-24 -left-24 w-64 h-64 bg-pink-500/10 rounded-full blur-[80px]'></div>
           
           <div className='p-8 relative'>
              <div className='flex items-center justify-between mb-8'>
                 <div className='flex items-center gap-3'>
-                   <div className='p-3 bg-white/5 rounded-2xl border border-white/10'>
+                   <div className='p-3 bg-[var(--bg-input)] rounded-2xl border border-[var(--border-color)]'>
                       {type === 'create' && <Users size={20} className='text-purple-400' />}
                       {type === 'invite' && <UserPlus size={20} className='text-blue-400' />}
                       {(type === 'leave' || type === 'remove') && <LogOut size={20} className='text-orange-400' />}
                       {type === 'settings' && <Settings size={20} className='text-gray-400' />}
                    </div>
-                   <h3 className='text-xl font-black text-white uppercase tracking-widest'>
+                   <h3 className='text-xl font-black text-[var(--text-primary)] uppercase tracking-widest'>
                       {type === 'create' && 'Nouveau Groupe'}
                       {type === 'invite' && 'Ajouter des Membres'}
                       {type === 'leave' && 'Quitter'}
@@ -385,7 +385,7 @@ const GroupModal = ({ type, data, onClose, onRefresh }) => {
                       {type === 'settings' && 'Paramètres'}
                    </h3>
                 </div>
-                <button onClick={onClose} className='p-2 text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl transition-all'><X size={24} /></button>
+                <button onClick={onClose} className='p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-[var(--bg-hover)] rounded-xl transition-all'><X size={24} /></button>
              </div>
 
              {renderContent()}

@@ -102,11 +102,7 @@ class GroupController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error creating group: ' . $e->getMessage());
-            return response()->json([
-                'success' => false, 
-                'message' => 'Erreur lors de la création du groupe: ' . $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ], 500);
+            return response()->json(['success' => false, 'message' => 'Erreur lors de la création du groupe'], 500);
         }
     }
 
