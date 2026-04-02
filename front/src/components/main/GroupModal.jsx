@@ -44,7 +44,7 @@ const GroupModal = ({ type, data, onClose, onRefresh }) => {
     try {
       const response = await api.get('/friends')
       if (response.data.success) {
-        setFriends(response.data.friends.data || [])
+        setFriends(response.data.friends || [])
       }
     } catch (error) {
       console.error('Error fetching friends:', error)

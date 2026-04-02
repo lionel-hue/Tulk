@@ -23,6 +23,7 @@ import { getImageUrl } from '../../utils/imageUrls'
 import { useAuth } from '../../contexts/AuthContext'
 import { useInfiniteScroll } from '../../hooks/useInfiniteScroll'
 import EmojiPicker from 'emoji-picker-react'
+import QuickProfileModal from './QuickProfileModal'
 
 const GroupChat = ({ group, onBack, onUpdate }) => {
   const { user: authUser } = useAuth()
@@ -35,6 +36,7 @@ const GroupChat = ({ group, onBack, onUpdate }) => {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false)
   const [showInfo, setShowInfo] = useState(false)
   const [showActions, setShowActions] = useState(false)
+  const [selectedProfileId, setSelectedProfileId] = useState(null)
   
   // Pagination
   const [page, setPage] = useState(1)
@@ -43,7 +45,20 @@ const GroupChat = ({ group, onBack, onUpdate }) => {
   
   const fileInputRef = useRef(null)
   const messagesEndRef = useRef(null)
+  const actionsRef = useRef(null)
   const pollingInterval = useRef(null)
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (actionsRef.current && !actionsRef.current.contains(event.target)) {
+        setShowActions(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [])
 
   useEffect(() => {
     fetchMessages(1)
@@ -200,7 +215,7 @@ const GroupChat = ({ group, onBack, onUpdate }) => {
            >
              <Info size={18} />
            </button>
-           <div className='relative'>
+           <div className='relative' ref={actionsRef}>
               <button 
                 className={`p-3 rounded-xl transition-all ${showActions ? 'bg-[var(--bg-input)] text-[var(--text-primary)]' : 'text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]'}`}
                 onClick={() => setShowActions(!showActions)}
@@ -235,12 +250,16 @@ const GroupChat = ({ group, onBack, onUpdate }) => {
             return (
               <div key={msg.id || index} className={`flex flex-col w-full mb-6 ${isMe ? 'items-end' : 'items-start'}`}>
                 <div className={`flex flex-row gap-3 ${isMe ? 'flex-row-reverse' : ''} max-w-[85%] md:max-w-[70%]`}>
-                  {!isMe && <Avatar user={msg.utilisateur} size='w-8 h-8' isLink={true} className='rounded-xl mt-1' />}
+                  {!isMe && (
+                    <div onClick={() => setSelectedProfileId(msg.utilisateur.id)} className='cursor-pointer'>
+                      <Avatar user={msg.utilisateur} size='w-8 h-8' className='rounded-xl mt-1 hover:opacity-80 transition-opacity' />
+                    </div>
+                  )}
                   <div className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
                     {!isMe && (
-                      <Link to={`/profile/${msg.utilisateur.id}`} className='text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)] mb-1 ml-1 hover:text-purple-400'>
+                      <button onClick={() => setSelectedProfileId(msg.utilisateur.id)} className='text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)] mb-1 ml-1 hover:text-purple-400 text-left'>
                         {msg.utilisateur.prenom} {msg.utilisateur.nom}
-                      </Link>
+                      </button>
                     )}
                     <div className={`p-4 rounded-[1.5rem] shadow-xl relative ${isMe ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-tr-sm' : 'bg-[var(--msg-received-bg)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-tl-sm'}`}>
                         {msg.image && (
@@ -332,9 +351,16 @@ const GroupChat = ({ group, onBack, onUpdate }) => {
                        {group.members?.map(member => (
                          <div key={member.id} className='flex items-center justify-between group'>
                             <div className='flex items-center gap-3'>
-                               <Avatar user={member} size='w-10 h-10' isLink={true} className='rounded-xl' />
+                               <div onClick={() => member.id !== authUser.id && setSelectedProfileId(member.id)} className={member.id !== authUser.id ? 'cursor-pointer' : ''}>
+                                 <Avatar user={member} size='w-10 h-10' className='rounded-xl hover:opacity-80 transition-opacity' />
+                               </div>
                                <div>
-                                  <Link to={`/profile/${member.id}`} className='text-[var(--text-primary)] text-xs font-bold hover:text-purple-400 transition-colors'>{member.prenom} {member.nom}</Link>
+                                  <button 
+                                    onClick={() => member.id !== authUser.id && setSelectedProfileId(member.id)} 
+                                    className={`text-[var(--text-primary)] text-xs font-bold transition-colors text-left ${member.id !== authUser.id ? 'hover:text-purple-400 cursor-pointer' : ''}`}
+                                  >
+                                    {member.prenom} {member.nom}
+                                  </button>
                                   <p className='text-[8px] font-black uppercase tracking-widest text-purple-400'>{member.role}</p>
                                </div>
                             </div>
@@ -371,6 +397,14 @@ const GroupChat = ({ group, onBack, onUpdate }) => {
               </div>
            </div>
         </div>
+      )}
+
+      {selectedProfileId && (
+        <QuickProfileModal
+          userId={selectedProfileId}
+          currentUserId={authUser.id}
+          onClose={() => setSelectedProfileId(null)}
+        />
       )}
     </div>
   )
