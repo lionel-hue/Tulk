@@ -515,9 +515,11 @@ class NotificationService
         string $priority = Notification::PRIORITY_NORMAL,
         bool $sendEmail = false
     ) {
+        /** @var \Illuminate\Database\Eloquent\Collection<int, Utilisateur> $users */
         $users = Utilisateur::all();
         $notifications = [];
 
+        /** @var Utilisateur $user */
         foreach ($users as $user) {
             $notification = $this->send(
                 recipient: $user,
@@ -570,11 +572,11 @@ class NotificationService
         ?string $priority = null
     ) {
         $query = Notification::with(['utilisateurFrom'])
-            ->where('id_uti', $userId)
+            ->forUser($userId)
             ->orderBy('created_at', 'desc');
 
         if ($unreadOnly) {
-            $query->where('is_read', false);
+            $query->unread();
         }
 
         if ($type) {
@@ -582,7 +584,7 @@ class NotificationService
         }
 
         if ($priority) {
-            $query->where('priority', $priority);
+            $query->priority($priority);
         }
 
         return $query->limit($limit)->get();
@@ -678,7 +680,7 @@ class NotificationService
                 ->count(),
             'by_type' => Notification::where('id_uti', $userId)
                 ->where('created_at', '>=', $startDate)
-                ->select('type', \DB::raw('count(*) as count'))
+                ->select('type', DB::raw('count(*) as count'))
                 ->groupBy('type')
                 ->get()
                 ->pluck('count', 'type')

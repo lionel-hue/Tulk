@@ -121,7 +121,7 @@ class AuthController extends Controller
                     $m->to($user->email)->subject('[Tulk] Votre code de vérification 2FA');
                 });
             } catch (\Exception $e) {
-                \Log::error('Failed to send 2FA email: ' . $e->getMessage());
+                \Illuminate\Support\Facades\Log::error('Failed to send 2FA email: ' . $e->getMessage());
             }
 
             return response()->json([
@@ -237,7 +237,7 @@ class AuthController extends Controller
                         ->subject("[Tulk] Code de réinitialisation de mot de passe : {$resetCode}");
             });
         } catch (\Exception $e) {
-            \Log::error('Failed to send password reset email: ' . $e->getMessage());
+            \Illuminate\Support\Facades\Log::error('Failed to send password reset email: ' . $e->getMessage());
         }
 
         return response()->json([

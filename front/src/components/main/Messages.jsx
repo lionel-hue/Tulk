@@ -410,24 +410,24 @@ const Messages = () => {
   }
 
   return (
-    <div className='premium-chat-layout animate-fade-in mobile-responsive-height flex bg-[#060606] h-[calc(100vh-80px)] overflow-hidden rounded-[3rem] border border-white/5 shadow-2xl mt-4 mx-4 md:mt-8 md:mx-8 mb-4 max-w-7xl lg:mx-auto relative'>
+    <div className='premium-chat-layout animate-fade-in mobile-responsive-height flex bg-[var(--bg-primary)] h-[calc(100vh-80px)] overflow-hidden rounded-[3rem] border border-[var(--border-muted)] shadow-2xl mt-4 mx-4 md:mt-8 md:mx-8 mb-4 max-w-7xl lg:mx-auto relative'>
       {/* Search & List Sidebar */}
-      <div className={`bg-[#0f0f0f] flex-col border-r border-white/5 w-full lg:w-96 flex-shrink-0 relative ${activeConversation || activeGroup ? 'hidden lg:flex' : 'flex'}`}>
-        <div className='p-8 border-b border-white/5 relative overflow-hidden'>
+      <div className={`bg-[var(--bg-card)] flex-col border-r border-[var(--border-muted)] w-full lg:w-96 flex-shrink-0 relative ${activeConversation || activeGroup ? 'hidden lg:flex' : 'flex'}`}>
+        <div className='p-8 border-b border-[var(--border-muted)] relative overflow-hidden'>
           <div className='absolute -top-12 -left-12 w-32 h-32 bg-purple-500/10 rounded-full blur-[40px]'></div>
-          <h2 className='text-3xl font-black text-white tracking-tighter mb-6 relative'>Discussions</h2>
-          <div className='flex items-center gap-3 bg-white/5 border border-white/10 rounded-[2rem] px-5 py-4 w-full backdrop-blur-md focus-within:border-purple-500/50 focus-within:shadow-[0_0_20px_rgba(168,85,247,0.1)] transition-all relative'>
+          <h2 className='text-3xl font-black text-[var(--text-primary)] tracking-tighter mb-6 relative'>Discussions</h2>
+          <div className='flex items-center gap-3 bg-[var(--bg-input)] border border-[var(--border-muted)] rounded-[2rem] px-5 py-4 w-full backdrop-blur-md focus-within:border-purple-500/50 focus-within:shadow-[0_0_20px_rgba(168,85,247,0.1)] transition-all relative'>
             <Search size={18} className='text-gray-400' />
             <input 
               type='text' 
               placeholder={activeTab === 'direct' ? 'Rechercher un ami...' : 'Rechercher un groupe...'} 
-              className='bg-transparent border-none outline-none text-white w-full placeholder-gray-600 text-sm font-bold tracking-wide'
+              className='bg-transparent border-none outline-none text-[var(--text-primary)] w-full placeholder-[var(--text-secondary)] text-sm font-bold tracking-wide'
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
           
-          <div className='flex items-center gap-2 mt-6 p-1 bg-white/5 border border-white/10 rounded-[1.5rem] relative'>
+          <div className='flex items-center gap-2 mt-6 p-1 bg-[var(--bg-input)] border border-[var(--border-muted)] rounded-[1.5rem] relative'>
              <button 
                onClick={() => setActiveTab('direct')}
                className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'direct' ? 'bg-white/10 text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}
@@ -436,7 +436,7 @@ const Messages = () => {
              </button>
              <button 
                onClick={() => setActiveTab('groups')}
-               className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'groups' ? 'bg-white/10 text-white shadow-lg' : 'text-gray-500 hover:text-white'}`}
+               className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'groups' ? 'bg-[var(--text-primary)] text-[var(--bg-primary)] shadow-lg' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
              >
                 <Users size={14} /> Groupes
              </button>
@@ -453,7 +453,7 @@ const Messages = () => {
                   <PlusCircle size={24} className='text-purple-400' />
                </div>
                <div className='text-left'>
-                  <p className='text-white font-bold text-sm'>Créer un groupe</p>
+                  <p className='text-[var(--text-primary)] font-bold text-sm'>Créer un groupe</p>
                   <p className='text-[9px] font-black text-purple-400 uppercase tracking-widest'>Nouvelle discussion collective</p>
                </div>
             </button>
@@ -461,26 +461,26 @@ const Messages = () => {
 
           {activeTab === 'direct' ? (
             filteredConversations.length === 0 ? (
-              <div className='flex flex-col items-center justify-center p-8 mt-4 bg-white/5 rounded-[2.5rem] border border-dashed border-white/10 text-center mx-2 group'>
-                <div className='w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform'>
+              <div className='flex flex-col items-center justify-center p-8 mt-4 bg-[var(--bg-input)] rounded-[2.5rem] border border-dashed border-[var(--border-muted)] text-center mx-2 group'>
+                <div className='w-16 h-16 bg-[var(--bg-hover)] rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform'>
                   <MessageCircle size={24} className='text-gray-600' />
                 </div>
-                <p className='text-[10px] font-black uppercase tracking-widest text-gray-500'>{searchQuery ? 'Aucun ami trouvé' : 'Commencez à discuter'}</p>
+                <p className='text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)]'>{searchQuery ? 'Aucun ami trouvé' : 'Commencez à discuter'}</p>
               </div>
             ) : (
               filteredConversations.map((conv) => (
                 <div 
                   key={conv.user.id}
                   onClick={() => handleSelectConversation(conv)}
-                  className={`flex items-center gap-4 p-4 rounded-[2rem] cursor-pointer transition-all duration-500 border border-transparent ${activeConversation?.user.id === conv.user.id ? 'bg-white/10 border-white/10 shadow-xl ml-2' : 'hover:bg-white/5 hover:border-white/5'}`}
+                  className={`flex items-center gap-4 p-4 rounded-[2rem] cursor-pointer transition-all duration-500 border border-transparent ${activeConversation?.user.id === conv.user.id ? 'bg-[var(--bg-hover)] border-[var(--border-color)] shadow-xl ml-2' : 'hover:bg-[var(--bg-hover)] hover:border-[var(--border-muted)]'}`}
                 >
                   <div className='relative flex-shrink-0'>
                     <Avatar user={conv.user} size='w-12 h-12' className='rounded-[1.2rem] shadow-lg' />
-                    <span className='absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-[#0f0f0f] rounded-full'></span>
+                    <span className='absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-[var(--bg-primary)] rounded-full'></span>
                   </div>
                   <div className='flex-1 min-w-0'>
                     <div className='flex items-center justify-between mb-1'>
-                      <span className='text-white font-bold text-sm truncate'>{conv.user.prenom} {conv.user.nom}</span>
+                      <span className='text-[var(--text-primary)] font-bold text-sm truncate'>{conv.user.prenom} {conv.user.nom}</span>
                       <span className='text-[9px] font-black text-gray-500 uppercase tracking-widest flex-shrink-0 ml-2'>{conv.last_message ? formatDate(conv.last_message.date) : ''}</span>
                     </div>
                     <div className='text-xs font-medium text-gray-400 truncate'>
@@ -493,28 +493,28 @@ const Messages = () => {
             )
           ) : (
             groups.length === 0 ? (
-              <div className='flex flex-col items-center justify-center p-8 mt-4 bg-white/5 rounded-[2.5rem] border border-dashed border-white/10 text-center mx-2 group'>
-                <div className='w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform'>
+              <div className='flex flex-col items-center justify-center p-8 mt-4 bg-[var(--bg-input)] rounded-[2.5rem] border border-dashed border-[var(--border-muted)] text-center mx-2 group'>
+                <div className='w-16 h-16 bg-[var(--bg-hover)] rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform'>
                   <Users size={24} className='text-gray-600' />
                 </div>
-                <p className='text-[10px] font-black uppercase tracking-widest text-gray-500'>Aucun groupe trouvé</p>
+                <p className='text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)]'>Aucun groupe trouvé</p>
               </div>
             ) : (
               groups.map((group) => (
                 <div 
                   key={group.id}
                   onClick={() => handleSelectGroup(group)}
-                  className={`flex items-center gap-4 p-4 rounded-[2rem] cursor-pointer transition-all duration-500 border border-transparent ${activeGroup?.id === group.id ? 'bg-white/10 border-white/10 shadow-xl ml-2' : 'hover:bg-white/5 hover:border-white/5'}`}
+                  className={`flex items-center gap-4 p-4 rounded-[2rem] cursor-pointer transition-all duration-500 border border-transparent ${activeGroup?.id === group.id ? 'bg-[var(--bg-hover)] border-[var(--border-color)] shadow-xl ml-2' : 'hover:bg-[var(--bg-hover)] hover:border-[var(--border-muted)]'}`}
                 >
                   <div className='relative flex-shrink-0'>
-                     <Avatar user={{ image: group.image, prenom: group.nom }} size='w-12 h-12' className='rounded-[1.2rem] shadow-lg ring-1 ring-white/5' />
-                     <div className='absolute -bottom-1 -right-1 p-1 bg-purple-500 rounded-full border-2 border-[#0f0f0f]'>
+                     <Avatar user={{ image: group.image, prenom: group.nom }} size='w-12 h-12' className='rounded-[1.2rem] shadow-lg ring-1 ring-[var(--border-muted)]' />
+                     <div className='absolute -bottom-1 -right-1 p-1 bg-purple-500 rounded-full border-2 border-[var(--bg-card)]'>
                         <Users size={8} className='text-white' />
                      </div>
                   </div>
                   <div className='flex-1 min-w-0'>
                     <div className='flex items-center justify-between mb-1'>
-                      <span className='text-white font-bold text-sm truncate'>{group.nom}</span>
+                      <span className='text-[var(--text-primary)] font-bold text-sm truncate'>{group.nom}</span>
                       <span className='text-[9px] font-black text-gray-500 uppercase tracking-widest flex-shrink-0 ml-2'>{group.last_message ? group.last_message.date : ''}</span>
                     </div>
                     <div className='text-xs font-medium text-gray-400 truncate'>
@@ -541,36 +541,36 @@ const Messages = () => {
       </div>
 
       {/* Main Chat Area */}
-      <div className={`flex-1 flex flex-col bg-[#060606] relative ${!activeConversation && !activeGroup ? 'hidden lg:flex' : 'flex flex-col'}`}>
+      <div className={`flex-1 flex flex-col bg-[var(--bg-primary)] relative ${!activeConversation && !activeGroup ? 'hidden lg:flex' : 'flex flex-col'}`}>
         {activeConversation ? (
           <>
             {/* Header */}
-            <div className='flex items-center justify-between p-6 border-b border-white/5 bg-[#0f0f0f]/60 backdrop-blur-xl z-20'>
+            <div className='flex items-center justify-between p-6 border-b border-[var(--border-muted)] bg-[var(--glass-bg)] backdrop-blur-xl z-20'>
               <div className='flex items-center gap-4'>
-                <button onClick={() => setActiveConversation(null)} className='lg:hidden p-2 -ml-2 text-gray-400 hover:text-white bg-white/5 rounded-xl'>
+                <button onClick={() => setActiveConversation(null)} className='lg:hidden p-2 -ml-2 text-gray-400 hover:text-[var(--text-primary)] bg-[var(--bg-input)] rounded-xl'>
                   <ChevronLeft size={24} />
                 </button>
                 <div className='relative'>
-                  <Avatar user={activeConversation.user} size='w-12 h-12' isLink={true} className='rounded-[1.2rem] shadow-lg ring-2 ring-white/10' />
-                  <span className='absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-green-500 border-2 border-[#0a0a0a] rounded-full'></span>
+                  <Avatar user={activeConversation.user} size='w-12 h-12' isLink={true} className='rounded-[1.2rem] shadow-lg ring-2 border-[var(--border-muted)]' />
+                  <span className='absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-green-500 border-2 border-[var(--bg-card)] rounded-full'></span>
                 </div>
                 <div>
-                  <Link to={`/profile/${activeConversation.user.id}`} className='text-white font-black text-lg hover:text-purple-400 transition-colors tracking-tight'>
+                  <Link to={`/profile/${activeConversation.user.id}`} className='text-[var(--text-primary)] font-black text-lg hover:text-purple-400 transition-colors tracking-tight'>
                     {activeConversation.user.prenom} {activeConversation.user.nom}
                   </Link>
-                  <p className='text-[10px] font-black uppercase tracking-widest text-gray-500 mt-0.5'>En ligne</p>
+                  <p className='text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)] mt-0.5'>En ligne</p>
                 </div>
               </div>
-              <div className='flex items-center gap-2 bg-white/5 p-1.5 rounded-[2rem] border border-white/5'>
-                 <button className={`p-3 rounded-xl transition-all ${showChatSearch ? 'bg-white/10 text-white' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`} onClick={() => { setShowChatSearch(!showChatSearch); if(showChatSearch) setChatSearchQuery(''); }}><Search size={18} /></button>
-                 <button className={`p-3 rounded-xl transition-all ${showInfo ? 'bg-white/10 text-white' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`} onClick={() => setShowInfo(!showInfo)}><Info size={18} /></button>
+              <div className='flex items-center gap-2 bg-[var(--bg-input)] p-1.5 rounded-[2rem] border border-[var(--border-muted)]'>
+                 <button className={`p-3 rounded-xl transition-all ${showChatSearch ? 'bg-[var(--text-primary)] text-[var(--bg-primary)]' : 'text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]'}`} onClick={() => { setShowChatSearch(!showChatSearch); if(showChatSearch) setChatSearchQuery(''); }}><Search size={18} /></button>
+                 <button className={`p-3 rounded-xl transition-all ${showInfo ? 'bg-[var(--text-primary)] text-[var(--bg-primary)]' : 'text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]'}`} onClick={() => setShowInfo(!showInfo)}><Info size={18} /></button>
                  <div className='relative' ref={actionsRef}>
-                    <button className={`p-3 rounded-xl transition-all ${showActions ? 'bg-white/10 text-white' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`} onClick={() => setShowActions(!showActions)}><MoreVertical size={18} /></button>
+                    <button className={`p-3 rounded-xl transition-all ${showActions ? 'bg-[var(--text-primary)] text-[var(--bg-primary)]' : 'text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]'}`} onClick={() => setShowActions(!showActions)}><MoreVertical size={18} /></button>
                     {showActions && (
-                      <div className='absolute right-0 mt-2 w-56 bg-[#141414] border border-white/10 rounded-[1.5rem] shadow-2xl p-2 z-50 animate-in fade-in zoom-in-95 duration-200'>
-                        <button onClick={handleClearHistory} className='w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 text-gray-300 hover:text-white text-sm font-bold transition-all'><Trash2 size={16} className='text-red-400' /> Vider la conversation</button>
-                        <button onClick={handleBlockUser} className='w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 text-gray-300 hover:text-white text-sm font-bold transition-all'><UserX size={16} className='text-orange-400' /> Bloquer</button>
-                        <button className='w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 text-gray-300 hover:text-white text-sm font-bold transition-all'><Flag size={16} className='text-blue-400' /> Signaler</button>
+                      <div className='absolute right-0 mt-2 w-56 bg-[var(--bg-card)] border border-[var(--border-muted)] rounded-[1.5rem] shadow-2xl p-2 z-50 animate-in fade-in zoom-in-95 duration-200'>
+                        <button onClick={handleClearHistory} className='w-full flex items-center gap-3 p-3 rounded-xl hover:bg-[var(--bg-hover)] text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm font-bold transition-all'><Trash2 size={16} className='text-red-400' /> Vider la conversation</button>
+                        <button onClick={handleBlockUser} className='w-full flex items-center gap-3 p-3 rounded-xl hover:bg-[var(--bg-hover)] text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm font-bold transition-all'><UserX size={16} className='text-orange-400' /> Bloquer</button>
+                        <button className='w-full flex items-center gap-3 p-3 rounded-xl hover:bg-[var(--bg-hover)] text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm font-bold transition-all'><Flag size={16} className='text-blue-400' /> Signaler</button>
                       </div>
                     )}
                  </div>
@@ -578,18 +578,18 @@ const Messages = () => {
 
               {/* Chat Search Overlay */}
               {showChatSearch && (
-                <div className='absolute top-full left-0 right-0 p-4 bg-[#0a0a0a]/90 backdrop-blur-xl border-b border-white/5 z-10 animate-in slide-in-from-top-2 duration-300'>
-                   <div className='flex items-center gap-3 bg-white/5 border border-white/10 rounded-[2rem] px-5 py-3 w-full max-w-xl mx-auto'>
-                      <Search size={16} className='text-gray-400' />
+                <div className='absolute top-full left-0 right-0 p-4 bg-[var(--glass-bg)] backdrop-blur-xl border-b border-[var(--border-muted)] z-10 animate-in slide-in-from-top-2 duration-300'>
+                   <div className='flex items-center gap-3 bg-[var(--bg-input)] border border-[var(--border-muted)] rounded-[2rem] px-5 py-3 w-full max-w-xl mx-auto'>
+                      <Search size={16} className='text-[var(--text-secondary)]' />
                       <input 
                        type='text' 
                        placeholder='Rechercher dans les messages...' 
-                       className='bg-transparent border-none outline-none text-white w-full text-sm font-bold placeholder-gray-600'
+                       className='bg-transparent border-none outline-none text-[var(--text-primary)] w-full text-sm font-bold placeholder-[var(--text-secondary)]'
                        value={chatSearchQuery}
                        autoFocus
                        onChange={(e) => setChatSearchQuery(e.target.value)}
                       />
-                      <button onClick={() => { setShowChatSearch(false); setChatSearchQuery(''); }} className='p-1 text-gray-500 hover:text-white bg-white/5 rounded-full'><X size={14} /></button>
+                      <button onClick={() => { setShowChatSearch(false); setChatSearchQuery(''); }} className='p-1 text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-[var(--bg-hover)] rounded-full'><X size={14} /></button>
                    </div>
                 </div>
               )}
@@ -610,15 +610,15 @@ const Messages = () => {
                     </div>
                   )}
                   {filteredMessages.length === 0 && chatSearchQuery && (
-                    <div className='text-center text-gray-500 text-sm font-bold bg-white/5 py-3 rounded-2xl border border-white/5'>Aucun message trouvé pour "{chatSearchQuery}"</div>
+                    <div className='text-center text-[var(--text-secondary)] text-sm font-bold bg-[var(--bg-input)] py-3 rounded-2xl border border-[var(--border-muted)]'>Aucun message trouvé pour "{chatSearchQuery}"</div>
                   )}
                   {filteredMessages.map((msg, index) => {
                     const isMe = msg.id_uti_1 === authUser.id
                     return (
                       <div key={msg.id || index} className={`flex flex-col w-full mb-6 ${isMe ? 'items-end' : 'items-start'}`}>
                         <div className={`flex flex-col max-w-[85%] md:max-w-[70%] ${isMe ? 'items-end' : 'items-start'}`}>
-                          {!isMe && <span className='text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2 ml-2'>{activeConversation.user.prenom}</span>}
-                          <div className={`p-4 md:p-5 rounded-[2rem] shadow-2xl relative overflow-hidden ${isMe ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-tr-sm shadow-[0_10px_30px_rgba(168,85,247,0.3)]' : 'bg-[#141414] border border-white/5 text-white rounded-tl-sm backdrop-blur-md'}`}>
+                          {!isMe && <span className='text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)] mb-2 ml-2'>{activeConversation.user.prenom}</span>}
+                          <div className={`p-4 md:p-5 rounded-[2rem] shadow-2xl relative overflow-hidden ${isMe ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-tr-sm shadow-[0_10px_30px_rgba(168,85,247,0.3)]' : 'bg-[var(--bg-card)] border border-[var(--border-muted)] text-[var(--text-primary)] rounded-tl-sm backdrop-blur-md'}`}>
                             {msg.image && (
                               <div className='rounded-2xl overflow-hidden mb-3 ring-1 ring-white/20 relative group'>
                                 <img src={getImageUrl(msg.image)} alt='Attachment' className='w-full max-h-64 object-cover cursor-pointer group-hover:scale-105 transition-transform duration-700' onClick={() => window.open(getImageUrl(msg.image), '_blank')} />
@@ -626,7 +626,7 @@ const Messages = () => {
                             )}
                             {msg.texte && <div className='text-sm md:text-base font-medium leading-relaxed whitespace-pre-wrap'>{msg.texte}</div>}
                           </div>
-                          <span className={`text-[9px] font-black uppercase tracking-widest text-gray-500 mt-2 ${isMe ? 'mr-2' : 'ml-2'}`}>{formatDate(msg.date)}</span>
+                          <span className={`text-[9px] font-black uppercase tracking-widest text-[var(--text-secondary)] mt-2 ${isMe ? 'mr-2' : 'ml-2'}`}>{formatDate(msg.date)}</span>
                         </div>
                       </div>
                     )
@@ -637,12 +637,12 @@ const Messages = () => {
             </div>
 
              {/* Input Footer */}
-             <div className='p-4 border-t border-white/5 bg-[#0a0a0a]/90 backdrop-blur-xl relative z-20'>
+             <div className='p-4 border-t border-[var(--border-muted)] bg-[var(--bg-primary)]/90 backdrop-blur-xl relative z-20'>
                 {imagePreview && (
-                   <div className='absolute bottom-full left-0 p-4 w-full bg-[#0a0a0a]/90 backdrop-blur-xl border-t border-white/5 animate-in slide-in-from-bottom-2 duration-200'>
+                   <div className='absolute bottom-full left-0 p-4 w-full bg-[var(--bg-card)]/90 backdrop-blur-xl border-t border-[var(--border-muted)] animate-in slide-in-from-bottom-2 duration-200'>
                       <div className='relative inline-block'>
-                         <img src={imagePreview} alt='Preview' className='h-32 rounded-2xl border border-white/10 shadow-2xl object-cover' />
-                         <button onClick={clearImage} className='absolute -top-3 -right-3 p-1.5 bg-[#0f0f0f] border border-white/20 hover:border-red-500 hover:text-red-500 text-white rounded-full transition-all shadow-xl'><X size={14} /></button>
+                         <img src={imagePreview} alt='Preview' className='h-32 rounded-2xl border border-[var(--border-muted)] shadow-2xl object-cover' />
+                         <button onClick={clearImage} className='absolute -top-3 -right-3 p-1.5 bg-[var(--bg-input)] border border-[var(--border-muted)] hover:border-red-500 hover:text-red-500 text-white rounded-full transition-all shadow-xl'><X size={14} /></button>
                       </div>
                    </div>
                 )}
@@ -662,8 +662,8 @@ const Messages = () => {
                 )}
 
                 <form onSubmit={handleSendMessage} className='flex items-end gap-3 max-w-4xl mx-auto w-full relative'>
-                  <div className='flex items-center gap-2 bg-[#0f0f0f] border border-white/10 rounded-[2.5rem] px-2 py-2 flex-1 shadow-inner focus-within:border-purple-500/50 focus-within:ring-1 focus-within:ring-purple-500/50 transition-all'>
-                    <button type='button' onClick={() => fileInputRef.current?.click()} className={`p-3 rounded-full transition-all flex-shrink-0 ${selectedImage ? 'bg-purple-500/20 text-purple-400' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}>
+                  <div className='flex items-center gap-2 bg-[var(--bg-input)] border border-[var(--border-muted)] rounded-[2.5rem] px-2 py-2 flex-1 shadow-inner focus-within:border-purple-500/50 focus-within:ring-1 focus-within:ring-purple-500/50 transition-all'>
+                    <button type='button' onClick={() => fileInputRef.current?.click()} className={`p-3 rounded-full transition-all flex-shrink-0 ${selectedImage ? 'bg-purple-500/20 text-purple-400' : 'text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]'}`}>
                       <ImageIcon size={20} />
                     </button>
                     <input 
@@ -676,13 +676,13 @@ const Messages = () => {
                     <input 
                      type='text' 
                      placeholder='Écrivez votre message...' 
-                     className='bg-transparent border-none outline-none text-white w-full px-2 py-3 text-sm font-medium placeholder-gray-500 min-h-[44px]'
+                     className='bg-transparent border-none outline-none text-[var(--text-primary)] w-full px-2 py-3 text-sm font-medium placeholder-[var(--text-secondary)] min-h-[44px]'
                      value={newMessage}
                      onChange={(e) => setNewMessage(e.target.value)}
                     />
                     <button 
                       type='button' 
-                      className={`p-3 rounded-full transition-all flex-shrink-0 ${showEmojiPicker ? 'bg-white/10 text-white' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}
+                      className={`p-3 rounded-full transition-all flex-shrink-0 ${showEmojiPicker ? 'bg-[var(--bg-hover)] text-[var(--text-primary)]' : 'text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]'}`}
                       onClick={() => setShowEmojiPicker(!showEmojiPicker)}
                     >
                       <Smile size={20} />
@@ -709,32 +709,32 @@ const Messages = () => {
              <div className='absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_rgba(168,85,247,0.05),transparent_60%)]'></div>
              <div className='relative mb-8'>
                 <div className='absolute -inset-8 bg-purple-500/5 rounded-full blur-2xl animate-pulse'></div>
-                <div className='w-32 h-32 bg-white/5 border border-white/10 rounded-full flex items-center justify-center shadow-2xl relative z-10'>
-                  <MessageCircle size={48} className='text-gray-500' />
+                <div className='w-32 h-32 bg-[var(--bg-card)] border border-[var(--border-muted)] rounded-full flex items-center justify-center shadow-2xl relative z-10'>
+                  <MessageCircle size={48} className='text-[var(--text-secondary)]' />
                 </div>
              </div>
-             <h3 className='text-2xl font-black text-white tracking-tighter mb-4 z-10'>Bienvenue sur Tulk Chat</h3>
-             <p className='text-gray-500 font-bold text-sm max-w-md mx-auto mb-8 leading-relaxed z-10'>Sélectionnez un contact pour démarrer une conversation sécurisée et instantanée avec nos composants en verre.</p>
-             <button className='px-8 py-4 rounded-[2rem] bg-white text-black font-black text-xs uppercase tracking-widest shadow-2xl hover:scale-105 active:scale-95 transition-all z-10' onClick={() => document.querySelector('input[placeholder="Rechercher un ami..."]')?.focus()}>Nouvelle discussion</button>
+             <h3 className='text-2xl font-black text-[var(--text-primary)] tracking-tighter mb-4 z-10'>Bienvenue sur Tulk Chat</h3>
+             <p className='text-[var(--text-secondary)] font-bold text-sm max-w-md mx-auto mb-8 leading-relaxed z-10'>Sélectionnez un contact pour démarrer une conversation sécurisée et instantanée avec nos composants en verre.</p>
+             <button className='px-8 py-4 rounded-[2rem] bg-[var(--text-primary)] text-[var(--bg-primary)] font-black text-xs uppercase tracking-widest shadow-2xl hover:scale-105 active:scale-95 transition-all z-10' onClick={() => document.querySelector('input[placeholder="Rechercher un ami..."]')?.focus()}>Nouvelle discussion</button>
           </div>
         )}
       </div>
 
       {/* Info Sidebar */}
       {activeConversation && showInfo && (
-        <div className={`bg-[#0a0a0a] border-l border-white/5 w-80 lg:w-96 flex-col absolute lg:relative right-0 top-0 bottom-0 z-40 transform transition-transform duration-500 flex shadow-2xl`}>
+        <div className={`bg-[var(--bg-card)] border-l border-[var(--border-muted)] w-80 lg:w-96 flex-col absolute lg:relative right-0 top-0 bottom-0 z-40 transform transition-transform duration-500 flex shadow-2xl`}>
            <div className='flex-1 overflow-y-auto custom-scrollbar pb-10'>
-              <div className='flex items-center justify-between p-6 border-b border-white/5 bg-[#0f0f0f]/60 backdrop-blur-xl sticky top-0 z-10'>
-                 <h3 className='text-xl font-black text-white tracking-tighter'>Détails</h3>
-                 <button onClick={() => setShowInfo(false)} className='p-2 text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl transition-all'><X size={20} /></button>
+              <div className='flex items-center justify-between p-6 border-b border-[var(--border-muted)] bg-[var(--glass-bg)] backdrop-blur-xl sticky top-0 z-10'>
+                 <h3 className='text-xl font-black text-[var(--text-primary)] tracking-tighter'>Détails</h3>
+                 <button onClick={() => setShowInfo(false)} className='p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-[var(--bg-hover)] hover:bg-[var(--bg-hover)] rounded-xl transition-all'><X size={20} /></button>
               </div>
               
-              <div className='flex flex-col items-center p-8 border-b border-white/5'>
+              <div className='flex flex-col items-center p-8 border-b border-[var(--border-muted)]'>
                  <div className='relative mb-4 group'>
                     <div className='absolute -inset-4 bg-purple-500/10 rounded-full blur-xl group-hover:bg-purple-500/20 transition-all duration-700'></div>
-                    <Avatar user={activeConversation.user} size='w-32 h-32' className='relative z-10 shadow-2xl rounded-[3rem] ring-4 ring-[#0f0f0f]' />
+                    <Avatar user={activeConversation.user} size='w-32 h-32' className='relative z-10 shadow-2xl rounded-[3rem] ring-4 ring-[var(--bg-card)]' />
                  </div>
-                 <h4 className='text-xl font-black text-white tracking-tighter text-center'>{activeConversation.user.prenom} {activeConversation.user.nom}</h4>
+                 <h4 className='text-xl font-black text-[var(--text-primary)] tracking-tighter text-center'>{activeConversation.user.prenom} {activeConversation.user.nom}</h4>
                  <div className='flex items-center gap-2 mt-3 bg-green-500/10 px-3 py-1.5 rounded-[1rem] border border-green-500/20'>
                     <span className='w-2 h-2 bg-green-500 rounded-full animate-pulse'></span>
                     <span className='text-[10px] font-black uppercase tracking-widest text-green-500'>En ligne</span>
@@ -743,16 +743,16 @@ const Messages = () => {
 
               <div className='p-6 space-y-8'>
                  <div>
-                    <div className='flex items-center gap-2 mb-4 text-gray-400'>
+                    <div className='flex items-center gap-2 mb-4 text-[var(--text-secondary)]'>
                        <Grid size={16} /> 
                        <span className='text-[10px] font-black uppercase tracking-widest'>Médias partagés</span>
                     </div>
                     <div className='grid grid-cols-3 gap-2'>
                        {sharedImages.length === 0 ? (
-                         <div className='col-span-3 text-center p-6 bg-white/5 rounded-[1.5rem] border border-dashed border-white/10 text-[10px] font-black text-gray-500 uppercase tracking-widest'>Aucun média partagé</div>
+                         <div className='col-span-3 text-center p-6 bg-[var(--bg-input)] rounded-[1.5rem] border border-dashed border-[var(--border-muted)] text-[10px] font-black text-[var(--text-secondary)] uppercase tracking-widest'>Aucun média partagé</div>
                        ) : (
                          sharedImages.map((img, idx) => (
-                           <div key={idx} className='aspect-square rounded-[1rem] overflow-hidden cursor-pointer hover:opacity-80 transition-opacity border border-white/10 relative group' onClick={() => window.open(getImageUrl(img), '_blank')}>
+                           <div key={idx} className='aspect-square rounded-[1rem] overflow-hidden cursor-pointer hover:opacity-80 transition-opacity border border-[var(--border-muted)] relative group' onClick={() => window.open(getImageUrl(img), '_blank')}>
                               <img src={getImageUrl(img)} alt='Shared' className='w-full h-full object-cover group-hover:scale-110 transition-transform duration-500' />
                            </div>
                          ))
@@ -761,13 +761,13 @@ const Messages = () => {
                  </div>
 
                  <div>
-                    <div className='flex items-center gap-2 mb-4 text-gray-400'>
+                    <div className='flex items-center gap-2 mb-4 text-[var(--text-secondary)]'>
                        <Info size={16} /> 
                        <span className='text-[10px] font-black uppercase tracking-widest'>À propos</span>
                     </div>
-                    <div className='bg-white/5 p-5 rounded-[1.5rem] border border-white/5 shadow-inner'>
-                       <p className='text-gray-300 text-sm font-bold'>Utilisateur de Tulk</p>
-                       <p className='text-gray-500 text-[10px] uppercase tracking-widest mt-2 font-mono break-all'>{activeConversation.user.email}</p>
+                    <div className='bg-[var(--bg-input)] p-5 rounded-[1.5rem] border border-[var(--border-muted)] shadow-inner'>
+                       <p className='text-[var(--text-primary)] text-sm font-bold'>Utilisateur de Tulk</p>
+                       <p className='text-[var(--text-secondary)] text-[10px] uppercase tracking-widest mt-2 font-mono break-all'>{activeConversation.user.email}</p>
                     </div>
                  </div>
               </div>

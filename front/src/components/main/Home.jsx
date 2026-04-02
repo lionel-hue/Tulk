@@ -33,17 +33,17 @@ const PostImage = ({ src }) => {
 
   if (!imageUrl || hasError) {
     return (
-      <div className='w-full h-56 bg-gradient-to-br from-purple-500/10 via-blue-500/5 to-pink-500/10 rounded-2xl mb-4 flex flex-col items-center justify-center border border-white/5 group-hover:border-purple-500/30 transition-all duration-500 shadow-inner group'>
-        <div className='w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-500 border border-white/10'>
+      <div className='w-full h-56 bg-gradient-to-br from-purple-500/10 via-blue-500/5 to-pink-500/10 rounded-2xl mb-4 flex flex-col items-center justify-center border border-[var(--border-muted)] group-hover:border-purple-500/30 transition-all duration-500 shadow-inner group'>
+        <div className='w-14 h-14 bg-[var(--bg-hover)] rounded-2xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-500 border border-[var(--border-muted)]'>
           <Image size={24} className='text-purple-400/50' />
         </div>
-        <span className='text-white/30 text-xs font-bold uppercase tracking-[0.2em] animate-pulse'>Contenu Tulk</span>
+        <span className='text-[var(--text-secondary)]/30 text-xs font-bold uppercase tracking-[0.2em] animate-pulse'>Contenu Tulk</span>
       </div>
     )
   }
 
   return (
-    <div className='post-image-container group/img overflow-hidden rounded-2xl mb-4 border border-white/5'>
+    <div className='post-image-container group/img overflow-hidden rounded-2xl mb-4 border border-[var(--border-muted)]'>
       <img
         src={imageUrl}
         alt='Post'
@@ -564,7 +564,7 @@ const Home = () => {
           <div className='relative'>
             <button
               onClick={() => handleDeletePost(post.id)}
-              className='p-2 text-gray-400 hover:text-red-500 transition-colors'
+              className='p-2 text-[var(--text-secondary)] hover:text-red-500 transition-colors'
               title='Supprimer le post'
             >
               <Trash2 size={18} />
@@ -609,7 +609,7 @@ const Home = () => {
           {/* Comments List */}
           <div className='comments-list'>
             {loadingComments[post.id] ? (
-              <div className='text-center py-4 text-gray-400'>
+              <div className='text-center py-4 text-[var(--text-secondary)]'>
                 Chargement des commentaires...
               </div>
             ) : postComments[post.id]?.length > 0 ? (
@@ -632,7 +632,7 @@ const Home = () => {
                 </div>
               ))
             ) : (
-              <div className='text-center py-4 text-gray-400'>
+              <div className='text-center py-4 text-[var(--text-secondary)]'>
                 Aucun commentaire pour le moment
               </div>
             )}
@@ -685,7 +685,7 @@ const Home = () => {
               value={newPostDescription}
               onChange={e => setNewPostDescription(e.target.value)}
               placeholder='Quoi de neuf ?'
-              className='w-full p-3 bg-[#262626] border border-[#262626] rounded-lg text-white placeholder-gray-400 resize-none focus:outline-none focus:border-gray-500'
+              className='w-full p-3 bg-[var(--bg-input)] border border-[var(--border-muted)] rounded-lg text-[var(--text-primary)] placeholder-[var(--text-secondary)] resize-none focus:outline-none focus:border-[var(--text-secondary)]'
               rows='3'
               disabled={posting}
             />
@@ -700,16 +700,16 @@ const Home = () => {
                 />
                 <button
                   onClick={removeImage}
-                  className='absolute top-2 right-2 bg-black bg-opacity-50 rounded-full p-1 hover:bg-opacity-70 transition-all'
+                  className='absolute top-2 right-2 bg-[var(--bg-primary)]/50 bg-opacity-50 rounded-full p-1 hover:bg-[var(--bg-primary)]/70 transition-all'
                 >
-                  <X size={16} className='text-white' />
+                  <X size={16} className='text-[var(--text-primary)]' />
                 </button>
               </div>
             )}
 
-            <div className='flex justify-between items-center mt-2'>
+              <div className='flex justify-between items-center mt-2'>
               <div className='flex gap-2'>
-                <label className='p-2 text-gray-400 hover:text-white transition-colors cursor-pointer'>
+                <label className='p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors cursor-pointer'>
                   <Image size={20} />
                   <input
                     type='file'
@@ -719,18 +719,18 @@ const Home = () => {
                     disabled={posting}
                   />
                 </label>
-                <button className='p-2 text-gray-400 hover:text-white transition-colors'>
+                <button className='p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors'>
                   <Camera size={20} />
                 </button>
               </div>
               <button
                 onClick={handleCreatePost}
                 disabled={posting || (!newPostDescription.trim() && !postImage)}
-                className='px-4 py-2 bg-white text-black rounded-lg font-medium hover:bg-gray-200 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2'
+                className='px-4 py-2 bg-[var(--text-primary)] text-[var(--bg-primary)] rounded-lg font-medium hover:opacity-80 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2'
               >
                 {posting ? (
                   <>
-                    <div className='w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin'></div>
+                    <div className='w-4 h-4 border-2 border-[var(--bg-primary)] border-t-transparent rounded-full animate-spin'></div>
                     Publication...
                   </>
                 ) : (
@@ -749,11 +749,11 @@ const Home = () => {
       <div className='posts-feed max-w-full overflow-x-hidden px-4'>
         {loading ? (
           <div className='text-center py-8'>
-            <div className='text-gray-400'>Chargement des posts...</div>
+            <div className='text-[var(--text-secondary)]'>Chargement des posts...</div>
           </div>
         ) : posts.length === 0 ? (
           <div className='text-center py-8'>
-            <div className='text-gray-400'>
+            <div className='text-[var(--text-secondary)]'>
               Aucun post à afficher. Commencez à suivre des amis ou créez votre
               premier post!
             </div>
@@ -770,9 +770,9 @@ const Home = () => {
             {/* Loading More Indicator */}
             {loadingMore && (
               <div className='py-8 flex justify-center'>
-                <div className='flex items-center gap-3 bg-white/5 border border-white/10 px-6 py-3 rounded-2xl backdrop-blur-xl'>
+                <div className='flex items-center gap-3 bg-[var(--bg-card)] border border-[var(--border-muted)] px-6 py-3 rounded-2xl backdrop-blur-xl'>
                    <div className='w-4 h-4 border-2 border-purple-500 border-t-transparent rounded-full animate-spin'></div>
-                   <span className='text-[10px] font-bold text-white/50'>Chargement...</span>
+                   <span className='text-[10px] font-bold opacity-50 text-[var(--text-primary)]'>Chargement...</span>
                 </div>
               </div>
             )}
@@ -780,8 +780,8 @@ const Home = () => {
             {/* End of Feed Indicator */}
             {!hasMore && posts.length > 0 && (
               <div className='py-12 flex flex-col items-center justify-center opacity-30'>
-                <div className='h-px w-20 bg-white/10 mb-6'></div>
-                <span className='text-[10px] font-bold text-white/40'>Fin du fil</span>
+                <div className='h-px w-20 bg-[var(--border-muted)] mb-6'></div>
+                <span className='text-[10px] font-bold opacity-40 text-[var(--text-primary)]'>Fin du fil</span>
               </div>
             )}
           </>
@@ -909,7 +909,7 @@ const Home = () => {
 
         <div className='text-center py-8'>
           <SettingsIcon size={48} className='mx-auto text-gray-400 mb-4' />
-          <h2 className='text-2xl font-bold text-white mb-2'>
+          <h2 className='text-2xl font-bold text-[var(--text-primary)] mb-2'>
             Tableau de bord
           </h2>
           <p className='text-gray-400'>

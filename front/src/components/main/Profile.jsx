@@ -613,10 +613,10 @@ const Profile = () => {
 
     return (
       <div key={`friend-${user.id}-${index}`}
-        className='group bg-[#0f0f0f] border border-white/5 rounded-[2rem] overflow-hidden hover:border-purple-500/20 hover:-translate-y-1 hover:shadow-[0_20px_60px_rgba(139,92,246,0.1)] transition-all duration-500 flex flex-col h-full'
+        className='group bg-[var(--bg-card)] border border-[var(--border-muted)] rounded-[2rem] overflow-hidden hover:border-purple-500/20 hover:-translate-y-1 hover:shadow-[0_20px_60px_rgba(139,92,246,0.1)] transition-all duration-500 flex flex-col h-full'
       >
         {/* Banner area */}
-        <div className='h-24 bg-gradient-to-br from-purple-900/40 via-gray-900 to-black flex-shrink-0 relative overflow-hidden'>
+        <div className='h-24 bg-gradient-to-br from-purple-600/20 via-[var(--bg-input)] to-[var(--bg-card)] flex-shrink-0 relative overflow-hidden'>
           <div className='absolute inset-0 opacity-20 bg-[url("https://www.transparenttextures.com/patterns/carbon-fibre.png")]'></div>
           <div className='absolute -bottom-6 -right-6 w-24 h-24 bg-purple-500/10 rounded-full blur-2xl group-hover:bg-purple-500/20 transition-all duration-700'></div>
         </div>
@@ -625,14 +625,14 @@ const Profile = () => {
         <div className='px-5 pb-5 flex-1 flex flex-col'>
           {/* Avatar & Top actions */}
           <div className='flex items-start justify-between -mt-10 mb-4 relative z-10'>
-            <div className='p-1 bg-[#0f0f0f] rounded-2xl md:rounded-[1.5rem] shadow-2xl group-hover:scale-105 transition-transform duration-700'>
-              <Avatar user={user} size='w-16 h-16 md:w-20 md:h-20' className='rounded-[1.2rem] md:rounded-[1.4rem] border-2 border-[#0f0f0f]' />
+            <div className='p-1 bg-[var(--bg-card)] rounded-2xl md:rounded-[1.5rem] shadow-2xl group-hover:scale-105 transition-transform duration-700'>
+              <Avatar user={user} size='w-16 h-16 md:w-20 md:h-20' className='rounded-[1.2rem] md:rounded-[1.4rem] border-2 border-[var(--bg-card)]' />
             </div>
             
             {!isMe && (
               <Link
                 to={`/messages?userId=${user.id}`}
-                className='mb-1 p-2.5 text-gray-400 hover:text-white hover:bg-white/10 rounded-xl border border-transparent hover:border-white/10 transition-all'
+                className='mb-1 p-2.5 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] rounded-xl border border-transparent hover:border-[var(--border-muted)] transition-all'
                 title='Envoyer un message'
               >
                 <MessageCircle size={18} />
@@ -642,7 +642,7 @@ const Profile = () => {
 
           {/* Name */}
           <Link to={`/profile/${user.id}`} className='hover:text-purple-400 transition-colors mb-0.5'>
-            <h4 className='text-white font-bold text-sm leading-snug'>
+            <h4 className='text-[var(--text-primary)] font-bold text-sm leading-snug'>
               {user.prenom} {user.nom}
               {isMe && <span className='ml-2 text-[10px] font-black bg-purple-500/15 text-purple-400 px-2 py-0.5 rounded-full border border-purple-500/20'>Vous</span>}
             </h4>
@@ -650,7 +650,7 @@ const Profile = () => {
 
           {/* Bio */}
           {user.bio ? (
-            <p className='text-gray-500 text-[12px] leading-relaxed mb-4 line-clamp-2 flex-1'>
+            <p className='text-[var(--text-secondary)] text-[12px] leading-relaxed mb-4 line-clamp-2 flex-1'>
               {user.bio}
             </p>
           ) : (
@@ -660,16 +660,16 @@ const Profile = () => {
           {/* Stats row */}
           <div className='flex items-center gap-3 mb-5 flex-wrap'>
             {user.followers_count != null && (
-              <span className='flex items-center gap-1 text-[11px] text-gray-500'>
+              <span className='flex items-center gap-1 text-[11px] text-[var(--text-secondary)]'>
                 <Heart size={11} className='text-pink-500/60' />
-                <span className='font-semibold text-gray-400'>{user.followers_count}</span>
+                <span className='font-semibold text-[var(--text-secondary)]'>{user.followers_count}</span>
                 <span>abonnés</span>
               </span>
             )}
             {user.posts_count != null && (
-              <span className='flex items-center gap-1 text-[11px] text-gray-500'>
+              <span className='flex items-center gap-1 text-[11px] text-[var(--text-secondary)]'>
                 <FileText size={11} className='text-purple-500/60' />
-                <span className='font-semibold text-gray-400'>{user.posts_count}</span>
+                <span className='font-semibold text-[var(--text-secondary)]'>{user.posts_count}</span>
                 <span>posts</span>
               </span>
             )}
@@ -677,16 +677,16 @@ const Profile = () => {
 
           {/* Action button */}
           {!isMe && (
-            <div className='mt-auto pt-2 border-t border-white/5'>
+            <div className='mt-auto pt-2 border-t border-[var(--border-muted)]'>
               <div className='flex gap-2'>
                 <Link
                   to={`/messages?userId=${user.id}`}
-                  className='flex-1 flex items-center justify-center gap-2 py-2 text-xs font-bold text-gray-300 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 rounded-xl transition-all'
+                  className='flex-1 flex items-center justify-center gap-2 py-2 text-xs font-bold text-[var(--text-primary)] bg-[var(--bg-input)] hover:bg-[var(--bg-hover)] border border-[var(--border-muted)] hover:border-[var(--border-color)] rounded-xl transition-all'
                 >
                   <MessageCircle size={14} /> Message
                 </Link>
                 <button
-                  className='flex items-center justify-center gap-1 px-3 py-2 text-xs font-bold text-gray-600 hover:text-red-400 bg-white/5 hover:bg-red-500/10 border border-white/5 hover:border-red-500/20 rounded-xl transition-all'
+                  className='flex items-center justify-center gap-1 px-3 py-2 text-xs font-bold text-[var(--text-muted)] hover:text-red-400 bg-[var(--bg-input)] hover:bg-red-500/10 border border-[var(--border-muted)] hover:border-red-500/20 rounded-xl transition-all'
                   onClick={() => handleRemoveFriend(user.id, `${user.prenom} ${user.nom}`)}
                   title="Supprimer l'ami"
                 >
@@ -710,16 +710,16 @@ const Profile = () => {
 
   if (loading) {
     return (
-      <div className='min-h-screen bg-black flex items-center justify-center'>
-        <div className='text-white text-lg'>Chargement du profil...</div>
+      <div className='min-h-screen bg-[var(--bg-primary)] flex items-center justify-center'>
+        <div className='text-[var(--text-primary)] text-lg'>Chargement du profil...</div>
       </div>
     )
   }
 
   if (error) {
     return (
-      <div className='min-h-screen bg-black flex items-center justify-center'>
-        <div className='text-white text-lg text-center'>
+      <div className='min-h-screen bg-[var(--bg-primary)] flex items-center justify-center'>
+        <div className='text-[var(--text-primary)] text-lg text-center'>
           <p className='mb-4'>{error}</p>
           <button
             onClick={loadProfile}
@@ -734,14 +734,14 @@ const Profile = () => {
 
   if (!profile) {
     return (
-      <div className='min-h-screen bg-black flex items-center justify-center'>
-        <div className='text-white text-lg'>Profil non trouvé</div>
+      <div className='min-h-screen bg-[var(--bg-primary)] flex items-center justify-center'>
+        <div className='text-[var(--text-primary)] text-lg'>Profil non trouvé</div>
       </div>
     )
   }
 
     return (
-    <div className='profile-page min-h-screen bg-[#060606] text-white selection:bg-purple-500/30'>
+    <div className='profile-page min-h-screen bg-[var(--bg-primary)] selection:bg-purple-500/30'>
       <SideMenuNav isOpen={sidebarOpen} onClose={closeSidebar} />
       
       <div className='flex flex-col min-h-screen'>
@@ -766,22 +766,22 @@ const Profile = () => {
                     onError={() => setBannerError(true)}
                   />
                 ) : (
-                  <div className='w-full h-full bg-gradient-to-br from-[#0f0f0f] via-purple-900/30 to-[#0f0f0f] flex items-center justify-center relative overflow-hidden'>
+                  <div className='w-full h-full bg-gradient-to-br from-[var(--bg-card)] via-purple-900/30 to-[var(--bg-card)] flex items-center justify-center relative overflow-hidden'>
                     <div className='absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_rgba(168,85,247,0.1),transparent_70%)] animate-pulse'></div>
                     <div className='absolute top-0 left-0 w-full h-full opacity-10 bg-[url("https://www.transparenttextures.com/patterns/carbon-fibre.png")]'></div>
-                    <FileText size={64} className='text-white/5' />
+                    <FileText size={64} className='text-[var(--text-primary)] opacity-5' />
                   </div>
                 )}
                 
-                {/* Banner Gradient Overlay */}
-                <div className='absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-60'></div>
+                {/* Banner Gradient Overlay - Subtle on light theme */}
+                <div className='absolute inset-0 bg-gradient-to-t from-[var(--bg-primary)]/40 via-transparent to-transparent opacity-60'></div>
 
                 {isEditing && (
                   <button
                     onClick={() => bannerInputRef.current?.click()}
-                    className='absolute inset-0 bg-black/40 backdrop-blur-sm flex flex-col items-center justify-center text-white gap-3 transition-all hover:bg-black/60 group/banner'
+                    className='absolute inset-0 bg-[var(--bg-primary)]/40 backdrop-blur-sm flex flex-col items-center justify-center text-[var(--text-primary)] gap-3 transition-all hover:bg-[var(--bg-primary)]/60 group/banner'
                   >
-                    <div className='w-16 h-16 bg-white/10 rounded-3xl flex items-center justify-center group-hover/banner:scale-110 group-hover/banner:rotate-12 transition-all duration-500 border border-white/20 shadow-2xl'>
+                    <div className='w-16 h-16 bg-[var(--bg-input)] rounded-3xl flex items-center justify-center group-hover/banner:scale-110 group-hover/banner:rotate-12 transition-all duration-500 border border-[var(--border-muted)] shadow-2xl'>
                       <Camera size={28} />
                     </div>
                     <span className='font-black text-xs tracking-[0.3em] uppercase'>Changer la couverture</span>
@@ -793,18 +793,18 @@ const Profile = () => {
               {/* Avatar - Positioned absolutely relative to header area */}
               <div className='absolute -bottom-16 left-8 md:left-16 z-30 group/avatar'>
                 <div className='relative'>
-                  <div className='p-2 bg-[#060606] rounded-[2.5rem] md:rounded-[3.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative overflow-hidden'>
+                  <div className='p-2 bg-[var(--bg-primary)] rounded-[2.5rem] md:rounded-[3.5rem] shadow-[0_20px_50px_var(--shadow-color)] relative overflow-hidden'>
                     <div className='absolute inset-0 bg-gradient-to-tr from-purple-600 to-pink-600 opacity-0 group-hover/avatar:opacity-30 transition-opacity duration-700 animate-pulse'></div>
                     <Avatar 
                       user={isEditing ? { ...profile, image: editData.image } : profile} 
                       size='w-32 h-32 md:w-44 md:h-44' 
-                      className='rounded-[2.2rem] md:rounded-[3rem] border-4 border-[#060606] object-cover relative z-10'
+                      className='rounded-[2.2rem] md:rounded-[3rem] border-4 border-[var(--bg-primary)] object-cover relative z-10'
                     />
                   </div>
                   {isEditing && (
                     <button
                       onClick={() => fileInputRef.current?.click()}
-                      className='absolute bottom-2 right-2 p-4 bg-purple-600 text-white rounded-[1.5rem] border-4 border-[#060606] hover:bg-purple-500 transition-all hover:scale-110 hover:rotate-12 shadow-2xl z-20'
+                      className='absolute bottom-2 right-2 p-4 bg-purple-600 text-white rounded-[1.5rem] border-4 border-[var(--bg-primary)] hover:bg-purple-500 transition-all hover:scale-110 hover:rotate-12 shadow-2xl z-20'
                     >
                       <Camera size={22} />
                     </button>
@@ -816,7 +816,7 @@ const Profile = () => {
 
             {/* 2. Profile Info & Actions Carrier - Glassmorphism */}
             <div className='relative mt-12 px-4 md:px-8 lg:px-16'>
-              <div className='bg-[#0f0f0f]/60 backdrop-blur-3xl border border-white/5 rounded-[3rem] p-8 md:p-12 shadow-2xl relative overflow-hidden group/info'>
+              <div className='bg-[var(--glass-bg)] backdrop-blur-3xl border border-[var(--border-muted)] rounded-[3rem] p-8 md:p-12 shadow-2xl relative overflow-hidden group/info'>
                 {/* Decorative Elements */}
                 <div className='absolute -top-32 -right-32 w-64 h-64 bg-purple-600/10 rounded-full blur-[100px] group-hover/info:bg-purple-600/20 transition-all duration-1000'></div>
                 <div className='absolute -bottom-32 -left-32 w-64 h-64 bg-pink-600/10 rounded-full blur-[100px] group-hover/info:bg-pink-600/20 transition-all duration-1000'></div>
@@ -828,7 +828,7 @@ const Profile = () => {
                       {!isEditing ? (
                         <>
                           <div className='flex items-center gap-4 flex-wrap'>
-                            <h1 className='text-4xl md:text-6xl font-black text-white tracking-tighter'>
+                            <h1 className='text-4xl md:text-6xl font-black text-[var(--text-primary)] tracking-tighter'>
                               {profile.prenom}{' '}
                               <span className='text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400 animate-gradient-x'>
                                 {profile.nom}
@@ -843,48 +843,48 @@ const Profile = () => {
                             )}
                           </div>
                           {profile.bio && (
-                            <p className='text-gray-400 mt-4 text-xl font-medium max-w-2xl leading-relaxed italic'>
+                            <p className='text-[var(--text-secondary)] mt-4 text-xl font-medium max-w-2xl leading-relaxed italic'>
                               "{profile.bio}"
                             </p>
                           )}
                           <div className='flex flex-wrap items-center gap-3 mt-6'>
                             {profile.location && (
-                              <div className='flex items-center gap-2 px-4 py-2 bg-white/5 rounded-2xl border border-white/5 hover:border-white/20 transition-all group/loc'>
+                              <div className='flex items-center gap-2 px-4 py-2 bg-[var(--bg-input)] rounded-2xl border border-[var(--border-muted)] hover:border-[var(--border-color)] transition-all group/loc'>
                                 <MapPin size={16} className='text-purple-400 group-hover/loc:scale-125 transition-transform' />
-                                <span className='text-sm font-bold text-gray-300'>{profile.location}</span>
+                                <span className='text-sm font-bold text-[var(--text-primary)]'>{profile.location}</span>
                               </div>
                             )}
                             {profile.website && (
                               <a
                                 href={profile.website.startsWith('http') ? profile.website : `https://${profile.website}`}
                                 target='_blank' rel='noopener noreferrer'
-                                className='flex items-center gap-2 px-4 py-2 bg-white/5 rounded-2xl border border-white/5 hover:bg-white/10 transition-all group/web'
+                                className='flex items-center gap-2 px-4 py-2 bg-[var(--bg-input)] rounded-2xl border border-[var(--border-muted)] hover:bg-[var(--bg-hover)] transition-all group/web'
                               >
                                 <LinkIcon size={16} className='text-pink-400 group-hover/web:rotate-12 transition-transform' />
-                                <span className='text-sm font-bold text-gray-300'>{profile.website.replace(/^https?:\/\//, '')}</span>
+                                <span className='text-sm font-bold text-[var(--text-primary)]'>{profile.website.replace(/^https?:\/\//, '')}</span>
                               </a>
                             )}
-                            <div className='flex items-center gap-2 px-4 py-2 bg-white/5 rounded-2xl border border-white/5'>
+                            <div className='flex items-center gap-2 px-4 py-2 bg-[var(--bg-input)] rounded-2xl border border-[var(--border-muted)]'>
                               <Calendar size={16} className='text-blue-400' />
-                              <span className='text-sm font-bold text-gray-300'>{formatDate(profile.created_at)}</span>
+                              <span className='text-sm font-bold text-[var(--text-primary)]'>{formatDate(profile.created_at)}</span>
                             </div>
                           </div>
                         </>
                       ) : (
-                        <div className='space-y-6 max-w-2xl bg-white/5 p-6 rounded-[2rem] border border-white/10'>
+                        <div className='space-y-6 max-w-2xl bg-[var(--bg-card)] p-6 rounded-[2rem] border border-[var(--border-muted)]'>
                           <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                             <div className='space-y-1.5'>
-                               <label className='text-[10px] font-black uppercase tracking-widest text-gray-500 ml-2'>Prénom</label>
-                               <input type='text' value={editData.prenom} onChange={e => setEditData(prev => ({ ...prev, prenom: e.target.value }))} className='w-full px-5 py-4 bg-black/40 border border-white/10 rounded-2xl text-white outline-none focus:ring-2 focus:ring-purple-500/50 transition-all' />
+                               <label className='text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)] ml-2'>Prénom</label>
+                               <input type='text' value={editData.prenom} onChange={e => setEditData(prev => ({ ...prev, prenom: e.target.value }))} className='w-full px-5 py-4 bg-[var(--bg-input)] border border-[var(--border-muted)] rounded-2xl text-[var(--text-primary)] outline-none focus:ring-2 focus:ring-purple-500/50 transition-all' />
                             </div>
                             <div className='space-y-1.5'>
-                               <label className='text-[10px] font-black uppercase tracking-widest text-gray-500 ml-2'>Nom</label>
-                               <input type='text' value={editData.nom} onChange={e => setEditData(prev => ({ ...prev, nom: e.target.value }))} className='w-full px-5 py-4 bg-black/40 border border-white/10 rounded-2xl text-white outline-none focus:ring-2 focus:ring-purple-500/50 transition-all' />
+                               <label className='text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)] ml-2'>Nom</label>
+                               <input type='text' value={editData.nom} onChange={e => setEditData(prev => ({ ...prev, nom: e.target.value }))} className='w-full px-5 py-4 bg-[var(--bg-input)] border border-[var(--border-muted)] rounded-2xl text-[var(--text-primary)] outline-none focus:ring-2 focus:ring-purple-500/50 transition-all' />
                             </div>
                           </div>
                           <div className='space-y-1.5'>
-                             <label className='text-[10px] font-black uppercase tracking-widest text-gray-500 ml-2'>Bio</label>
-                             <textarea value={editData.bio || ''} onChange={e => setEditData(prev => ({ ...prev, bio: e.target.value }))} rows='3' className='w-full px-5 py-4 bg-black/40 border border-white/10 rounded-2xl text-white outline-none focus:ring-2 focus:ring-purple-500/50 transition-all resize-none' />
+                             <label className='text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)] ml-2'>Bio</label>
+                             <textarea value={editData.bio || ''} onChange={e => setEditData(prev => ({ ...prev, bio: e.target.value }))} rows='3' className='w-full px-5 py-4 bg-[var(--bg-input)] border border-[var(--border-muted)] rounded-2xl text-[var(--text-primary)] outline-none focus:ring-2 focus:ring-purple-500/50 transition-all resize-none' />
                           </div>
                         </div>
                       )}
@@ -897,13 +897,13 @@ const Profile = () => {
                       !isEditing ? (
                         <button
                           onClick={() => setIsEditing(true)}
-                          className='px-10 py-4 bg-white text-black rounded-[1.5rem] font-black text-sm tracking-widest hover:bg-gray-200 transition-all shadow-[0_10px_30px_rgba(255,255,255,0.1)] hover:scale-110 active:scale-95'
+                          className='px-10 py-4 bg-[var(--text-primary)] text-[var(--bg-primary)] rounded-[1.5rem] font-black text-sm tracking-widest hover:opacity-80 transition-all shadow-[0_10px_30px_var(--shadow-color)] hover:scale-110 active:scale-95'
                         >
                           EDIT PROFILE
                         </button>
                       ) : (
                         <div className='flex gap-3'>
-                          <button onClick={() => setIsEditing(false)} className='px-6 py-4 bg-white/5 text-white border border-white/10 rounded-[1.5rem] font-bold hover:bg-white/10 transition-all'>
+                          <button onClick={() => setIsEditing(false)} className='px-6 py-4 bg-[var(--bg-input)] text-[var(--text-primary)] border border-[var(--border-muted)] rounded-[1.5rem] font-bold hover:bg-[var(--bg-hover)] transition-all'>
                             DISCARD
                           </button>
                           <button onClick={handleSaveProfile} className='px-10 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-[1.5rem] font-black text-sm tracking-widest hover:scale-110 active:scale-95 shadow-[0_10px_30px_rgba(168,85,247,0.3)]'>
@@ -912,11 +912,11 @@ const Profile = () => {
                         </div>
                       )
                     ) : (
-                      <div className='flex items-center gap-4 bg-white/5 p-2 rounded-[2rem] border border-white/5 backdrop-blur-md'>
+                      <div className='flex items-center gap-4 bg-[var(--bg-input)] p-2 rounded-[2rem] border border-[var(--border-muted)] backdrop-blur-md'>
                         <button
                           onClick={handleLikeProfile} disabled={likingProfile}
                           className={`p-4 rounded-2xl transition-all hover:scale-110 active:scale-90 ${
-                            profile.has_liked_profile ? 'bg-red-500 text-white shadow-xl shadow-red-500/30' : 'bg-white/5 text-gray-400 border border-white/10 hover:text-white'
+                            profile.has_liked_profile ? 'bg-red-500 text-white shadow-xl shadow-red-500/30' : 'bg-[var(--bg-hover)] text-[var(--text-secondary)] border border-[var(--border-muted)] hover:text-[var(--text-primary)]'
                           }`}
                         >
                           <Heart size={24} fill={profile.has_liked_profile ? 'currentColor' : 'none'} />
@@ -925,14 +925,14 @@ const Profile = () => {
                         <button
                           onClick={profile.is_following ? handleUnfollow : handleFollow} disabled={following}
                           className={`px-10 py-4 rounded-2xl font-black text-xs tracking-[0.2em] transition-all hover:scale-105 active:scale-95 ${
-                            profile.is_following ? 'bg-white/10 text-white border border-white/20' : 'bg-white text-black shadow-2xl'
+                            profile.is_following ? 'bg-[var(--bg-input)] text-[var(--text-primary)] border border-[var(--border-color)]' : 'bg-[var(--text-primary)] text-[var(--bg-primary)] shadow-2xl'
                           }`}
                         >
                           {profile.is_following ? 'FOLLOWING' : 'FOLLOW'}
                         </button>
 
                         {profile.is_friend ? (
-                          <button onClick={handleRemoveFriend} className='p-4 bg-white/5 text-gray-500 border border-white/10 rounded-2xl hover:text-red-400 transition-all'>
+                          <button onClick={handleRemoveFriend} className='p-4 bg-[var(--bg-hover)] text-[var(--text-secondary)] border border-[var(--border-muted)] rounded-2xl hover:text-red-400 transition-all'>
                             <UserX size={24} />
                           </button>
                         ) : (
@@ -946,7 +946,7 @@ const Profile = () => {
                 </div>
 
                 {/* Modern Integrated Stats */}
-                <div className='grid grid-cols-3 md:grid-cols-6 gap-4 mt-12 pt-12 border-t border-white/5'>
+                <div className='grid grid-cols-3 md:grid-cols-6 gap-4 mt-12 pt-12 border-t border-[var(--border-muted)]'>
                   {[
                     { label: 'Posts', value: profile.stats.posts, icon: FileText, color: 'text-blue-400' },
                     { label: 'Amis', value: profile.stats.friends, icon: Users, color: 'text-purple-400' },
@@ -958,9 +958,9 @@ const Profile = () => {
                     <div key={i} className='text-center group/stat'>
                       <div className='flex items-center justify-center gap-1.5 mb-2 opacity-50 group-hover/stat:opacity-100 transition-opacity'>
                         <stat.icon size={12} className={stat.color} />
-                        <span className='text-[8px] font-black uppercase tracking-[0.2em] text-gray-400'>{stat.label}</span>
+                        <span className='text-[8px] font-black uppercase tracking-[0.2em] text-[var(--text-secondary)]'>{stat.label}</span>
                       </div>
-                      <div className='text-2xl md:text-3xl font-black text-white group-hover/stat:scale-125 transition-transform duration-500 ease-out cursor-default'>
+                      <div className='text-2xl md:text-3xl font-black text-[var(--text-primary)] group-hover/stat:scale-125 transition-transform duration-500 ease-out cursor-default'>
                         {stat.value}
                       </div>
                     </div>
@@ -981,13 +981,13 @@ const Profile = () => {
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
                   className={`px-6 sm:px-10 py-3.5 sm:py-4 rounded-[1.5rem] sm:rounded-[2rem] font-black text-[10px] uppercase tracking-[0.25em] transition-all duration-700 flex items-center gap-3 ${
-                    activeTab === tab.id ? 'bg-white text-black shadow-2xl scale-105' : 'text-gray-500 hover:text-white hover:bg-white/5 border border-transparent hover:border-white/5'
+                    activeTab === tab.id ? 'bg-[var(--text-primary)] text-[var(--bg-primary)] shadow-2xl scale-105' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] border border-transparent hover:border-[var(--border-muted)]'
                   }`}
                 >
                   <tab.icon size={16} />
                   <span>{tab.label}</span>
                   {tab.count !== undefined && tab.count > 0 && (
-                    <span className={`px-2 py-0.5 rounded-full text-[8px] ${activeTab === tab.id ? 'bg-black text-white' : 'bg-white/10 text-gray-500'}`}>
+                    <span className={`px-2 py-0.5 rounded-full text-[8px] ${activeTab === tab.id ? 'bg-[var(--bg-primary)] text-[var(--text-primary)]' : 'bg-[var(--bg-hover)] text-[var(--text-secondary)]'}`}>
                       {tab.count}
                     </span>
                   )}
@@ -1000,24 +1000,24 @@ const Profile = () => {
                 {activeTab === 'posts' && (
                   <div className='grid grid-cols-1 md:grid-cols-2 gap-8 animate-in fade-in slide-in-from-bottom-5 duration-700 px-1 sm:px-0'>
                     {posts.length === 0 ? (
-                      <div className='col-span-full py-32 flex flex-col items-center justify-center bg-white/5 border border-dashed border-white/10 rounded-[4rem] group'>
-                         <div className='w-24 h-24 bg-white/5 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-700'>
-                            <FileText size={40} className='text-gray-700' />
+                      <div className='col-span-full py-32 flex flex-col items-center justify-center bg-[var(--bg-input)] border border-dashed border-[var(--border-muted)] rounded-[4rem] group'>
+                         <div className='w-24 h-24 bg-[var(--bg-hover)] rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-700'>
+                            <FileText size={40} className='text-[var(--text-muted)]' />
                          </div>
-                         <p className='text-gray-600 font-black uppercase tracking-widest'>Aucune publication ici</p>
+                         <p className='text-[var(--text-secondary)] font-black uppercase tracking-widest'>Aucune publication ici</p>
                       </div>
                     ) : (
                       posts.map((post, index) => (
-                        <div key={`post-${post.id}-${index}`} className='group bg-[#0f0f0f] border border-white/5 rounded-[3rem] p-8 hover:border-purple-500/20 transition-all duration-700 hover:shadow-2xl hover:shadow-purple-500/5 hover:-translate-y-2'>
+                        <div key={`post-${post.id}-${index}`} className='group bg-[var(--bg-card)] border border-[var(--border-muted)] rounded-[3rem] p-8 hover:border-[var(--border-color)] transition-all duration-700 hover:shadow-2xl hover:shadow-purple-500/5 hover:-translate-y-2'>
                           <div className='flex items-center gap-4 mb-8'>
                              <Avatar user={profile} size='w-12 h-12' className='rounded-2xl' />
                              <div>
-                                <p className='text-white font-black text-sm tracking-tight'>{profile.prenom} {profile.nom}</p>
-                                <p className='text-[10px] font-bold text-gray-600 uppercase tracking-widest'>{formatDate(post.created_at)}</p>
+                                <p className='text-[var(--text-primary)] font-black text-sm tracking-tight'>{profile.prenom} {profile.nom}</p>
+                                <p className='text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-widest'>{formatDate(post.created_at)}</p>
                              </div>
                           </div>
                           
-                          <p className='text-gray-300 mb-8 text-lg font-medium leading-relaxed'>{post.description}</p>
+                          <p className='text-[var(--text-primary)] mb-8 text-lg font-medium leading-relaxed'>{post.description}</p>
                           
                           {post.image ? (
                             <div className='rounded-[2.5rem] overflow-hidden mb-8 aspect-video shadow-2xl relative'>
@@ -1025,9 +1025,9 @@ const Profile = () => {
                               <div className='absolute inset-0 bg-gradient-to-t from-black/20 to-transparent'></div>
                             </div>
                           ) : (
-                            <div className='w-full h-48 bg-gradient-to-br from-purple-500/5 to-pink-500/5 rounded-[2.5rem] mb-8 flex flex-col items-center justify-center border border-white/5 shadow-inner'>
-                              <Image size={32} className='text-white/5 mb-2' />
-                              <span className='text-[10px] font-black uppercase tracking-[0.3em] text-white/10'>Tulk Visual</span>
+                            <div className='w-full h-48 bg-gradient-to-br from-purple-500/5 to-pink-500/5 rounded-[2.5rem] mb-8 flex flex-col items-center justify-center border border-[var(--border-muted)] shadow-inner'>
+                              <Image size={32} className='opacity-5 text-[var(--text-primary)] mb-2' />
+                              <span className='text-[10px] font-black uppercase tracking-[0.3em] opacity-10 text-[var(--text-primary)]'>Tulk Visual</span>
                             </div>
                           )}
 
@@ -1039,21 +1039,21 @@ const Profile = () => {
                                >
                                  <Heart 
                                    size={20} 
-                                   className={`transition-colors ${post.is_liked ? 'text-red-500 fill-red-500' : 'text-gray-600 group-hover/btn:text-red-500'}`} 
+                                   className={`transition-colors ${post.is_liked ? 'text-red-500 fill-red-500' : 'text-[var(--text-secondary)] group-hover/btn:text-red-500'}`} 
                                  />
-                                 <span className={`text-xs font-black transition-colors ${post.is_liked ? 'text-white' : 'text-gray-500 group-hover/btn:text-white'}`}>{post.likes_count}</span>
+                                 <span className={`text-xs font-black transition-colors ${post.is_liked ? 'text-red-500' : 'text-[var(--text-secondary)] group-hover/btn:text-[var(--text-primary)]'}`}>{post.likes_count}</span>
                                </div>
                                <div 
                                  onClick={() => openPostDetails(post)}
                                  className='flex items-center gap-2 group/btn cursor-pointer'
                                >
                                  <MessageCircle size={20} className='text-gray-600 group-hover/btn:text-blue-500 transition-colors' />
-                                 <span className='text-xs font-black text-gray-500 group-hover/btn:text-white'>{post.comments_count}</span>
+                                 <span className='text-xs font-black text-gray-500 group-hover/btn:text-[var(--text-primary)]'>{post.comments_count}</span>
                                </div>
                             </div>
                             <button 
                               onClick={() => openPostDetails(post)}
-                              className='text-[10px] font-black uppercase tracking-[0.2em] text-gray-700 hover:text-white transition-colors'
+                              className='text-[10px] font-black uppercase tracking-[0.2em] text-gray-700 hover:text-[var(--text-primary)] transition-colors'
                             >
                               View details
                             </button>
@@ -1075,9 +1075,9 @@ const Profile = () => {
                     {friends?.length > 0 ? (
                       friends.map((friend, index) => renderUserCard(friend, index))
                     ) : (
-                      <div className='col-span-full py-32 text-center bg-white/5 rounded-[4rem] border border-dashed border-white/10'>
-                        <Users size={40} className='mx-auto mb-4 text-gray-700' />
-                        <p className='text-gray-500 font-black uppercase tracking-widest'>Pas encore d'amis</p>
+                      <div className='col-span-full py-32 text-center bg-[var(--bg-input)] rounded-[4rem] border border-dashed border-[var(--border-muted)]'>
+                        <Users size={40} className='mx-auto mb-4 text-[var(--text-muted)]' />
+                        <p className='text-[var(--text-secondary)] font-black uppercase tracking-widest'>Pas encore d'amis</p>
                       </div>
                     )}
                     {/* Friends Infinite Scroll Sentinel */}
@@ -1110,8 +1110,8 @@ const Profile = () => {
                                     <item.icon size={20} className='text-gray-400' />
                                   </div>
                                   <div>
-                                    <p className='text-[10px] font-black uppercase tracking-widest text-gray-500 mb-1'>{item.label}</p>
-                                    <p className='text-white font-bold text-lg'>{item.value}</p>
+                                    <p className='text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)] mb-1'>{item.label}</p>
+                                    <p className='text-[var(--text-primary)] font-bold text-lg'>{item.value}</p>
                                   </div>
                                 </div>
                               </div>
@@ -1133,9 +1133,9 @@ const Profile = () => {
                                       <LinkIcon size={20} className='text-gray-400' />
                                    </div>
                                    <div>
-                                      <p className='text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2'>Digital Presence</p>
+                                      <p className='text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)] mb-2'>Digital Presence</p>
                                       {profile.website ? (
-                                        <a href={profile.website} target='_blank' rel='noopener noreferrer' className='text-white font-bold text-lg hover:text-pink-400 transition-colors border-b-2 border-pink-400/20'>
+                                        <a href={profile.website} target='_blank' rel='noopener noreferrer' className='text-[var(--text-primary)] font-bold text-lg hover:text-pink-400 transition-colors border-b-2 border-pink-400/20'>
                                           {profile.website.replace(/^https?:\/\//, '')}
                                         </a>
                                       ) : <span className='text-gray-700 font-bold'>Non spécifiée</span>}
@@ -1146,7 +1146,7 @@ const Profile = () => {
                              <div className='bg-gradient-to-br from-purple-900/40 to-pink-900/40 border border-white/10 rounded-[3rem] p-10 text-center relative overflow-hidden group/m'>
                                 <div className='absolute inset-0 bg-white/5 opacity-0 group-hover/m:opacity-100 transition-opacity duration-1000'></div>
                                 <p className='text-[10px] font-black uppercase tracking-[0.4em] text-purple-300 mb-4'>Mutual Connections</p>
-                                <div className='text-6xl font-black text-white mb-4 tracking-tighter'>{profile.mutual_friends_count}</div>
+                                <div className='text-6xl font-black text-[var(--text-primary)] mb-4 tracking-tighter'>{profile.mutual_friends_count}</div>
                                 <p className='text-gray-400 text-xs font-bold leading-relaxed max-w-[200px] mx-auto'>Personnes que vous connaissez tous les deux sur Tulk.</p>
                              </div>
                           </div>
@@ -1165,13 +1165,13 @@ const Profile = () => {
       {selectedPost && (
         <div className='fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8 animate-in fade-in duration-300'>
           <div className='absolute inset-0 bg-black/80 backdrop-blur-xl' onClick={() => setSelectedPost(null)}></div>
-          <div className='bg-[#0f0f0f] w-full max-w-5xl max-h-[90vh] rounded-[3rem] border border-white/10 shadow-[0_0_100px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col md:flex-row relative z-10'>
+          <div className='bg-[var(--bg-primary)] w-full max-w-5xl max-h-[90vh] rounded-[3rem] border border-[var(--border-muted)] shadow-[0_0_100px_var(--shadow-color)] overflow-hidden flex flex-col md:flex-row relative z-10'>
             {/* Left side: Image only */}
-            <div className='w-full md:w-3/5 bg-black flex items-center justify-center border-r border-white/5'>
+            <div className='w-full md:w-3/5 bg-black flex items-center justify-center border-r border-[var(--border-muted)]'>
               {selectedPost.image ? (
                 <img src={getImageUrl(selectedPost.image)} alt='Post' className='max-w-full max-h-full object-contain' />
               ) : (
-                <div className='flex flex-col items-center gap-4 text-white/10'>
+                <div className='flex flex-col items-center gap-4 opacity-10 text-[var(--text-primary)]'>
                    <Image size={64} />
                    <span className='text-xs font-black uppercase tracking-[0.4em]'>Tulk Visual Content</span>
                 </div>
@@ -1179,19 +1179,19 @@ const Profile = () => {
             </div>
 
             {/* Right side: Header, Content, Comments */}
-            <div className='w-full md:w-2/5 flex flex-col bg-[#0a0a0a]'>
+            <div className='w-full md:w-2/5 flex flex-col bg-[var(--bg-card)]'>
               {/* Header */}
-              <div className='p-6 border-b border-white/5 flex items-center justify-between'>
+              <div className='p-6 border-b border-[var(--border-muted)] flex items-center justify-between'>
                 <div className='flex items-center gap-3'>
                   <Avatar user={selectedPost.utilisateur || profile} size='w-10 h-10' />
                   <div>
-                    <p className='text-white font-black text-sm tracking-tight'>{(selectedPost.utilisateur || profile).prenom} {(selectedPost.utilisateur || profile).nom}</p>
-                    <p className='text-gray-500 text-[10px] uppercase font-black tracking-widest'>{selectedPost.date}</p>
+                    <p className='text-[var(--text-primary)] font-black text-sm tracking-tight'>{(selectedPost.utilisateur || profile).prenom} {(selectedPost.utilisateur || profile).nom}</p>
+                    <p className='text-[var(--text-secondary)] text-[10px] uppercase font-black tracking-widest'>{selectedPost.date}</p>
                   </div>
                 </div>
                 <button 
                   onClick={() => setSelectedPost(null)}
-                  className='w-10 h-10 flex items-center justify-center bg-white/5 rounded-xl text-gray-400 hover:text-white transition-all'
+                  className='w-10 h-10 flex items-center justify-center bg-[var(--bg-hover)] rounded-xl text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all'
                 >
                   <X size={20} />
                 </button>
@@ -1199,10 +1199,10 @@ const Profile = () => {
 
               {/* Content */}
               <div className='p-6 overflow-y-auto flex-1 custom-scrollbar'>
-                <p className='text-white text-sm leading-relaxed mb-8 opacity-80'>{selectedPost.description}</p>
+                <p className='text-[var(--text-primary)] text-sm leading-relaxed mb-8 opacity-80'>{selectedPost.description}</p>
                 
-                <h4 className='text-[10px] font-black uppercase tracking-widest text-gray-500 mb-6 flex items-center gap-4'>
-                   <span className='w-8 h-px bg-white/10'></span>
+                <h4 className='text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)] mb-6 flex items-center gap-4'>
+                   <span className='w-8 h-px bg-[var(--border-muted)]'></span>
                    Commentaires ({selectedPost.comments_count})
                 </h4>
 
@@ -1213,32 +1213,32 @@ const Profile = () => {
                     postComments[selectedPost.id].map((comment) => (
                       <div key={comment.id} className='flex gap-4 group/comment'>
                         <Avatar user={comment.utilisateur || comment.user} size='w-8 h-8' className='flex-shrink-0' />
-                        <div className='flex-1 bg-white/5 rounded-2xl p-4 border border-white/5 hover:border-white/10 transition-all'>
+                        <div className='flex-1 bg-[var(--bg-input)] rounded-2xl p-4 border border-[var(--border-muted)] hover:border-[var(--border-color)] transition-all'>
                           <div className='flex justify-between items-center mb-1'>
-                             <span className='text-white font-bold text-[11px]'>{(comment.utilisateur || comment.user).prenom} {(comment.utilisateur || comment.user).nom}</span>
-                             <span className='text-[9px] text-gray-600 font-black uppercase tracking-tighter'>{comment.date}</span>
+                             <span className='text-[var(--text-primary)] font-bold text-[11px]'>{(comment.utilisateur || comment.user).prenom} {(comment.utilisateur || comment.user).nom}</span>
+                             <span className='text-[9px] text-[var(--text-secondary)] font-black uppercase tracking-tighter'>{comment.date}</span>
                           </div>
-                          <p className='text-gray-400 text-xs leading-relaxed'>{comment.texte}</p>
+                          <p className='text-[var(--text-secondary)] text-xs leading-relaxed'>{comment.texte}</p>
                         </div>
                       </div>
                     ))
                   ) : (
-                    <p className='text-center py-8 text-gray-600 text-xs font-bold uppercase tracking-widest italic'>Aucun commentaire pour le moment</p>
+                    <p className='text-center py-8 text-[var(--text-secondary)] text-xs font-bold uppercase tracking-widest italic'>Aucun commentaire pour le moment</p>
                   )}
                 </div>
               </div>
 
               {/* Interaction Bar */}
-              <div className='p-6 bg-white/[0.02] border-t border-white/5'>
+              <div className='p-6 bg-[var(--bg-hover)]/20 border-t border-[var(--border-muted)]'>
                 <div className='flex items-center gap-6 mb-6'>
                   <button 
                     onClick={() => handleLikePost(selectedPost.id)}
-                    className={`flex items-center gap-2 group/btn ${selectedPost.is_liked ? 'text-red-500' : 'text-gray-500 hover:text-white'}`}
+                    className={`flex items-center gap-2 group/btn ${selectedPost.is_liked ? 'text-red-500' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
                   >
                     <Heart size={20} fill={selectedPost.is_liked ? 'currentColor' : 'none'} className='transition-transform group-hover/btn:scale-110' />
                     <span className='text-xs font-black'>{selectedPost.likes_count}</span>
                   </button>
-                  <div className='flex items-center gap-2 text-gray-500'>
+                  <div className='flex items-center gap-2 text-[var(--text-secondary)]'>
                     <MessageCircle size={20} />
                     <span className='text-xs font-black'>{selectedPost.comments_count}</span>
                   </div>
@@ -1251,12 +1251,12 @@ const Profile = () => {
                     onChange={(e) => setCommentInputs(prev => ({ ...prev, [selectedPost.id]: e.target.value }))}
                     onKeyPress={(e) => e.key === 'Enter' && handleAddComment(selectedPost.id)}
                     placeholder='Écrire un commentaire...'
-                    className='flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-xs font-bold focus:border-purple-500/50 outline-none transition-all placeholder:text-gray-600'
+                    className='flex-1 bg-[var(--bg-input)] border border-[var(--border-muted)] rounded-xl px-4 py-3 text-[var(--text-primary)] text-xs font-bold focus:border-[var(--text-secondary)] outline-none transition-all placeholder:text-[var(--text-secondary)]'
                   />
                   <button 
                     onClick={() => handleAddComment(selectedPost.id)}
                     disabled={!commentInputs[selectedPost.id]?.trim()}
-                    className='w-12 h-12 flex items-center justify-center bg-white text-black rounded-xl hover:scale-105 active:scale-95 transition-all disabled:opacity-30 disabled:hover:scale-100'
+                    className='w-12 h-12 flex items-center justify-center bg-[var(--text-primary)] text-[var(--bg-primary)] rounded-xl hover:scale-105 active:scale-95 transition-all disabled:opacity-30 disabled:hover:scale-100'
                   >
                     <SendIcon size={18} />
                   </button>

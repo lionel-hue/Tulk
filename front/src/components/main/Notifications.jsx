@@ -179,11 +179,11 @@ const Notifications = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
         {/* Header */}
         <div className='flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10'>
           <div className='flex items-center gap-4'>
-            <div className='w-16 h-16 bg-white/5 rounded-[1.5rem] flex items-center justify-center border border-white/10 shadow-2xl'>
-              <Bell size={28} className='text-white' />
+            <div className='w-16 h-16 bg-[var(--bg-input)] rounded-[1.5rem] flex items-center justify-center border border-[var(--border-muted)] shadow-2xl'>
+              <Bell size={28} className='text-[var(--text-primary)]' />
             </div>
             <div>
-              <h2 className='text-3xl md:text-5xl font-black text-white tracking-tighter'>Notifications</h2>
+              <h2 className='text-3xl md:text-5xl font-black text-[var(--text-primary)] tracking-tighter'>Notifications</h2>
               {unreadCount > 0 && (
                 <span className='inline-block mt-2 px-3 py-1 bg-red-500/20 text-red-500 border border-red-500/30 text-[10px] font-black uppercase tracking-widest rounded-full'>
                   {unreadCount} non lues
@@ -195,7 +195,7 @@ const Notifications = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
             {unreadCount > 0 && (
               <button
                 onClick={markAllAsRead}
-                className='px-6 py-3 rounded-[1.5rem] bg-white text-black font-black text-[10px] uppercase tracking-widest shadow-2xl hover:scale-105 active:scale-95 transition-all flex items-center gap-2'
+                className='px-6 py-3 rounded-[1.5rem] bg-[var(--text-primary)] text-[var(--bg-primary)] font-black text-[10px] uppercase tracking-widest shadow-2xl hover:scale-105 active:scale-95 transition-all flex items-center gap-2'
               >
                 <CheckCheck size={16} />
                 <span>Tout lire</span>
@@ -214,13 +214,13 @@ const Notifications = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
         </div>
 
         {/* Filters */}
-        <div className='bg-white/5 backdrop-blur-md p-1.5 rounded-[2.5rem] border border-white/5 flex gap-2 w-fit mb-10 overflow-x-auto no-scrollbar'>
+        <div className='bg-[var(--glass-bg)] backdrop-blur-md p-1.5 rounded-[2.5rem] border border-[var(--glass-border)] flex gap-2 w-fit mb-10 overflow-x-auto no-scrollbar'>
           <button
             onClick={() => setFilter('all')}
             className={`px-8 py-3 rounded-[2rem] font-black text-[10px] uppercase tracking-[0.2em] transition-all duration-700 whitespace-nowrap ${
               filter === 'all'
-                ? 'bg-white text-black shadow-2xl scale-105'
-                : 'text-gray-500 hover:text-white hover:bg-white/5'
+                ? 'bg-[var(--text-primary)] text-[var(--bg-primary)] shadow-2xl scale-105'
+                : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'
             }`}
           >
             Toutes
@@ -229,8 +229,8 @@ const Notifications = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
             onClick={() => setFilter('unread')}
             className={`px-8 py-3 rounded-[2rem] font-black text-[10px] uppercase tracking-[0.2em] transition-all duration-700 whitespace-nowrap ${
               filter === 'unread'
-                ? 'bg-white text-black shadow-2xl scale-105'
-                : 'text-gray-500 hover:text-white hover:bg-white/5'
+                ? 'bg-[var(--text-primary)] text-[var(--bg-primary)] shadow-2xl scale-105'
+                : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'
             }`}
           >
             Non lues
@@ -239,8 +239,8 @@ const Notifications = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
             onClick={() => setFilter('read')}
             className={`px-8 py-3 rounded-[2rem] font-black text-[10px] uppercase tracking-[0.2em] transition-all duration-700 whitespace-nowrap ${
               filter === 'read'
-                ? 'bg-white text-black shadow-2xl scale-105'
-                : 'text-gray-500 hover:text-white hover:bg-white/5'
+                ? 'bg-[var(--text-primary)] text-[var(--bg-primary)] shadow-2xl scale-105'
+                : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'
             }`}
           >
             Lues
@@ -261,7 +261,7 @@ const Notifications = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
               <div className='w-24 h-24 bg-white/5 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-700'>
                 <Bell size={40} className='text-gray-700' />
               </div>
-              <h3 className='text-lg font-black uppercase tracking-widest text-white mb-2'>
+              <h3 className='text-lg font-black uppercase tracking-widest text-[var(--text-primary)] mb-2'>
                 Aucune notification
               </h3>
               <p className='text-gray-500 font-bold text-[10px] uppercase tracking-widest'>
@@ -276,7 +276,7 @@ const Notifications = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
                 key={notification.id}
                 className={`p-6 md:p-8 rounded-[2rem] border transition-all duration-500 shadow-2xl group relative overflow-hidden ${
                   notification.is_read
-                    ? 'bg-[#0f0f0f] border-white/5 hover:border-white/10 hover:-translate-y-1'
+                    ? 'bg-[var(--bg-card)] border-[var(--border-muted)] hover:border-[var(--border-color)] hover:-translate-y-1'
                     : `${getNotificationColor(notification.type)} backdrop-blur-md`
                 }`}
               >
@@ -292,10 +292,10 @@ const Notifications = ({ searchQuery, onSearchFocus, onSearchBlur }) => {
                   <div className='flex-1 min-w-0'>
                     <div className='flex flex-col md:flex-row md:items-center justify-between gap-4'>
                       <div>
-                        <h4 className='text-white font-black text-sm md:text-base tracking-tight'>
+                        <h4 className='text-[var(--text-primary)] font-black text-sm md:text-base tracking-tight'>
                           {notification.title}
                         </h4>
-                        <p className='text-gray-300 font-medium text-sm mt-1 leading-relaxed'>
+                        <p className='text-[var(--text-secondary)] font-medium text-sm mt-1 leading-relaxed'>
                           {notification.message}
                         </p>
                         <p className='text-gray-500 font-black text-[10px] uppercase tracking-widest mt-3'>

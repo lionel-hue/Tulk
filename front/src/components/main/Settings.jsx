@@ -138,10 +138,10 @@ const Settings = () => {
       onClick={onToggle}
       disabled={saving}
       className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors focus:outline-none disabled:opacity-50 ${
-        value ? (color === 'green' ? 'bg-green-500' : 'bg-purple-600') : 'bg-white/10'
+        value ? (color === 'green' ? 'bg-green-500' : 'bg-purple-600') : 'bg-[var(--border-muted)] border border-[var(--border-color)]'
       }`}
     >
-      <span className={`inline-block h-6 w-6 transform rounded-full bg-white shadow-md transition-transform ${value ? 'translate-x-7' : 'translate-x-1'}`} />
+      <span className={`inline-block h-6 w-6 transform rounded-full shadow-md transition-transform ${value ? 'bg-white translate-x-7' : 'bg-[var(--text-secondary)] translate-x-1'}`} />
     </button>
   );
 
@@ -173,8 +173,8 @@ const Settings = () => {
                   onClick={() => handleLanguageChange(code)}
                   className={`flex-1 p-4 rounded-xl border transition-all flex flex-col items-center gap-2 ${
                     lang === code
-                      ? 'border-white bg-white text-black font-bold'
-                      : 'border-white/10 hover:border-white/30 text-secondary'
+                      ? 'border-[var(--text-primary)] bg-[var(--text-primary)] text-[var(--bg-primary)] font-bold'
+                      : 'border-[var(--border-muted)] hover:border-[var(--border-color)] text-[var(--text-secondary)]'
                   }`}
                   style={lang !== code ? { color: 'var(--text-secondary)' } : {}}
                 >

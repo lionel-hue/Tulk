@@ -200,11 +200,11 @@ const SearchResults = () => {
   }
 
   return (
-    <div className='search-results-page min-h-screen bg-[#060606] text-white selection:bg-purple-500/30'>
+    <div className='search-results-page min-h-screen selection:bg-purple-500/30'>
       <div className='max-w-7xl mx-auto px-4 py-12 md:px-8'>
         {/* Header Section with Glass Effect */}
         <div className='relative mb-12 animate-in fade-in slide-in-from-top-8 duration-1000'>
-          <div className='bg-[#0f0f0f]/60 backdrop-blur-3xl border border-white/5 rounded-[3rem] p-8 md:p-12 shadow-2xl relative overflow-hidden group'>
+          <div className='bg-[var(--glass-overlay)] backdrop-blur-3xl border border-[var(--glass-border)] rounded-[3rem] p-8 md:p-12 shadow-2xl relative overflow-hidden group'>
              {/* Decorative Background Gradients */}
              <div className='absolute -top-24 -right-24 w-64 h-64 bg-purple-600/10 rounded-full blur-[100px] group-hover:bg-purple-600/20 transition-all duration-1000'></div>
              <div className='absolute -bottom-24 -left-24 w-64 h-64 bg-pink-600/10 rounded-full blur-[100px] group-hover:bg-pink-600/20 transition-all duration-1000'></div>
@@ -213,16 +213,16 @@ const SearchResults = () => {
                 <div className='flex items-center gap-8'>
                   <button
                     onClick={handleBack}
-                    className='w-16 h-16 bg-white/5 border border-white/10 rounded-[1.5rem] flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 hover:scale-110 active:scale-95 transition-all shadow-xl group/back'
+                    className='w-16 h-16 border rounded-[1.5rem] flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] hover:scale-110 active:scale-95 transition-all shadow-xl group/back border-[var(--border-color)] bg-[var(--bg-input)]'
                     title='Retour'
                   >
                     <X size={28} className='group-hover:rotate-90 transition-transform duration-500' />
                   </button>
                   <div>
-                    <h2 className='text-4xl md:text-6xl font-black text-white tracking-tighter leading-none'>
+                    <h2 className='text-4xl md:text-6xl font-black text-[var(--text-primary)] tracking-tighter leading-none'>
                       Résultats pour <span className='text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400 animate-gradient-x'>"{query}"</span>
                     </h2>
-                    <p className='text-gray-500 text-sm mt-4 font-black uppercase tracking-[0.3em]'>
+                    <p className='text-[var(--text-secondary)] text-sm mt-4 font-black uppercase tracking-[0.3em]'>
                       {results.length} membre{results.length > 1 ? 's' : ''} trouvé{results.length > 1 ? 's' : ''} sur le réseau
                     </p>
                   </div>
@@ -240,20 +240,20 @@ const SearchResults = () => {
                 <Loader2 size={32} className='text-purple-400 animate-pulse' />
               </div>
             </div>
-            <p className='text-gray-500 mt-8 font-black uppercase tracking-[0.4em] animate-pulse'>Symphonie de recherche...</p>
+            <p className='text-[var(--text-secondary)] mt-8 font-black uppercase tracking-[0.4em] animate-pulse'>Symphonie de recherche...</p>
           </div>
         ) : results.length === 0 ? (
-          <div className='max-w-2xl mx-auto text-center py-24 bg-white/5 border border-dashed border-white/10 rounded-[4rem] shadow-2xl animate-in zoom-in-95 duration-700'>
-            <div className='w-32 h-32 bg-white/5 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 shadow-inner'>
-              <Users size={56} className='text-gray-700' />
+          <div className='max-w-2xl mx-auto text-center py-24 bg-[var(--bg-card)] border border-dashed border-[var(--border-color)] rounded-[4rem] shadow-2xl animate-in zoom-in-95 duration-700'>
+            <div className='w-32 h-32 bg-[var(--bg-input)] rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 shadow-inner'>
+              <Users size={56} className='text-[var(--text-secondary)]' />
             </div>
-            <h3 className='text-3xl font-black text-white mb-4 tracking-tight'>Silence dans le vide...</h3>
-            <p className='text-gray-500 max-w-sm mx-auto font-medium leading-relaxed italic'>
+            <h3 className='text-3xl font-black text-[var(--text-primary)] mb-4 tracking-tight'>Silence dans le vide...</h3>
+            <p className='text-[var(--text-secondary)] max-w-sm mx-auto font-medium leading-relaxed italic'>
               Aucun membre ne semble correspondre à votre requête. Essayez un autre mot-clé pour explorer Tulk.
             </p>
             <button 
               onClick={handleBack}
-              className='mt-10 px-10 py-4 bg-white text-black rounded-[1.5rem] font-black text-sm tracking-widest hover:scale-110 active:scale-95 transition-all shadow-[0_10px_30px_rgba(255,255,255,0.1)]'
+              className='mt-10 px-10 py-4 bg-[var(--text-primary)] text-[var(--bg-primary)] rounded-[1.5rem] font-black text-sm tracking-widest hover:scale-110 active:scale-95 transition-all shadow-2xl hover:opacity-80'
             >
               RÉESSAYER
             </button>
@@ -263,7 +263,7 @@ const SearchResults = () => {
             {results.map((userData, index) => (
               <div
                 key={userData.id}
-                className='group relative bg-[#0f0f0f] border border-white/5 rounded-[3rem] p-8 hover:border-purple-500/30 transition-all duration-700 hover:shadow-2xl hover:shadow-purple-500/10 hover:-translate-y-2 animate-in slide-in-from-bottom-12 duration-1000 fill-mode-both overflow-hidden'
+                className='group relative bg-[var(--bg-card)] border border-[var(--border-color)] rounded-[3rem] p-8 hover:border-purple-500/30 transition-all duration-700 hover:-translate-y-2 animate-in slide-in-from-bottom-12 duration-1000 fill-mode-both overflow-hidden'
                 style={{ animationDelay: `${index * 100}ms` }}
               >
                 {/* Decorative Slide-in Background */}
@@ -272,7 +272,7 @@ const SearchResults = () => {
                 <div className='relative flex items-center gap-6 mb-8'>
                   <Link
                     to={`/profile/${userData.id}`}
-                    className='w-24 h-24 rounded-[2rem] overflow-hidden flex-shrink-0 relative group-hover:rotate-6 group-hover:scale-110 transition-transform duration-700 border-2 border-white/10 shadow-2xl'
+                    className='w-24 h-24 rounded-[2rem] overflow-hidden flex-shrink-0 relative group-hover:rotate-6 group-hover:scale-110 transition-transform duration-700 border-2 border-[var(--border-muted)] shadow-2xl'
                   >
                     <Avatar user={userData} size='w-full h-full' className='object-cover' />
                   </Link>
@@ -281,11 +281,11 @@ const SearchResults = () => {
                       to={`/profile/${userData.id}`}
                       className='block'
                     >
-                      <h3 className='text-white font-black text-2xl tracking-tighter truncate group-hover:text-purple-400 transition-colors duration-500'>
+                      <h3 className='text-[var(--text-primary)] font-black text-2xl tracking-tighter truncate transition-colors duration-500'>
                         {userData.prenom} {userData.nom}
                       </h3>
                     </Link>
-                    <p className='text-gray-500 text-xs font-bold uppercase tracking-widest truncate mt-1 opacity-60'>
+                    <p className='text-[var(--text-secondary)] text-xs font-bold uppercase tracking-widest truncate mt-1'>
                       @{userData.email?.split('@')[0]}
                     </p>
                     <div className='flex flex-wrap gap-2 mt-3'>
@@ -300,20 +300,20 @@ const SearchResults = () => {
                 </div>
 
                 {userData.bio && (
-                  <p className='text-gray-400 text-sm mb-8 line-clamp-2 italic font-medium leading-relaxed opacity-80 group-hover:opacity-100 transition-opacity'>
+                  <p className='text-[var(--text-secondary)] text-sm mb-8 line-clamp-2 italic font-medium leading-relaxed opacity-80 group-hover:opacity-100 transition-opacity'>
                     "{userData.bio}"
                   </p>
                 )}
 
                 {/* Stats Preview Card */}
-                <div className='grid grid-cols-2 gap-4 mb-8 bg-white/5 p-4 rounded-[2rem] border border-white/5 group-hover:border-white/10 transition-all'>
+                <div className='grid grid-cols-2 gap-4 mb-8 bg-[var(--bg-input)] p-4 rounded-[2rem] border border-[var(--border-muted)] group-hover:border-[var(--border-color)] transition-all'>
                   <div className='text-center p-2'>
-                    <div className='text-2xl font-black text-white group-hover:scale-110 transition-transform duration-500'>{userData.posts_count || 0}</div>
-                    <div className='text-[8px] font-black uppercase tracking-[0.2em] text-gray-500'>Posts</div>
+                    <div className='text-2xl font-black text-[var(--text-primary)] group-hover:scale-110 transition-transform duration-500'>{userData.posts_count || 0}</div>
+                    <div className='text-[8px] font-black uppercase tracking-[0.2em] text-[var(--text-secondary)]'>Posts</div>
                   </div>
-                  <div className='text-center p-2 border-l border-white/5'>
-                    <div className='text-2xl font-black text-white group-hover:scale-110 transition-transform duration-500'>{userData.followers_count || 0}</div>
-                    <div className='text-[8px] font-black uppercase tracking-[0.2em] text-gray-500'>Followers</div>
+                  <div className='text-center p-2 border-l border-[var(--border-muted)]'>
+                    <div className='text-2xl font-black text-[var(--text-primary)] group-hover:scale-110 transition-transform duration-500'>{userData.followers_count || 0}</div>
+                    <div className='text-[8px] font-black uppercase tracking-[0.2em] text-[var(--text-secondary)]'>Followers</div>
                   </div>
                 </div>
 
@@ -321,7 +321,7 @@ const SearchResults = () => {
                   {userData.id === user.id ? (
                     <Link
                       to='/profile'
-                      className='w-full py-4 bg-white/5 text-white rounded-[1.5rem] text-center font-black text-xs tracking-widest border border-white/10 hover:bg-white/10 transition-all'
+                      className='w-full py-4 bg-[var(--bg-input)] text-[var(--text-primary)] border-[var(--border-muted)] hover:border-[var(--border-color)] rounded-[1.5rem] text-center font-black text-xs tracking-widest border transition-all'
                     >
                       MON PROFIL
                     </Link>
@@ -332,7 +332,7 @@ const SearchResults = () => {
                         className={`p-4 rounded-2xl transition-all hover:scale-110 active:scale-90 border ${
                           userData.has_liked_profile
                             ? 'bg-red-500 text-white border-red-400 shadow-xl shadow-red-500/30'
-                            : 'bg-white/5 border-white/5 text-gray-500 hover:text-red-500 hover:bg-white/10'
+                            : 'bg-[var(--bg-input)] border-[var(--border-muted)] text-[var(--text-secondary)] hover:text-red-500 hover:border-[var(--border-color)] hover:bg-[var(--bg-hover)]'
                         }`}
                       >
                         <Heart
@@ -349,8 +349,8 @@ const SearchResults = () => {
                         }
                         className={`flex-1 py-4 rounded-2xl font-black text-[10px] tracking-[0.15em] transition-all border ${
                           userData.is_following
-                            ? 'bg-white/10 border-white/20 text-white'
-                            : 'bg-white text-black hover:bg-gray-200 shadow-2xl'
+                            ? 'bg-[var(--bg-input)] border-[var(--border-muted)] text-[var(--text-primary)]'
+                            : 'bg-[var(--text-primary)] text-[var(--bg-primary)] hover:opacity-80 shadow-2xl'
                         }`}
                       >
                         {userData.is_following ? 'ABONNÉ' : "S'ABONNER"}
@@ -359,7 +359,7 @@ const SearchResults = () => {
                       {userData.is_friend ? (
                         <button
                           onClick={() => navigate(`/messages?userId=${userData.id}`)}
-                          className='p-4 bg-white/5 text-gray-500 hover:text-purple-400 rounded-2xl border border-white/5 hover:border-purple-500/20 transition-all'
+                          className='p-4 bg-[var(--bg-input)] text-[var(--text-secondary)] hover:text-purple-400 rounded-2xl border border-[var(--border-muted)] hover:border-[var(--border-color)] transition-all'
                           title='Chatter'
                         >
                           <MessageCircle size={20} />

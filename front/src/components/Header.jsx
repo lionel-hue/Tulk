@@ -167,11 +167,11 @@ const Header = ({
 
   return (
     <>
-      <header className='sticky top-0 z-40 bg-[#060606]/80 backdrop-blur-xl border-b border-white/5 transition-all duration-500'>
+      <header className='sticky top-0 z-40 bg-[color:var(--glass-bg)] backdrop-blur-xl border-b border-[var(--glass-border)] transition-all duration-500'>
         <div className='max-w-full mx-auto px-4 md:px-8 flex items-center justify-between h-20 gap-2 md:gap-6'>
           {/* Side Menu Toggle */}
           <button 
-            className='w-12 h-12 flex items-center justify-center bg-white/5 border border-white/10 rounded-2xl text-gray-400 hover:text-white hover:bg-white/10 transition-all hover:scale-110 active:scale-95 group shadow-xl' 
+            className='w-12 h-12 flex items-center justify-center border border-[var(--border-color)] bg-[var(--bg-card)] rounded-2xl text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-all hover:scale-110 active:scale-95 group shadow-xl' 
             onClick={onSidebarToggle}
           >
             <Menu size={22} className='group-hover:rotate-12 transition-transform duration-300' />
@@ -184,8 +184,8 @@ const Header = ({
                 key={item.id}
                 className={`flex-shrink flex items-center gap-3 px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-wider transition-all duration-500 relative group ${
                   activeSection === item.id 
-                    ? 'bg-white text-black shadow-2xl scale-105' 
-                    : 'text-gray-500 hover:text-white hover:bg-white/5'
+                    ? 'bg-[var(--text-primary)] text-[var(--bg-primary)] shadow-2xl scale-105' 
+                    : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'
                 }`}
                 onClick={() => handleNavigation(item.id)}
               >
@@ -193,7 +193,7 @@ const Header = ({
                 <span>{item.label}</span>
                 {item.badge !== null && item.badge > 0 && (
                   <span className={`absolute -top-1 -right-1 px-2 py-0.5 rounded-full text-[8px] font-black border animate-pulse ${
-                    activeSection === item.id ? 'bg-black text-white border-white/20' : 'bg-red-500 text-white border-red-400 shadow-xl shadow-red-500/20'
+                    activeSection === item.id ? 'bg-[var(--text-primary)] text-[var(--bg-primary)] border-[var(--border-subtle)]' : 'bg-red-500 text-white border-red-400 shadow-xl shadow-red-500/20'
                   }`}>
                     {item.badge}
                   </span>
@@ -209,7 +209,7 @@ const Header = ({
                 ref={searchInputRef}
                 type='text'
                 placeholder='Exploration Tulk...'
-                className='w-full px-6 py-3.5 bg-white/5 border border-white/5 rounded-2xl text-white text-sm font-bold tracking-tight outline-none focus:ring-4 focus:ring-purple-500/20 focus:bg-white/10 focus:border-purple-500/30 transition-all placeholder:text-gray-600'
+                className='w-full px-6 py-3.5 bg-[var(--bg-input)] border border-[var(--border-color)] rounded-2xl text-[var(--text-primary)] text-sm font-bold tracking-tight outline-none focus:ring-4 focus:ring-purple-500/20 focus:bg-[var(--bg-hover)] focus:border-purple-500/30 transition-all placeholder:text-[var(--text-secondary)]'
                 value={localSearchQuery}
                 onChange={handleSearchChange}
                 onBlur={handleSearchBlur}
@@ -221,7 +221,7 @@ const Header = ({
             {localSearchQuery && (
               <button
                 onClick={clearSearch}
-                className='absolute right-12 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-white/5 hover:bg-white/10 rounded-xl text-gray-400 hover:text-white transition-all hover:scale-110 active:scale-95 group/x'
+                className='absolute right-12 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-[var(--bg-hover)] hover:bg-[var(--bg-input)] rounded-xl text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all hover:scale-110 active:scale-95 group/x'
                 type='button'
               >
                 <X size={14} className='group-hover:rotate-90 transition-transform duration-300' />
@@ -233,19 +233,19 @@ const Header = ({
           <div className='relative' ref={profileDropdownRef}>
             <button 
               onClick={toggleProfileDropdown}
-              className='p-1 bg-white/5 rounded-2xl border border-white/5 hover:border-white/20 transition-all hover:scale-105 active:scale-95'
+              className='p-1 bg-[var(--bg-input)] rounded-2xl border border-[var(--border-color)] hover:border-[var(--border-muted)] transition-all hover:scale-105 active:scale-95'
             >
               <Avatar user={user} size='w-10 h-10' className='rounded-xl' />
             </button>
 
             {/* Profile Dropdown Menu */}
             {isProfileDropdownOpen && (
-              <div className='absolute right-0 top-full mt-4 w-72 bg-[#0f0f0f]/90 backdrop-blur-2xl border border-white/10 rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden animate-in fade-in zoom-in-95 duration-300 z-50'>
+              <div className='absolute right-0 top-full mt-4 w-72 bg-[var(--glass-bg)] backdrop-blur-2xl border border-[var(--glass-border)] rounded-[2.5rem] shadow-[0_20px_50px_var(--shadow-color)] overflow-hidden animate-in fade-in zoom-in-95 duration-300 z-50'>
                 <div className='p-8'>
                   <div className='flex items-center gap-4 mb-8'>
-                    <Avatar user={user} size='w-14 h-14' className='rounded-2xl border-2 border-white/10' />
+                    <Avatar user={user} size='w-14 h-14' className='rounded-2xl border-2 border-[var(--border-color)]' />
                     <div className='min-w-0'>
-                      <div className='text-white font-black text-lg tracking-tight truncate'>
+                      <div className='text-[var(--text-primary)] font-black text-lg tracking-tight truncate'>
                         {user?.prenom} {user?.nom}
                       </div>
                       <div className='text-[10px] font-black uppercase tracking-widest text-purple-400 mt-1'>
@@ -256,7 +256,7 @@ const Header = ({
                   
                   <div className='space-y-2'>
                     <button
-                      className='w-full flex items-center gap-4 p-4 rounded-2xl text-gray-400 hover:text-white hover:bg-white/5 transition-all group/item'
+                      className='w-full flex items-center gap-4 p-4 rounded-2xl text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-all group/item'
                       onClick={() => handleProfileAction('profile')}
                     >
                       <User size={18} className='group-hover/item:scale-125 transition-transform' />
@@ -264,7 +264,7 @@ const Header = ({
                     </button>
 
                     <button
-                      className='w-full flex items-center gap-4 p-4 rounded-2xl text-gray-400 hover:text-white hover:bg-white/5 transition-all group/item'
+                      className='w-full flex items-center gap-4 p-4 rounded-2xl text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-all group/item'
                       onClick={() => {
                         setIsProfileDropdownOpen(false)
                         navigate('/settings')
@@ -274,7 +274,7 @@ const Header = ({
                       <span className='font-bold text-sm'>{t('nav.settings')}</span>
                     </button>
 
-                    <div className='h-px bg-white/5 my-4 mx-2'></div>
+                    <div className='h-px bg-[var(--border-subtle)] my-4 mx-2'></div>
                     <button
                       className='w-full flex items-center gap-4 p-4 rounded-2xl text-red-500 hover:bg-red-500/10 transition-all group/item'
                       onClick={() => handleProfileAction('logout')}
