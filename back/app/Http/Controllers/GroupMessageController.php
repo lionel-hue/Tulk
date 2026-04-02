@@ -98,7 +98,7 @@ class GroupMessageController extends Controller
             $message->load('utilisateur');
 
             // Notify members
-            $members = $group->members()->get();
+            $members = $group->users()->get();
             foreach ($members as $member) {
                 if ($member->id !== $user->id) {
                     $this->notificationService->sendGroupMessageNotification($member, $user, $group, $request->texte ?? '');
