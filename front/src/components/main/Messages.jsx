@@ -385,10 +385,21 @@ const Messages = () => {
   const formatDate = (dateString, full = false) => {
     if (!dateString) return ''
     const date = new Date(dateString)
+    const now = new Date()
+    const diffInDays = Math.floor((now - date) / (1000 * 60 * 60 * 24))
+    
+    const timeOptions = { hour: '2-digit', minute: '2-digit' }
+    const timeStr = date.toLocaleTimeString([], timeOptions)
+    
     if (full) {
+      if (diffInDays === 0 && date.getDate() === now.getDate()) return `Aujourd'hui, ${timeStr}`
+      if (diffInDays === 1 || (diffInDays === 0 && date.getDate() !== now.getDate())) return `Hier, ${timeStr}`
       return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' })
     }
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    
+    if (diffInDays === 0 && date.getDate() === now.getDate()) return timeStr
+    if (diffInDays === 1 || (diffInDays === 0 && date.getDate() !== now.getDate())) return 'Hier'
+    return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })
   }
 
   const filteredMessages = messages.filter(msg => {

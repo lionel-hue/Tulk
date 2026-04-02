@@ -20,6 +20,10 @@ class Message extends Model
         'id_uti_2'  // Receiver
     ];
 
+    protected $casts = [
+        'date' => 'datetime',
+    ];
+
     /**
      * Relationship: The user who sent the message.
      */

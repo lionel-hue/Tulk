@@ -151,8 +151,16 @@ const GroupChat = ({ group, onBack, onUpdate }) => {
   }
 
   const formatDate = (dateString) => {
+    if (!dateString) return ''
     const date = new Date(dateString)
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    const now = new Date()
+    const diffInDays = Math.floor((now - date) / (1000 * 60 * 60 * 24))
+    
+    const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    
+    if (diffInDays === 0 && date.getDate() === now.getDate()) return timeStr
+    if (diffInDays === 1 || (diffInDays === 0 && date.getDate() !== now.getDate())) return `Hier, ${timeStr}`
+    return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
   }
 
   if (loading) {
