@@ -421,12 +421,12 @@ const Messages = () => {
   }
 
   return (
-    <div className='premium-chat-layout animate-fade-in mobile-responsive-height flex bg-[var(--bg-primary)] h-[calc(100vh-80px)] overflow-hidden rounded-[3rem] border border-[var(--border-muted)] shadow-2xl mt-4 mx-4 md:mt-8 md:mx-8 mb-4 max-w-7xl lg:mx-auto relative'>
+    <div className='premium-chat-layout animate-fade-in mobile-responsive-height flex bg-[var(--bg-primary)] h-[calc(100vh-80px)] overflow-hidden md:rounded-[3rem] rounded-none border border-[var(--border-muted)] shadow-2xl md:mt-8 md:mx-8 mt-0 mx-0 mb-4 max-w-7xl lg:mx-auto relative'>
       {/* Search & List Sidebar */}
       <div className={`bg-[var(--bg-card)] flex-col border-r border-[var(--border-muted)] w-full lg:w-96 flex-shrink-0 relative ${activeConversation || activeGroup ? 'hidden lg:flex' : 'flex'}`}>
-        <div className='p-8 border-b border-[var(--border-muted)] relative overflow-hidden'>
+        <div className='p-6 md:p-8 border-b border-[var(--border-muted)] relative overflow-hidden'>
           <div className='absolute -top-12 -left-12 w-32 h-32 bg-purple-500/10 rounded-full blur-[40px]'></div>
-          <h2 className='text-3xl font-black text-[var(--text-primary)] tracking-tighter mb-6 relative'>Discussions</h2>
+          <h2 className='text-2xl md:text-3xl font-black text-[var(--text-primary)] tracking-tighter mb-4 md:mb-6 relative'>Discussions</h2>
           <div className='flex items-center gap-3 bg-[var(--bg-input)] border border-[var(--border-muted)] rounded-[2rem] px-5 py-4 w-full backdrop-blur-md focus-within:border-purple-500/50 focus-within:shadow-[0_0_20px_rgba(168,85,247,0.1)] transition-all relative'>
             <Search size={18} className='text-gray-400' />
             <input 
@@ -556,9 +556,9 @@ const Messages = () => {
         {activeConversation ? (
           <>
             {/* Header */}
-            <div className='flex items-center justify-between p-6 border-b border-[var(--border-muted)] bg-[var(--glass-bg)] backdrop-blur-xl z-20'>
+            <div className='flex items-center justify-between p-4 md:p-6 border-b border-[var(--border-muted)] bg-[var(--glass-bg)] backdrop-blur-xl z-20'>
               <div className='flex items-center gap-4'>
-                <button onClick={() => setActiveConversation(null)} className='lg:hidden p-2 -ml-2 text-gray-400 hover:text-[var(--text-primary)] bg-[var(--bg-input)] rounded-xl'>
+                <button onClick={() => setActiveConversation(null)} className='lg:hidden p-2 -ml-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] bg-[var(--bg-hover)] rounded-xl transition-all'>
                   <ChevronLeft size={24} />
                 </button>
                 <div className='relative'>
@@ -607,7 +607,7 @@ const Messages = () => {
             </div>
 
             {/* Content */}
-            <div className='flex-1 overflow-y-auto custom-scrollbar p-6 space-y-6'>
+            <div className='flex-1 overflow-y-auto custom-scrollbar p-4 md:p-6 space-y-6'>
               {messagesLoading && messages.length === 0 ? (
                 <div className='flex items-center justify-center h-full'>
                   <Loader2 size={32} className='animate-spin text-purple-500' />
@@ -627,17 +627,26 @@ const Messages = () => {
                     const isMe = msg.id_uti_1 === authUser.id
                     return (
                       <div key={msg.id || index} className={`flex flex-col w-full mb-6 ${isMe ? 'items-end' : 'items-start'}`}>
-                        <div className={`flex flex-col max-w-[85%] md:max-w-[70%] ${isMe ? 'items-end' : 'items-start'}`}>
-                          {!isMe && <span className='text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)] mb-2 ml-2'>{activeConversation.user.prenom}</span>}
-                          <div className={`p-4 md:p-5 rounded-[2rem] shadow-2xl relative overflow-hidden ${isMe ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-tr-sm shadow-[0_10px_30px_rgba(168,85,247,0.3)]' : 'bg-[var(--bg-card)] border border-[var(--border-muted)] text-[var(--text-primary)] rounded-tl-sm backdrop-blur-md'}`}>
-                            {msg.image && (
-                              <div className='rounded-2xl overflow-hidden mb-3 ring-1 ring-white/20 relative group'>
-                                <img src={getImageUrl(msg.image)} alt='Attachment' className='w-full max-h-64 object-cover cursor-pointer group-hover:scale-105 transition-transform duration-700' onClick={() => window.open(getImageUrl(msg.image), '_blank')} />
-                              </div>
+                        <div className={`flex flex-row gap-3 ${isMe ? 'flex-row-reverse' : ''} max-w-[85%] md:max-w-[70%]`}>
+                          {!isMe && (
+                            <Avatar user={activeConversation.user} size='w-8 h-8' className='rounded-xl mt-1 shadow-md' />
+                          )}
+                          <div className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
+                            {!isMe && (
+                              <span className='text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)] mb-1 ml-1'>
+                                {activeConversation.user.prenom}
+                              </span>
                             )}
-                            {msg.texte && <div className='text-sm md:text-base font-medium leading-relaxed whitespace-pre-wrap'>{msg.texte}</div>}
+                            <div className={`p-4 md:p-5 rounded-[1.5rem] shadow-xl relative overflow-hidden ${isMe ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-tr-sm shadow-[0_10px_30px_rgba(168,85,247,0.2)]' : 'bg-[var(--bg-card)] border border-[var(--border-muted)] text-[var(--text-primary)] rounded-tl-sm backdrop-blur-md'}`}>
+                              {msg.image && (
+                                <div className='rounded-2xl overflow-hidden mb-3 ring-1 ring-white/10 relative group'>
+                                  <img src={getImageUrl(msg.image)} alt='Attachment' className='w-full max-h-64 object-cover cursor-pointer group-hover:scale-105 transition-transform duration-700' onClick={() => window.open(getImageUrl(msg.image), '_blank')} />
+                                </div>
+                              )}
+                              {msg.texte && <div className='text-sm md:text-base font-bold leading-relaxed whitespace-pre-wrap'>{msg.texte}</div>}
+                            </div>
+                            <span className={`text-[8px] font-black uppercase tracking-widest text-[var(--text-secondary)] mt-1 ${isMe ? 'mr-1' : 'ml-1'}`}>{formatDate(msg.date)}</span>
                           </div>
-                          <span className={`text-[9px] font-black uppercase tracking-widest text-[var(--text-secondary)] mt-2 ${isMe ? 'mr-2' : 'ml-2'}`}>{formatDate(msg.date)}</span>
                         </div>
                       </div>
                     )
