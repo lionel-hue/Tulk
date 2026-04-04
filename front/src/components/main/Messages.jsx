@@ -421,7 +421,7 @@ const Messages = () => {
   }
 
   return (
-    <div className='premium-chat-layout animate-fade-in mobile-responsive-height flex bg-[var(--bg-primary)] h-[calc(100vh-80px)] overflow-hidden md:rounded-[3rem] rounded-none border border-[var(--border-muted)] shadow-2xl md:mt-8 md:mx-8 mt-0 mx-0 mb-4 max-w-7xl lg:mx-auto relative'>
+    <div className='premium-chat-layout animate-fade-in mobile-responsive-height flex bg-[var(--bg-primary)] h-[calc(100vh-80px)] overflow-hidden md:rounded-[3rem] rounded-[2rem] border border-[var(--border-muted)] shadow-2xl md:mt-8 md:mx-8 mt-2 mx-2 mb-4 max-w-7xl lg:mx-auto relative'>
       {/* Search & List Sidebar */}
       <div className={`bg-[var(--bg-card)] flex-col border-r border-[var(--border-muted)] w-full lg:w-96 flex-shrink-0 relative ${activeConversation || activeGroup ? 'hidden lg:flex' : 'flex'}`}>
         <div className='p-6 md:p-8 border-b border-[var(--border-muted)] relative overflow-hidden'>
@@ -607,7 +607,7 @@ const Messages = () => {
             </div>
 
             {/* Content */}
-            <div className='flex-1 overflow-y-auto custom-scrollbar p-4 md:p-6 space-y-6'>
+            <div className='flex-1 overflow-y-auto custom-scrollbar p-6 space-y-6'>
               {messagesLoading && messages.length === 0 ? (
                 <div className='flex items-center justify-center h-full'>
                   <Loader2 size={32} className='animate-spin text-purple-500' />
@@ -627,9 +627,9 @@ const Messages = () => {
                     const isMe = msg.id_uti_1 === authUser.id
                     return (
                       <div key={msg.id || index} className={`flex flex-col w-full mb-6 ${isMe ? 'items-end' : 'items-start'}`}>
-                        <div className={`flex flex-row gap-3 ${isMe ? 'flex-row-reverse' : ''} max-w-[85%] md:max-w-[70%]`}>
+                        <div className={`flex flex-row gap-4 ${isMe ? 'flex-row-reverse' : ''} max-w-[80%] md:max-w-[70%]`}>
                           {!isMe && (
-                            <Avatar user={activeConversation.user} size='w-8 h-8' className='rounded-xl mt-1 shadow-md' />
+                            <Avatar user={activeConversation.user} size='w-8 h-8' className='rounded-xl mt-1 shadow-md flex-shrink-0' />
                           )}
                           <div className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
                             {!isMe && (
@@ -637,7 +637,7 @@ const Messages = () => {
                                 {activeConversation.user.prenom}
                               </span>
                             )}
-                            <div className={`p-4 md:p-5 rounded-[1.5rem] shadow-xl relative overflow-hidden ${isMe ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-tr-sm shadow-[0_10px_30px_rgba(168,85,247,0.2)]' : 'bg-[var(--bg-card)] border border-[var(--border-muted)] text-[var(--text-primary)] rounded-tl-sm backdrop-blur-md'}`}>
+                            <div className={`p-4 rounded-[1.5rem] shadow-xl relative ${isMe ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-tr-sm shadow-[0_10px_30px_rgba(168,85,247,0.2)]' : 'bg-[var(--bg-card)] border border-[var(--border-muted)] text-[var(--text-primary)] rounded-tl-sm backdrop-blur-md'}`}>
                               {msg.image && (
                                 <div className='rounded-2xl overflow-hidden mb-3 ring-1 ring-white/10 relative group'>
                                   <img src={getImageUrl(msg.image)} alt='Attachment' className='w-full max-h-64 object-cover cursor-pointer group-hover:scale-105 transition-transform duration-700' onClick={() => window.open(getImageUrl(msg.image), '_blank')} />
