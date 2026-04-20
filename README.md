@@ -1,5 +1,7 @@
 <div align="center">
 
+> ⚠️ **NOTICE**: This software is **PROPRIETARY** and **CLOSED SOURCE**. See [LICENSE](./LICENSE) for terms. Unauthorized use, redistribution, or reproduction is strictly prohibited.
+
 *Read this in other languages: [English](README.md), [Français](README.fr.md)*
 
 # 🌐 Tulk - The Next-Gen Premium Social Platform
